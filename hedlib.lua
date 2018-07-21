@@ -796,13 +796,13 @@ hedlib.ScanBagsSpell = function(spell) --OPENING
 	end
 end
 
-hedlib.PowerType={}
-
-for n, val in pairs(_G) do
-	if string.match(n,"^SPELL_POWER_.*") then
-		hedlib.PowerType[val]=string.gsub(n,"SPELL_POWER_","")
-	end
-end
+-- hedlib.PowerType={}
+--
+-- for n, val in pairs(_G) do
+-- 	if string.match(n,"^SPELL_POWER_.*") then
+-- 		hedlib.PowerType[val]=string.gsub(n,"SPELL_POWER_","")
+-- 	end
+-- end
 
 hedlib.Addon={}
 
@@ -842,7 +842,7 @@ for i,index,v in hedlib.orderedPairs(hedlib.COLORTABLE) do
   print(index, v)
 end]]
 
---[[function hedlib.dump(arr, indentLevel)
+function hedlib.dump(arr, indentLevel)
     local str = ""
     local indentStr = "#"
 
@@ -863,7 +863,7 @@ end]]
         end
     end
     return str
-end]]
+end
 
 
 function hedlib.dump( t )
