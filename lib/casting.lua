@@ -8,7 +8,7 @@ ns.lib = lib
 
 lib.UpdateCast = function(SpellID)
 	if SpellID==240022 then return end
-	cfg.Casting.name, _, _, _, cfg.Casting.caststart, cfg.Casting.castend, _, cfg.Casting.castid = UnitCastingInfo("player")
+	cfg.Casting.name, _, cfg.Casting.caststart, cfg.Casting.castend, _, cfg.Casting.castid = UnitCastingInfo("player")
 	if cfg.Casting.name and cfg.Casting.castid~=0 and cfg.Casting.castid~="0-0-0-0-0-0000000000" then
 		cfg.Casting.iscasting=true
 		cfg.Casting.caststart=cfg.Casting.caststart / 1e3
@@ -16,7 +16,7 @@ lib.UpdateCast = function(SpellID)
 		cfg.Casting.id=SpellID or lib.GetSpellIDbyName(cfg.Casting.name)
 		cfg.Casting.spell=cfg.id2spell[cfg.Casting.id] or cfg.Casting.id --"unknown"
 		cfg.Casting.cost=lib.GetSpellCost(cfg.Casting.spell)
-		
+
 		return true
 	else
 		cfg.Casting.iscasting=false
@@ -31,7 +31,7 @@ lib.UpdateCast = function(SpellID)
 end
 
 lib.UpdateChannel = function(SpellID)
-	cfg.Channeling.name, _, _, _, cfg.Channeling.startTime, cfg.Channeling.endTime = UnitChannelInfo("player")
+	cfg.Channeling.name, _, cfg.Channeling.startTime, cfg.Channeling.endTime = UnitChannelInfo("player")
 	if cfg.Channeling.name then
 		cfg.Channeling.ischanneling=true
 		cfg.Channeling.startTime=cfg.Channeling.startTime / 1e3
@@ -81,7 +81,7 @@ lib.IsChanneling = function()
 end
 
 lib.IsChannelingNoInterrupt = function()
-	if cfg.Channeling.ischanneling and cfg.Channeling.nointerupt then --and cfg.Channeling.endTime>GetTime() 
+	if cfg.Channeling.ischanneling and cfg.Channeling.nointerupt then --and cfg.Channeling.endTime>GetTime()
 		return true
 	else
 		return false
@@ -117,7 +117,7 @@ lib.SpellChannelingLeft=function(spell)
 		return math.max(0,cfg.Channeling.endTime-GetTime())
 	end
 	return 0
-	
+
 --[[	if lib.IsCasting() then
 		if (not spell) or (spell and cfg.spells[spell] and cfg.spells[spell].name==cfg.Casting.name) then
 			return math.max(0,(cfg.Casting.castend-GetTime()),lib.IsChannelingNoInterrupt() and (cfg.Channeling.endTime-GetTime()) or 0)
@@ -201,7 +201,7 @@ lib.IsLastSpell = function(spell)
 				return true
 			end
 		end
-		
+
 	end
 	return false
 end
@@ -246,7 +246,7 @@ local interrupt_old={}
 lib.UpdateTargetCast = function(SpellID)
 	SpellID=SpellID or false
 	hedlib.shallowCopy(cfg.Interrupt,interrupt_old)
-	cfg.Interrupt.name, _, _, _, cfg.Interrupt.caststart, cfg.Interrupt.castend, _, cfg.Interrupt.castid, cfg.Interrupt.notInterruptible = UnitCastingInfo("target")
+	cfg.Interrupt.name, _, _, cfg.Interrupt.caststart, cfg.Interrupt.castend, _, cfg.Interrupt.castid, cfg.Interrupt.notInterruptible = UnitCastingInfo("target")
 	if cfg.Interrupt.name then
 		--print(tostring(cfg.Interrupt.notInterruptible))
 		cfg.Interrupt.iscasting=true
@@ -270,7 +270,7 @@ lib.UpdateTargetChannel = function(SpellID)
 
 	SpellID=SpellID or false
 	hedlib.shallowCopy(cfg.Interrupt,interrupt_old)
-	cfg.Interrupt.name, _, _, _, cfg.Interrupt.caststart, cfg.Interrupt.castend, _, cfg.Interrupt.notInterruptible = UnitChannelInfo("target")
+	cfg.Interrupt.name, _, cfg.Interrupt.caststart, cfg.Interrupt.castend, _, cfg.Interrupt.notInterruptible = UnitChannelInfo("target")
 	if cfg.Interrupt.name then
 		--print(tostring(cfg.Interrupt.notInterruptible))
 		cfg.Interrupt.iscasting=true

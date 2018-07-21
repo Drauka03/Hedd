@@ -30,7 +30,7 @@ lib.classes["WARLOCK"][1] = function()
 	lib.AddSpell("Drain",{198590,689},"target")
 	lib.AddSpell("Soul Effigy",{205178}) --,"target"
 	lib.AddSpell("Life Tap",{1454})
-	
+
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Agony")
 	table.insert(cfg.plistdps,"Unstable Affliction5")
@@ -46,7 +46,7 @@ lib.classes["WARLOCK"][1] = function()
 	table.insert(cfg.plistdps,"Life Tap")
 	table.insert(cfg.plistdps,"Drain")
 	table.insert(cfg.plistdps,"end")
-		
+
 	cfg.plistaoe = {}
 	table.insert(cfg.plistaoe,"DP_max")
 	table.insert(cfg.plistaoe,"MB_nomax")
@@ -60,7 +60,7 @@ lib.classes["WARLOCK"][1] = function()
 	table.insert(cfg.plistaoe,"Sear")
 	table.insert(cfg.plistaoe,"end")
 	cfg.plistaoe=nil
-	
+
 	cfg.plist=cfg.plistdps
 
 	cfg.case = {
@@ -130,13 +130,13 @@ end
 lib.classpostload["WARLOCK"] = function()
 --	lib.AddSpell("Halo",{120517})
 --	lib.AddDispellPlayer("Cleanse",{4987},{"Disease","Poison"})
---	lib.AddDispellTarget("Dispell_target",{528},{"Magic"}) 
+--	lib.AddDispellTarget("Dispell_target",{528},{"Magic"})
 --	lib.SetInterrupt("Kick",{15487})
-	
+
 	lib.CD = function()
 		lib.CDadd("Kick")
 		lib.CDadd("Soul Effigy")
-		lib.CDaddTimers("Soul Effigy","Soul Effigy",function(self, event, unitID,spellname, rank, castid, SpellID)
+		lib.CDaddTimers("Soul Effigy","Soul Effigy",function(self, event, unitID, castid, SpellID)
 			if event=="UNIT_SPELLCAST_SUCCEEDED" and unitID=="player" and SpellID==lib.GetSpellID("Soul Effigy") then
 				CooldownFrame_SetTimer(self.cooldown,GetTime(),10*60,1)
 			end
@@ -145,6 +145,6 @@ lib.classpostload["WARLOCK"] = function()
 		--lib.CDaddBar("Soul Effigy",18*1.3)
 	end
 
-	
+
 end
 end

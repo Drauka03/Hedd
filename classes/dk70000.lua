@@ -48,11 +48,11 @@ lib.classes["DEATHKNIGHT"][2] = function () --Frost
 	lib.AddSpell("Frost Strike",{49143})
 	lib.AddSpell("Sindragosa",{152279},true)
 	lib.AddCleaveSpell("Sindragosa")
-	
+
 	lib.AddAura("Rime",59052,"buff","player")
 	lib.AddAura("Killing Machine",51124,"buff","player")
-	
-	
+
+
 	lib.SetTrackAura({"Sindragosa","Rime","Killing Machine"})
 
 	cfg.plistdps = {}
@@ -82,7 +82,7 @@ lib.classes["DEATHKNIGHT"][2] = function () --Frost
 	else
 		table.insert(cfg.plistdps,"Obliterate")
 	end
-	
+
 	--table.insert(cfg.plistdps,"Death Strike_proc")
 	--table.insert(cfg.plistdps,"Death Strike_heal")
 	table.insert(cfg.plistdps,"Frost Strike")
@@ -91,7 +91,7 @@ lib.classes["DEATHKNIGHT"][2] = function () --Frost
 	table.insert(cfg.plistdps,"end")
 
 	cfg.case = {
-	
+
 		["Frostscythe_aoe"] = function ()
 			if cfg.cleave_targets>=cfg.cleave_threshold then
 				return lib.SimpleCDCheck("Frostscythe")
@@ -99,7 +99,7 @@ lib.classes["DEATHKNIGHT"][2] = function () --Frost
 			return nil
 		end,
 		["Frost Strike_cap"] = function ()
-			if cfg.Power.now>=cfg.Power.max-20 then  --and lib.GetSpellCD("Sindragosa")>lib.GetSpellCD("Frost Strike")+15) --or cfg.Power.now==cfg.Power.max 
+			if cfg.Power.now>=cfg.Power.max-20 then  --and lib.GetSpellCD("Sindragosa")>lib.GetSpellCD("Frost Strike")+15) --or cfg.Power.now==cfg.Power.max
 				return lib.SimpleCDCheck("Frost Strike",lib.GetAura({"Sindragosa"}))
 			end
 			return nil
@@ -111,7 +111,7 @@ lib.classes["DEATHKNIGHT"][2] = function () --Frost
 			return nil
 		end,
 		["Frost Strike_cap_aoe"] = function ()
-			if cfg.Power.now>=cfg.Power.max-10 then 
+			if cfg.Power.now>=cfg.Power.max-10 then
 				return lib.SimpleCDCheck("Frost Strike")
 			end
 			return nil
@@ -140,15 +140,15 @@ lib.classes["DEATHKNIGHT"][2] = function () --Frost
 			end
 			return nil
 		end,
-		
+
 		["Glacial Advance_nocap"] = function ()
-			if cfg.Power.now<=cfg.Power.max-10 then 
+			if cfg.Power.now<=cfg.Power.max-10 then
 				return lib.SimpleCDCheck("Glacial Advance")
 			end
 			return nil
 		end,
 		["Obliterate_nocap"] = function ()
-			if cfg.Power.now<=cfg.Power.max-20 then 
+			if cfg.Power.now<=cfg.Power.max-20 then
 				return lib.SimpleCDCheck("Obliterate")
 			end
 			return nil
@@ -162,7 +162,7 @@ lib.classes["DEATHKNIGHT"][2] = function () --Frost
 			if cfg.talents["Sindragosa"] and lib.GetAura({"Sindragosa"})>0 and (cfg.Power.now-lib.GetSpellCD("Remorseless Winter")*15+10*lib.GetSpellCost("Remorseless Winter"))<35 then return nil end
 			return lib.SimpleCDCheck("Remorseless Winter")
 		end,
-		
+
 		["Howling Blast_rime"] = function ()
 			if cfg.talents["Sindragosa"] and lib.GetAura({"Sindragosa"})>0 and (cfg.Power.now-lib.GetSpellCD("Howling Blast")*15)<35 then return nil end
 			if lib.GetAura({"Rime"})>lib.GetSpellCD("Howling Blast") then
@@ -193,7 +193,7 @@ lib.classes["DEATHKNIGHT"][2] = function () --Frost
 			return nil
 		end,
 		["Frost Strike_cap76"] = function ()
-			if cfg.Power.now>=76 then 
+			if cfg.Power.now>=76 then
 				return lib.SimpleCDCheck("Frost Strike")
 			end
 			return nil
@@ -245,7 +245,7 @@ lib.classes["DEATHKNIGHT"][2] = function () --Frost
 			end
 		end,
 	}
-	
+
 	--[[if cfg.talents["Sindragosa"] then
 		lib.AddSpell("Sindragosa",{152279},true)
 		lib.SetAuraFunction("Sindragosa","OnApply",function()
@@ -271,7 +271,7 @@ lib.classes["DEATHKNIGHT"][2] = function () --Frost
 			return nil
 		end
 	end]]
-	
+
 	lib.AddRangeCheck({
 	{"Obliterate",nil},
 	{"Frost Strike",{1,0,1,1}},
@@ -305,12 +305,12 @@ lib.classes["DEATHKNIGHT"][3] = function () --Unholy
 	lib.AddSpell("Festering Strike",{85948}) -- Festering Strike
 	lib.AddSpell("Apocalypse",{220143}) -- Apocalypse
 	lib.AddSpell("Scourge Strike",{207311,55090}) -- Scourge Strike
-	
+
 	lib.AddSpell("Outbreak",{77575})
 	lib.AddAura("Virulent Plague",191587,"debuff","target")
 	lib.SetDOT("Virulent Plague")
 	lib.AddAura("Festering Wound",194310,"debuff","target")
-	
+
 	lib.AddSpell("Summon Gargoyle",{207349,49206}) -- Summon Gargoyle
 	--lib.ChangeSpellID("Summon Gargoyle",207349,cfg.talents["Dark Arbiter"])
 	lib.AddSpell("Raise Dead",{46584})
@@ -327,14 +327,14 @@ lib.classes["DEATHKNIGHT"][3] = function () --Unholy
 		lib.ReloadSpell("Death Coil")
 	end)]]
 	lib.AddSpell("Soul Reaper",{130736},"target") -- Soul Reaper
-	
+
 	lib.AddAura("Soul Reaper_player",215711,"buff","player")
 	lib.AddSpell("Death and Decay",{152280,43265})
 	--lib.ChangeSpellID("Death and Decay",152280,cfg.talents["Defile"])
 	lib.AddAura("Death and Decay",188290,"buff","player")
 	lib.AddCleaveSpell("Death and Decay",nil,{156000,52212})
 	lib.AddSpell("Epidemic",{207317})
-	
+
 	lib.SetTrackAura({"Necrosis","Sudden Doom","Festering Wound"}) --"Scourge of Worlds",
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Kick")
@@ -350,15 +350,15 @@ lib.classes["DEATHKNIGHT"][3] = function () --Unholy
 	table.insert(cfg.plistdps,"Blighted Rune Weapon")
 	if cfg.talents["Dark Arbiter"] then
 		table.insert(cfg.plistdps,"Death Coil_Arbiter")
-		table.insert(cfg.plistdps,"Death and Decay_aoe_Arbiter")	
+		table.insert(cfg.plistdps,"Death and Decay_aoe_Arbiter")
 		table.insert(cfg.plistdps,"Epidemic_aoe4_Arbiter")
-		table.insert(cfg.plistdps,"Scourge Strike_aoe_Arbiter")	
+		table.insert(cfg.plistdps,"Scourge Strike_aoe_Arbiter")
 		table.insert(cfg.plistdps,"Epidemic_aoe_Arbiter")
-		
+
 		table.insert(cfg.plistdps,"Festering Strike_Arbiter")
 		table.insert(cfg.plistdps,"Scourge Strike_Arbiter")
 	end
-	
+
 	table.insert(cfg.plistdps,"Summon Gargoyle")
 	table.insert(cfg.plistdps,"Death Coil_cap")
 	table.insert(cfg.plistdps,"Death Coil_proc")
@@ -367,17 +367,17 @@ lib.classes["DEATHKNIGHT"][3] = function () --Unholy
 		--table.insert(cfg.plistdps,"Festering Strike_Soul Reaper")
 		--table.insert(cfg.plistdps,"Scourge Strike_Soul Reaper")
 	end
-	
+
 	table.insert(cfg.plistdps,"Apocalypse_Festering Wound")
 	if cfg.talents["Defile"] then
 		table.insert(cfg.plistdps,"Death and Decay")
 	end
 
-	table.insert(cfg.plistdps,"Death and Decay_aoe")	
+	table.insert(cfg.plistdps,"Death and Decay_aoe")
 	table.insert(cfg.plistdps,"Epidemic_aoe4")
-	table.insert(cfg.plistdps,"Scourge Strike_aoe")	
-	table.insert(cfg.plistdps,"Epidemic_aoe")	
-	
+	table.insert(cfg.plistdps,"Scourge Strike_aoe")
+	table.insert(cfg.plistdps,"Epidemic_aoe")
+
 	table.insert(cfg.plistdps,"Festering Strike_Festering Wound")
 	if cfg.talents["Necrosis"] then
 		table.insert(cfg.plistdps,"Death Coil_Necrosis")
@@ -393,12 +393,12 @@ lib.classes["DEATHKNIGHT"][3] = function () --Unholy
 		table.insert(cfg.plistdps,"Death Coil")
 	end
 	table.insert(cfg.plistdps,"end")
-	
+
 	cfg.plist=cfg.plistdps
 
 	cfg.case = {
 		["Death and Decay_aoe"] = function ()
-			if cfg.cleave_targets>=2 then 
+			if cfg.cleave_targets>=2 then
 				return lib.SimpleCDCheck("Death and Decay")
 			end
 			return nil
@@ -444,13 +444,13 @@ lib.classes["DEATHKNIGHT"][3] = function () --Unholy
 			return nil
 		end,
 		["Death Coil_cap"] = function ()
-			if cfg.Power.now>=cfg.Power.max-24 then 
+			if cfg.Power.now>=cfg.Power.max-24 then
 				return lib.SimpleCDCheck("Death Coil")
 			end
 			return nil
 		end,
 		["Death Coil_proc"] = function ()
-			if lib.GetAura({"Sudden Doom"})>lib.GetSpellCD("Death Coil") then 
+			if lib.GetAura({"Sudden Doom"})>lib.GetSpellCD("Death Coil") then
 				if cfg.talents["Dark Arbiter"] then
 					if lib.GetAura({"Sudden Doom"})<lib.GetSpellCD("Summon Gargoyle")+1.5 then
 						return lib.SimpleCDCheck("Death Coil",lib.GetAura({"Necrosis"}))
@@ -492,10 +492,10 @@ lib.classes["DEATHKNIGHT"][3] = function () --Unholy
 			end
 			return nil
 		end,
-		
+
 		["Summon Gargoyle"] = function ()
 			if cfg.talents["Dark Arbiter"] then
-				if cfg.Power.now>=cfg.Power.max-20 then 
+				if cfg.Power.now>=cfg.Power.max-20 then
 					return lib.SimpleCDCheck("Summon Gargoyle")
 				end
 			else
@@ -503,8 +503,8 @@ lib.classes["DEATHKNIGHT"][3] = function () --Unholy
 			end
 			return nil
 		end,
-		
-		
+
+
 		--Arbiter
 		["Death Coil_Arbiter"] = function ()
 			if lib.GetSpellCD("Summon Gargoyle")==9999 or lib.GetSpellCD("Summon Gargoyle")<(180-cfg.gargoyle) then return nil end
@@ -526,7 +526,7 @@ lib.classes["DEATHKNIGHT"][3] = function () --Unholy
 		end,
 		["Death and Decay_aoe_Arbiter"] = function ()
 			if lib.GetSpellCD("Summon Gargoyle")==9999 or lib.GetSpellCD("Summon Gargoyle")<(180-cfg.gargoyle) then return nil end
-			if cfg.cleave_targets>=2 then 
+			if cfg.cleave_targets>=2 then
 				return lib.SimpleCDCheck("Death and Decay")
 			end
 			return nil
@@ -552,7 +552,7 @@ lib.classes["DEATHKNIGHT"][3] = function () --Unholy
 			end
 			return nil
 		end,
-		
+
 		["Outbreak_vp_re"] = function()
 			return lib.SimpleCDCheck("Outbreak",lib.GetAura({"Virulent Plague"})-cfg.des_update)
 		end,
@@ -597,7 +597,7 @@ lib.classes["DEATHKNIGHT"][3] = function () --Unholy
 		["Scourge Strike_Necrosis"] = function()
 			if lib.GetAura({"Necrosis"})>lib.GetSpellCD("Scourge Strike") then
 				if cfg.talents["Soul Reaper"] and lib.GetSpellCD("Soul Reaper")<lib.GetNumRunesReadyCD(4) then
-					return lib.SimpleCDCheck("Scourge Strike",lib.GetNumRunesReadyCD(4)) 
+					return lib.SimpleCDCheck("Scourge Strike",lib.GetNumRunesReadyCD(4))
 				else
 					return lib.SimpleCDCheck("Scourge Strike")
 				end
@@ -610,7 +610,7 @@ lib.classes["DEATHKNIGHT"][3] = function () --Unholy
 			return lib.SimpleCDCheck("Raise Dead")
 		end,
 	}
-	
+
 	lib.AddRangeCheck({
 	{"Festering Strike",nil},
 	{"Outbreak",{0,0,1,1}},
@@ -632,7 +632,7 @@ lib.classes["DEATHKNIGHT"][1] = function () --Blood
 	cfg.gcd_spell="Death Strike"
 	lib.AddSpell("Death's Caress",{195292})
 	lib.AddSpell("Blooddrinker",{206931},"target",nil,true)
-	
+
 	lib.AddSpell("Rune Tap",{194679},true)
 	lib.AddAura("Blood Plague",55078,"debuff","target")
 	lib.SetDOT("Blood Plague")
@@ -645,7 +645,7 @@ lib.classes["DEATHKNIGHT"][1] = function () --Blood
 	lib.AddCleaveSpell("Death and Decay",nil,{156000,52212})
 	lib.AddAura("Crimson Scourge",81141,"buff","player")
 	lib.AddAura("Bone Shield",195181,"buff","player")
-	
+
 	lib.AddSpell("Marrowrend",{195182})
 	lib.AddSpell("Heart Strike",{206930})
 	lib.AddCleaveSpell("Heart Strike")
@@ -671,7 +671,7 @@ lib.classes["DEATHKNIGHT"][1] = function () --Blood
 	table.insert(cfg.plistdps,"Death and Decay_Crimson Scourge")
 	table.insert(cfg.plistdps,"Death Strike_cap")
 	table.insert(cfg.plistdps,"Marrowrend_Bone Shield")
-	table.insert(cfg.plistdps,"Death and Decay_aoe")	
+	table.insert(cfg.plistdps,"Death and Decay_aoe")
 	table.insert(cfg.plistdps,"Death and Decay_Bone Shield")
 	table.insert(cfg.plistdps,"Heart Strike")
 	table.insert(cfg.plistdps,"Consumption")
@@ -679,11 +679,11 @@ lib.classes["DEATHKNIGHT"][1] = function () --Blood
 	--table.insert(cfg.plistdps,"Death Strike")
 	table.insert(cfg.plistdps,"Empower Rune Weapon")
 	table.insert(cfg.plistdps,"end")
-	
+
 	cfg.plistaoe = nil
 	cfg.case = {
 		["Death and Decay_aoe"] = function ()
-			if cfg.Power.now<=cfg.Power.max-10 and cfg.cleave_targets>=3 then 
+			if cfg.Power.now<=cfg.Power.max-10 and cfg.cleave_targets>=3 then
 				return lib.SimpleCDCheck("Death and Decay")
 			end
 			return nil
@@ -786,14 +786,14 @@ lib.classpostload["DEATHKNIGHT"] = function()
 		end
 		return nil
 	end
-	
+
 	cfg.case["Death Strike_cap"] = function ()
-		if cfg.Power.now>=cfg.Power.max-20 then 
+		if cfg.Power.now>=cfg.Power.max-20 then
 			return lib.SimpleCDCheck("Death Strike")
 		end
 		return nil
 	end,
-	
+
 	lib.AddAura("Death Strike",101568,"buff","player") -- Dark Succor
 	--[[lib.SetAuraFunction("Death Strike","OnApply",function()
 		lib.ReloadSpell("Death Strike")
@@ -807,18 +807,18 @@ lib.classpostload["DEATHKNIGHT"] = function()
 		end
 		return nil
 	end
-	
+
 	cfg.case["Death Strike_heal"] = function()
 		if lib.GetUnitHealth("player","percent")<=cfg.heal then
 			return lib.SimpleCDCheck("Death Strike")
 		end
 		return nil
 	end
-	
-	
+
+
 	lib.AddSpell("Icebound Fortitude",{48792},true)
 	lib.AddSpell("Anti-Magic Shell",{48707},true)
-	
+
 	lib.AddSpell("Death Pact",{48743},"player")
 	cfg.case["Death Pact"] = function ()
 		if lib.GetUnitHealth("player","percent")<=50 then
@@ -826,7 +826,7 @@ lib.classpostload["DEATHKNIGHT"] = function()
 		end
 		return nil
 	end
-	
+
 	lib.AddAurasAlias("DK_saves",{"Bone Shield","Icebound Fortitude","Rune Tap"})
 	cfg.case["Safe"] = function ()
 		if lib.GetUnitHealth("player","percent")<=cfg.heal then
@@ -847,7 +847,7 @@ lib.classpostload["DEATHKNIGHT"] = function()
 		lib.CDadd("Glacial Advance")
 		lib.CDadd("Apocalypse")
 		lib.CDadd("Summon Gargoyle")
-		lib.CDaddTimers("Summon Gargoyle","Summon Gargoyle",function(self, event, unitID,spellname, rank, castid, SpellID)
+		lib.CDaddTimers("Summon Gargoyle","Summon Gargoyle",function(self, event, unitID, castid, SpellID)
 			if event=="UNIT_SPELLCAST_SUCCEEDED" and unitID=="player" and SpellID==lib.GetSpellID("Summon Gargoyle") then
 				CooldownFrame_SetTimer(self.cooldown,GetTime(),cfg.gargoyle,1)
 			end
@@ -865,19 +865,19 @@ lib.classpostload["DEATHKNIGHT"] = function()
 		lib.CDadd("Epidemic")
 		lib.CDadd("Dancing Rune Weapon")
 		lib.CDadd("Blighted Rune Weapon")
-		
+
 		--lib.CDadd("Hungering Rune Weapon")
 		lib.CDadd("Empower Rune Weapon")
 		lib.CDadd("Sindragosa")
 		lib.CDadd("Blood Tap",nil,true)
-		
+
 		lib.CDadd("Blooddrinker")
 		lib.CDadd("Vampiric Blood")
 		lib.CDadd("Mark of Blood")
 		lib.CDadd("Icebound Fortitude")
 		lib.CDadd("Rune Tap")
 		lib.CDadd("Anti-Magic Shell",nil,nil,"turnoff")
-		
+
 	end
 	cfg.onpower=true
 end

@@ -46,7 +46,7 @@ lib.classes["SHAMAN"][1] = function() --Elem
 	lib.SetDOT("Flame Shock")
 	lib.AddAura("Lava Surge",77762,"buff","player")
 	lib.SetTrackAura("Lava Surge")
-		
+
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Shear")
 	table.insert(cfg.plistdps,"Cleanse")
@@ -73,7 +73,7 @@ lib.classes["SHAMAN"][1] = function() --Elem
 	table.insert(cfg.plistdps,"end")
 
 	cfg.plistaoe = nil
-		
+
 	cfg.plist=cfg.plistdps
 
 	cfg.case = {
@@ -145,7 +145,7 @@ lib.classes["SHAMAN"][1] = function() --Elem
 	lib.AddRangeCheck({
 	{"Lightning Bolt",nil},
 	})
-	
+
 	return true
 end
 lib.classes["SHAMAN"][2] = function() --Enh
@@ -201,7 +201,7 @@ lib.classes["SHAMAN"][2] = function() --Enh
 	lib.AddAura("Stormlash",195222,"buff","player","any")
 	lib.AddAura("Landslide",202004,"buff","player")
 	lib.SetTrackAura({"Stormbringer","Hot Hand","Windsong","Crash Lightning"})
-	
+
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Shear")
 	table.insert(cfg.plistdps,"Cleanse")
@@ -262,14 +262,14 @@ lib.classes["SHAMAN"][2] = function() --Enh
 	table.insert(cfg.plistdps,"end")
 
 	cfg.plistaoe = nil
-		
+
 	cfg.plist=cfg.plistdps
 
 	cfg.case = {
 		["Boulderfist_max"] = function ()
 			if cfg.Power.now>=cfg.Power.max-25 then return nil end
 			return lib.SimpleCDCheck("Rockbiter",lib.GetSpellCD("Rockbiter",nil,lib.GetSpellMaxCharges("Rockbiter")))
-			
+
 --			if lib.GetSpellCharges("Rockbiter")>1 then return lib.SimpleCDCheck("Rockbiter") end
 --			return nil
 		end,
@@ -349,14 +349,14 @@ lib.classes["SHAMAN"][2] = function() --Enh
 		["Doom Winds"] = function()
 			--if cfg.Power.now>=cfg.cap+lib.GetSpellCost("Lava Lash") then return nil end
 			if not lib.inrange("Lava Lash") then return nil end
-			if lib.GetAura({"Flametongue"})>lib.GetSpellCD("Doom Winds") and (not cfg.talents["Hailstorm"] or (cfg.talents["Hailstorm"] and lib.GetAura({"Frostbrand"})>lib.GetSpellCD("Doom Winds"))) then --lib.GetAura({"Stormlash"})>lib.GetSpellCD("Doom Winds") and 
+			if lib.GetAura({"Flametongue"})>lib.GetSpellCD("Doom Winds") and (not cfg.talents["Hailstorm"] or (cfg.talents["Hailstorm"] and lib.GetAura({"Frostbrand"})>lib.GetSpellCD("Doom Winds"))) then --lib.GetAura({"Stormlash"})>lib.GetSpellCD("Doom Winds") and
 				return lib.SimpleCDCheck("Doom Winds")
 			end
 			return nil
 		end,
 		["Windsong"] = function()
 			if not lib.inrange("Lava Lash") then return nil end
-			if lib.GetAura({"Flametongue"})>lib.GetSpellCD("Windsong") and (not cfg.talents["Hailstorm"] or (cfg.talents["Hailstorm"] and lib.GetAura({"Frostbrand"})>lib.GetSpellCD("Windsong"))) then --lib.GetAura({"Stormlash"})>lib.GetSpellCD("Windsong") and 
+			if lib.GetAura({"Flametongue"})>lib.GetSpellCD("Windsong") and (not cfg.talents["Hailstorm"] or (cfg.talents["Hailstorm"] and lib.GetAura({"Frostbrand"})>lib.GetSpellCD("Windsong"))) then --lib.GetAura({"Stormlash"})>lib.GetSpellCD("Windsong") and
 				return lib.SimpleCDCheck("Windsong")
 			end
 			if lib.GetAura({"Doom Winds"})>lib.GetSpellCD("Windsong") then
@@ -454,9 +454,9 @@ lib.classes["SHAMAN"][2] = function() --Enh
 			end
 			return nil
 		end,
-		
+
 		["Lava Lash_40"] = function()
-			if cfg.Power.now>=40 then --cfg.cap+lib.GetSpellCost("Lava Lash") 
+			if cfg.Power.now>=40 then --cfg.cap+lib.GetSpellCost("Lava Lash")
 				return lib.SimpleCDCheck("Lava Lash")
 			end
 			return nil
@@ -475,23 +475,23 @@ lib.classes["SHAMAN"][2] = function() --Enh
 	{"Feral Lunge",{1,1,0,1}},
 	{"Lightning Bolt",{0,0,1,1}},
 	})
-	
-	--cfg.spells_single={"Lightning Bolt"}	
+
+	--cfg.spells_single={"Lightning Bolt"}
 	return true
 end
 
 lib.classpostload["SHAMAN"] = function()
 	lib.AddDispellPlayer("Cleanse",{51886},{"Curse"}) -- Cleanse Spirit
-	lib.AddDispellTarget("Purge",{370},{"Magic"}) 
+	lib.AddDispellTarget("Purge",{370},{"Magic"})
 	lib.SetInterrupt("Shear",{57994})
-	
+
 	cfg.case["Astral Shift"] = function ()
 		if lib.GetUnitHealth("player","percent")<=50 then
 			return lib.SimpleCDCheck("Astral Shift")
 		end
 		return nil
 	end
-	
+
 	cfg.case["Healing Surge"] = function ()
 		if lib.GetUnitHealth("player","percent")<=50 and cfg.Power.now>=20 then
 			return lib.SimpleCDCheck("Healing Surge")
@@ -504,15 +504,15 @@ lib.classpostload["SHAMAN"] = function()
 	function Heddclassevents.PLAYER_ENTERING_WORLD()
 		lib.UpdateTotem(1)
 	end
-	
+
 	function Heddclassevents.PLAYER_TOTEM_UPDATE(...)
 		lib.UpdateTotem(1)
 	end
-	
+
 	lib.myonupdate = function()
 		lib.GroundUpdate()
 	end
-	
+
 	lib.CD = function()
 		lib.CDadd("Shear")
 		lib.CDadd("Purge")
@@ -535,13 +535,13 @@ lib.classpostload["SHAMAN"] = function()
 		--lib.CDadd("Earthen Spike")
 		lib.CDadd("Totem Mastery")
 		lib.CDadd("Feral Spirit")
-		lib.CDaddTimers("Feral Spirit","Feral Spirit",function(self, event, unitID,spellname, rank, castid, SpellID)
+		lib.CDaddTimers("Feral Spirit","Feral Spirit",function(self, event, unitID, castid, SpellID)
 			if event=="UNIT_SPELLCAST_SUCCEEDED" and unitID=="player" and SpellID==lib.GetSpellID("Feral Spirit") then
 				CooldownFrame_SetTimer(self.cooldown,GetTime(),15,1)
 			end
 		end
 		,{"UNIT_SPELLCAST_SUCCEEDED"})
-		
+
 		lib.CDadd("Feral Lunge")
 		lib.CDadd("Heroism")
 		lib.CDaddTimers("Heroism","Exhaustion","auras",nil,true,{0, 1, 0})

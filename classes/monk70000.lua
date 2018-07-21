@@ -659,7 +659,7 @@ lib.classpostload["MONK"] = function()
 		lib.CDadd("Storm, Earth, and Fire")
 		if cfg.spells["Xuen"] then
 			lib.CDadd("Xuen")
-			lib.CDaddTimers("Xuen","Xuen",function(self, event, unitID,spellname, rank, castid, SpellID)
+			lib.CDaddTimers("Xuen","Xuen",function(self, event, unitID, castid, SpellID)
 				if event=="UNIT_SPELLCAST_SUCCEEDED" and unitID=="player" and SpellID==lib.GetSpellID("Xuen") then
 					CooldownFrame_SetTimer(self.cooldown,GetTime(),45,1)
 				end

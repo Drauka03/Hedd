@@ -31,9 +31,9 @@ end
 
 lib.inrange = function(spell)
 	if cfg.GUID["target"]==0 then return true end
-	if cfg.spells[spell] and cfg.spells[spell].spellbook then 
+	if cfg.spells[spell] and cfg.spells[spell].spellbook then
 		if IsSpellInRange(lib.FindSpellBookSlotBySpellID(spell),BOOKTYPE_SPELL,"target")==1 then
-			if not cfg.spells[spell].inrange then 
+			if not cfg.spells[spell].inrange then
 				lib.UpdateSpell(spell)
 				cfg.Update=true
 			end
@@ -41,7 +41,7 @@ lib.inrange = function(spell)
 			return true
 		else
 			if cfg.spells[spell].inrange then
-				lib.UpdateSpell(spell)			
+				lib.UpdateSpell(spell)
 				cfg.Update=true
 			end
 			cfg.spells[spell].inrange=false
@@ -61,7 +61,7 @@ lib.GroundUpdate = function()
 	else
 		cfg.onGround=true
 	end
-	
+
 	if onground~=cfg.onGround then
 		cfg.Update=true
 		return true
@@ -74,14 +74,14 @@ lib.UpdateShape = function()
 	hedlib.shallowCopy(cfg.shape,shape_old)
 	cfg.shape.form=GetShapeshiftForm()
 	if cfg.shape.form and cfg.shape.form>0 then
-		cfg.shape.SpellID=select(5,GetShapeshiftFormInfo(cfg.shape.form))
+		cfg.shape.SpellID=select(4,GetShapeshiftFormInfo(cfg.shape.form))
 	else
 		cfg.shape.SpellID=0
 	end
 	cfg.shape.id=GetShapeshiftFormID()
 	if cfg.shape.id and cfg.shapes[cfg.shape.id] then
 		cfg.shape.name=cfg.shapes[cfg.shape.id]
-	else 
+	else
 		cfg.shape.name="human"
 	end
 	if hedlib.ArrayNotChanged(cfg.shape,shape_old) then
@@ -130,7 +130,7 @@ end
 
 lib.ininstance=function()
 	if cfg.instance=="raid" or cfg.instance=="party" then
-		return true 
+		return true
 	else
 		return nil
 	end
@@ -514,7 +514,7 @@ function(self, event,  ...)
 				_, _, _, _, _, _, _, _, _, _, _, _, _, _, cfg.Bear_D5S_Frame.damage, _, _, _, _, cfg.Bear_D5S_Frame.absorbed = ...
 				cfg.Bear_D5S_Frame:UpdateDamage()
 			end
-		end 
+		end
 	end
 end)
 
@@ -547,10 +547,10 @@ end)
 lib.DumpOutfits=function()
 	for i=1,GetNumEquipmentSets() do
 		local name,icon,index = GetEquipmentSetInfo(i)
-		
+
 		print(i.." "..name.." "..index)
 	end
-end	
+end
 
 lib.UpdateOutfits=function()
 	cfg.Outfits={}
@@ -558,4 +558,4 @@ lib.UpdateOutfits=function()
 		local name,icon,index = GetEquipmentSetInfo(i)
 		cfg.Outfits[index]=name
 	end
-end	
+end
