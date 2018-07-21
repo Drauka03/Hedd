@@ -11,7 +11,8 @@ if cfg.Game.release>6 then
 lib.classes["MONK"] = {}
 local t,s,n
 lib.classpreload["MONK"] = function()
-	lib.SetPower("ENERGY")
+	-- TODO: Change SetPower for all classes
+	lib.SetPower("Energy")
 	cfg.cleave_threshold=3
 end
 lib.classes["MONK"][1] = function() --Brewmaster
@@ -272,7 +273,7 @@ lib.classes["MONK"][3] = function() --Windwalker
 	lib.AddAura("Mark of the Crane",228287,"debuff","target")
 	lib.AddAura("Blackout Kick!",116768,"buff","player")
 	lib.AddSpell("Tiger Palm",{100780})
-	lib.FixSpell("Tiger Palm","cost")
+	-- lib.FixSpell("Tiger Palm","cost")
 	lib.AddSpell("Fists of Fury",{113656},nil,nil,true)
 	lib.AddCleaveSpell("Fists of Fury",nil,{117418})
 	lib.AddSpell("Spinning Crane Kick",{101546},true)

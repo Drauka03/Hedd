@@ -121,7 +121,7 @@ lib.basicevents = function()
 			lib.UpdateSpell("gcd")
 			lib.UpdateCast(spellId)
 			-- lib.SpellSwitchMode()
-			lib.UpdatePower(cfg.Power.type)
+			lib.UpdatePower(cfg.Power.token)
 			cfg.Update=true
 		end
 	end
@@ -140,7 +140,7 @@ lib.basicevents = function()
 			if cfg.Casting.castId==castId then
 				if cfg.debugspells then print(GetTime().." UNIT_SPELLCAST_INTERRUPTED "..spellName.." "..spellId) end
 				lib.UpdateCast(spellId)
-				lib.UpdatePower(cfg.Power.type)
+				lib.UpdatePower(cfg.Power.token)
 				--lib.UpdateAllSpells()
 			end
 			cfg.Update=true
@@ -162,7 +162,7 @@ lib.basicevents = function()
 			if cfg.Casting.castId~=castId then
 				if cfg.debugspells then print(GetTime().." UNIT_SPELLCAST_DELAYED "..spellName.." "..spellId) end
 				lib.UpdateCast(spellId)
-				lib.UpdatePower(cfg.Power.type)
+				lib.UpdatePower(cfg.Power.token)
 				--lib.UpdateAllSpells()
 			end
 			cfg.Update=true
@@ -185,7 +185,7 @@ lib.basicevents = function()
 			if cfg.spells[cfg.id2spell[spellId]] and cfg.spells[cfg.id2spell[spellId]].oncast then cfg.spells[cfg.id2spell[spellId]].oncast(spellId) end
 			lib.UpdateCast(spellId)
 			lib.SaveCast(spellId,spellName)
-			lib.UpdatePower(cfg.Power.type)
+			lib.UpdatePower(cfg.Power.token)
 			if cfg.Cleave and cfg.Id2Cleave[spellId] then
 				lib.ResetCleave(cfg.Id2Cleave[spellId])
 			end
@@ -245,7 +245,6 @@ lib.basicevents = function()
 		end
 	end
 
-	-- TODO: Probably need to fix this spellName reference
 	function Heddevents.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, eventtype,_,sourceGUID,sourceName,_,_,destGUID,destName,destFlags,_,spellId,spellName,_,_,interrupt)
 		if eventtype == "UNIT_DIED" or eventtype == "UNIT_DESTROYED" or eventtype == "UNIT_DISSIPATES" then
 			lib.RemoveNPC(destGUID)

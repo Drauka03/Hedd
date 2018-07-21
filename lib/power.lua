@@ -6,13 +6,14 @@ ns.lib = lib
 
 local power_old={}
 lib.SetPower = function(powerType)
-	if powerType and _G[powerType] then
+	if powerType then
 		cfg.Power.type=powerType
-		cfg.Power.type_num=_G["SPELL_POWER_"..powerType]
+		cfg.Power.type_num=lib.GetPowerTypeNum(powerType)
 	else
-		cfg.Power.type_num,cfg.Power.type=UnitPowerType("player")
-		powerType=cfg.Power.type
+		cfg.Power.type_num,cfg.Power.token=UnitPowerType("player")
 	end
+	-- print("Setting cfg.Power.type to " .. cfg.Power.type)
+	-- print("Setting cfg.Power.type_num to " .. cfg.Power.type_num)
 
 	lib.UpdatePower()
 	cfg.Update=true
@@ -28,7 +29,8 @@ end
 
 lib.Regen_Orig=lib.Regen
 
-lib.UpdatePower = function(powerType)
+lib.UpdatePower = function(powerToken)
+	powerType = lib.PowerTokenToType(powerToken)
 	powerType=powerType or cfg.Power.type
 	if cfg.Power.type~=powerType then
 		lib.UpdateAltPower(powerType)
@@ -75,6 +77,28 @@ lib.PowerMax = function()
 	return cfg.Power.max
 end
 
+lib.GetPowerTypeNum = function(powerType)
+	return Enum.PowerType[powerType]
+end
+
+lib.GetPowerTypeName = function(powerTypeNum)
+	for k, v in Enum.PowerType do
+		if v == powerTypeNum then
+			return k
+		end
+	end
+	return nil
+end
+
+lib.PowerTokenToType = function(powerToken)
+	if powerToken == cfg.Power.token then
+		return cfg.Power.type
+	elseif powerToken == cfg.AltPower.token then
+		return cfg.AltPower.type
+	end
+	return nil
+end
+
 lib.GeneralPowerType = function(powerType)
 	if type(powerType) == "string" then
 		if powerType == cfg.Power.type then
@@ -116,8 +140,7 @@ end
 
 altpower_old={}
 lib.UpdateAltPower = function(powerType)
-	-- if cfg.AltPower.type_num==cfg.Power.type_num or cfg.AltPower.type~=powerType then return end
-	if cfg.AltPower.type_num==cfg.Power.type_num then return end
+	if cfg.AltPower.type_num==cfg.Power.type_num or cfg.AltPower.type~=powerType then return end
 	hedlib.shallowCopy(cfg.AltPower,altpower_old)
 	cfg.AltPower.now = UnitPower("player", cfg.AltPower.type_num)
 	cfg.AltPower.max = UnitPowerMax("player", cfg.AltPower.type_num)

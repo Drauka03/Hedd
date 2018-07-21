@@ -6,37 +6,37 @@ local cfg = ns.cfg
 local lib = _G["HEDD_lib"] or CreateFrame("Frame","HEDD_lib")
 ns.lib = lib
 
-lib.UpdateSpellTT = function(spell)
-	if spell and cfg.spells[spell] then
-		if not cfg.spells[spell].has_charges then
-			if cfg.spells[spell].tt.fullcd then
-				cfg.spells[spell].fullcd=hedlib.tofloat(_G[cfg.spells[spell].tt.fullcd]:GetText() or " ")
-			else
-				cfg.spells[spell].fullcd=0
-			end
-		end
-
-		-- if cfg.spells[spell].powerType=="cd" then
-		-- 	cfg.spells[spell].cost=0
-		-- 	return
-		-- end
-
-		if cfg.spells[spell].cost_real then
-			cfg.spells[spell].cost=cfg.spells[spell].cost_real
-		else
-			if cfg.spells[spell].tt.cost then
-				cfg.spells[spell].tt.cost_string=_G[cfg.spells[spell].tt.cost]:GetText() or ""
-				cfg.spells[spell].cost=0
-				for _, pattern in pairs(cfg.spells[spell].tt.pattern_cost) do
-					if string.find(cfg.spells[spell].tt.cost_string,pattern) then
-						cfg.spells[spell].cost=hedlib.toint(cfg.spells[spell].tt.cost_string)
-						break
-					end
-				end
-			end
-		end
-	end
-end
+-- lib.UpdateSpellTT = function(spell)
+-- 	if spell and cfg.spells[spell] then
+-- 		if not cfg.spells[spell].has_charges then
+-- 			if cfg.spells[spell].tt.fullcd then
+-- 				cfg.spells[spell].fullcd=hedlib.tofloat(_G[cfg.spells[spell].tt.fullcd]:GetText() or " ")
+-- 			else
+-- 				cfg.spells[spell].fullcd=0
+-- 			end
+-- 		end
+--
+-- 		-- if cfg.spells[spell].powerType=="cd" then
+-- 		-- 	cfg.spells[spell].cost=0
+-- 		-- 	return
+-- 		-- end
+--
+-- 		if cfg.spells[spell].cost_real then
+-- 			cfg.spells[spell].cost=cfg.spells[spell].cost_real
+-- 		else
+-- 			if cfg.spells[spell].tt.cost then
+-- 				cfg.spells[spell].tt.cost_string=_G[cfg.spells[spell].tt.cost]:GetText() or ""
+-- 				cfg.spells[spell].cost=0
+-- 				for _, pattern in pairs(cfg.spells[spell].tt.pattern_cost) do
+-- 					if string.find(cfg.spells[spell].tt.cost_string,pattern) then
+-- 						cfg.spells[spell].cost=hedlib.toint(cfg.spells[spell].tt.cost_string)
+-- 						break
+-- 					end
+-- 				end
+-- 			end
+-- 		end
+-- 	end
+-- end
 
 local function gsi_inner(...)
 	if ... == "" then
@@ -133,6 +133,8 @@ lib.AddSpell = function(spell,ids,addbuff,cost_real,nointerupt,nousecheck,noplay
 				end
 				cfg.spells[spell].count=GetSpellCount(id)
 				cfg.spells[spell].cost_real=cost_real or false
+				-- print("Setting fullcd to 0 for " .. spell .. " (" .. id .. ")")
+				cfg.spells[spell].fullcd = 0
 
 				lib.FindSpellBookSlotBySpellID(spell)
 				lib.UpdateSpell(spell)
@@ -203,10 +205,8 @@ lib.ReloadSpell=function(spell,ids,...)
 			cfg.spells[ids]=nil
 			cfg.spells[spell]=nil
 		end
-		lib.AddSpell(spell,ids,...)
-	else
-		lib.AddSpell(spell,ids,...)
 	end
+	lib.AddSpell(spell,ids,...)
 end
 
 lib.GetCurrentSpellPowerCost = function(spell)
@@ -230,7 +230,6 @@ end
 lib.SetSpellCost = function(spell,powercost,powertype)
 	if cfg.spells[spell] then
 		cfg.spells[spell].cost_real=powercost
-		-- TODO: This is probably broken now
 		cfg.spells[spell].powerType=powertype
 	end
 end
@@ -336,6 +335,13 @@ lib.UpdateSpell = function(spell,now)
 		cfg.spells[spell].isUsable,cfg.spells[spell].notEnoughMana = IsUsableSpell(cfg.spells[spell].id)
 		cfg.spells[spell].castingTime = select(4,GetSpellInfo(cfg.spells[spell].id))/1000
 		if cfg.spells[spell].castingTime<0 then cfg.spells[spell].castingTime=0 end
+		if lib.IsLastSpell(spell) and cfg.spells[spell].fullcd == 0 then
+			local sfcd = lib.GetSpellFullCD(spell)
+			if sfcd ~= 0 then
+				if cfg.debugspells then print("Updating full cooldown for " .. spell .. " to " .. sfcd) end
+				cfg.spells[spell].fullcd = sfcd
+			end
+		end
 
 		--if not hedlib.ArrayNotChanged(cfg.spells[spell],spells_old) or now then
 		if now or lib.CheckSpellChanged(spell) then
@@ -465,7 +471,6 @@ lib.SimpleCDCheck = function (spell, Wait,nousecheck,nothing2do,force) -- nomana
 	nothing2do=nothing2do or 0
 	nousecheck=nousecheck or cfg.nousecheck
 	nousecheck=nousecheck or cfg.spells[spell].nousecheck
-	-- TODO: This is probably broken now
 	if (cfg.spells[spell].generalPowerType=="power" and (cfg.spells[spell].isUsable or cfg.spells[spell].notEnoughMana)) --cfg.spells[spell].cost<=cfg.Power.now
 	or ((cfg.spells[spell].generalPowerType=="alt" or cfg.spells[spell].generalPowerType=="none") and cfg.spells[spell].isUsable)
 	or (cfg.class=="DEATHKNIGHT" and cfg.spells[spell].generalPowerType=="alt")
@@ -525,22 +530,22 @@ lib.GetSpellCD = function (spell,noregen,charge)
 		if cfg.spells[spell].generalPowerType=="alt" and cfg.class=="DEATHKNIGHT" then
 			cfg.spells[spell].tl=math.max(cfg.spells[spell].tl,lib.GetNumRunesReadyCD(cfg.spells[spell].cost))
 		end
-		-- if lib.SpellCasting(spell) then
-		-- 	if cfg.spells[spell].has_charges then
-		-- 		if cfg.spells[spell].charges==1 then
-		-- 			cfg.spells[spell].tl=math.max(cfg.spells[spell].tl,lib.SpellCastingLeft()+cfg.spells[spell].fullcd - (GetTime() - cfg.spells[spell].charges_start))
-		-- 		end
-		-- 	else
-		-- 		if cfg.spells[spell].fullcd>0 then
-		-- 			cfg.spells[spell].tl=math.max(cfg.spells[spell].tl,lib.SpellCastingLeft()+cfg.spells[spell].fullcd)
-		-- 		end
-		-- 	end
-		-- 	if charge then charge=charge+1 end
-		-- end
-		-- if charge and charge>cfg.spells[spell].charges_max then charge=cfg.spells[spell].charges_max end
-		-- if charge and cfg.spells[spell].has_charges and charge>cfg.spells[spell].charges then
-		-- 	cfg.spells[spell].tl=cfg.spells[spell].tl+cfg.spells[spell].charges_start+cfg.spells[spell].fullcd-GetTime()+(charge-cfg.spells[spell].charges-1)*(cfg.spells[spell].fullcd+cfg.spells[spell].castingTime)
-		-- end
+		if lib.SpellCasting(spell) then
+			if cfg.spells[spell].has_charges then
+				if cfg.spells[spell].charges==1 then
+					cfg.spells[spell].tl=math.max(cfg.spells[spell].tl,lib.SpellCastingLeft()+cfg.spells[spell].fullcd - (GetTime() - cfg.spells[spell].charges_start))
+				end
+			else
+				if cfg.spells[spell].fullcd>0 then
+					cfg.spells[spell].tl=math.max(cfg.spells[spell].tl,lib.SpellCastingLeft()+cfg.spells[spell].fullcd)
+				end
+			end
+			if charge then charge=charge+1 end
+		end
+		if charge and charge>cfg.spells[spell].charges_max then charge=cfg.spells[spell].charges_max end
+		if charge and cfg.spells[spell].has_charges and charge>cfg.spells[spell].charges then
+			cfg.spells[spell].tl=cfg.spells[spell].tl+cfg.spells[spell].charges_start+cfg.spells[spell].fullcd-GetTime()+(charge-cfg.spells[spell].charges-1)*(cfg.spells[spell].fullcd+cfg.spells[spell].castingTime)
+		end
 		return cfg.spells[spell].tl
 	else
 		return 9999
@@ -600,7 +605,11 @@ end
 lib.GetSpellFullCD = function (spell)
 	if spell=="gcd" then spell=cfg.gcd_spell end
 	if cfg.spells[spell] then
-		return cfg.spells[spell].fullcd
+		if cfg.spells[spell].fullcd ~= 0 then
+			return cfg.spells[spell].fullcd
+		end
+		local start, duration, enabled, _ = GetSpellCooldown(cfg.spells[spell].id)
+		return duration or 0
 	end
 	return 0
 end
@@ -612,9 +621,7 @@ end
 	return 0
 end]]
 
--- TODO: Fix this
 lib.GetSpellCost = function (spell)
-	-- TODO: This is probably broken now
 	if cfg.spells[spell] and (cfg.spells[spell].powerType=="power" or cfg.spells[spell].powerType=="alt") then
 		return cfg.spells[spell].cost
 	end
@@ -658,15 +665,6 @@ lib.GetSpellCT = function (spell)
 		return cfg.spells[spell].castingTime
 	end
 	return 0
-end
-
-lib.GetPowerTypeName = function(powerTypeNum)
-	for k, v in Enum.PowerType do
-		if v == powerTypeNum then
-			return k
-		end
-	end
-	return nil
 end
 
 lib.SetSpellFunction = function(spell,event,func)
@@ -758,7 +756,6 @@ lib.PrintSpell=function(spell)
 
 		tmp2=tmp2.."isUsable="..tostring(cfg.spells[spell].isUsable).."\n"
 		tmp2=tmp2.."notEnoughMana="..tostring(cfg.spells[spell].notEnoughMana).."\n"
-		-- TODO: This is probably broken now
 		tmp2=tmp2.."powertype="..tostring(cfg.spells[spell].powerType).."\n"
 		tmp2=tmp2.."cost="..cfg.spells[spell].cost.."\n"
 		print(tmp2)
