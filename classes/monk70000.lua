@@ -19,11 +19,11 @@ lib.classes["MONK"][1] = function() --Brewmaster
 		cfg.stagger = UnitStagger("player")
 		cfg.stagger_hp_old = cfg.stagger_hp
 		cfg.stagger_hp = format("%i",(100/UnitHealthMax("player")*cfg.stagger))
-		
+
 		cfg.stagger_hp_ps=cfg.stagger_hp/10
-		
+
 		Heddmain.info:SetText(cfg.stagger_hp)
-		if cfg.stagger_hp_old~=cfg.stagger_hp then 
+		if cfg.stagger_hp_old~=cfg.stagger_hp then
 			cfg.Update=true
 		end
 	end
@@ -35,7 +35,7 @@ lib.classes["MONK"][1] = function() --Brewmaster
 		["Blackout Combo"]=IsPlayerSpell(196736), --Chi Explosion
 		--["RJW"]=IsPlayerSpell(116847) --Rushing Jade Wind
 	}
-	
+
 	lib.AddSpell("Keg Smash",{121253},"target") --Keg Smash
 	lib.AddSpell("Exploding Keg",{214326},"target")
 	lib.AddCleaveSpell("Keg Smash")
@@ -46,7 +46,7 @@ lib.classes["MONK"][1] = function() --Brewmaster
 	lib.AddSpell("Rushing Jade Wind",{116847},true)
 	lib.AddSpell("Healing Elixir",{122281})
 	lib.AddCleaveSpell("Rushing Jade Wind",nil,{148187})
-	
+
 	--lib.AddSpell("Haze",{115180}) --Dizzying Haze
 	lib.AddSpell("Breath of Fire",{115181},"target") -- Breath of Fire
 	lib.AddAura("Breath of Fire",123725,"debuff","target") -- Breath of Fire
@@ -64,9 +64,9 @@ lib.classes["MONK"][1] = function() --Brewmaster
 	lib.AddAura("Fortifying Brew",120954)
 	lib.AddSpell("Zen Meditation",{115176},true)
 	lib.AddAuras("Stagger",{124274,124273},"debuff","player","player")
-	
+
 	lib.SetDOT("Breath")
-	
+
 	lib.SetTrackAura({"Stagger1","Stagger2","Blackout Combo"})
 	lib.AddTracking("Ironskin Brew",{255,0,255})
 	cfg.plistdps = {}
@@ -94,11 +94,11 @@ lib.classes["MONK"][1] = function() --Brewmaster
 	table.insert(cfg.plistdps,"Chi-Wave")
 	table.insert(cfg.plistdps,"Tiger Palm_65")
 	table.insert(cfg.plistdps,"end")
-	
+
 	cfg.plistaoe = nil
 	cfg.plist=cfg.plistdps
-	
-	
+
+
 	cfg.case = {
 		["Ironskin Brew_nomax"] = function()
 			return lib.SimpleCDCheck("Ironskin Brew",lib.GetSpellCD("Ironskin Brew",nil,lib.GetSpellMaxCharges("Ironskin Brew")))
@@ -171,7 +171,7 @@ lib.classes["MONK"][1] = function() --Brewmaster
 			end
 			return nil
 		end,
-		
+
 		["Guard_noGuard"] = function()
 			if lib.GetUnitHealth("player","percent")>cfg.healpercent then return nil end
 			return lib.SimpleCDCheck("Guard",lib.GetAura({"Guard"})-9)
@@ -248,7 +248,7 @@ lib.classes["MONK"][3] = function() --Windwalker
 		if lib.IsLastSpell(spell) then
 			return false
 		else
-			return true			
+			return true
 		end
 	end
 	cfg.chi_hit=2
@@ -289,7 +289,7 @@ lib.classes["MONK"][3] = function() --Windwalker
 		cfg.heal_transcendence=0
 	end
 	lib.AddSpell("Strike of the Windlord",{205320})
-	
+
 	lib.AddSpell("Effuse",{116694})
 	lib.NoSaveSpell("Effuse")
 	cfg.heal=60
@@ -300,16 +300,16 @@ lib.classes["MONK"][3] = function() --Windwalker
 		lib.AddSpell("Storm, Earth, and Fire",{137639},true)
 		lib.NoSaveSpell("Storm, Earth, and Fire")
 	end
-	
+
 	lib.AddAura("Hit Combo",196741,"buff","player")
 	lib.AddSpell("Touch of Death",{115080},true)
 	lib.AddSpell("Touch of Karma",{122470},"target")
 	lib.NoSaveSpell("Touch of Karma")
 	lib.AddSpell("Disable",{116095},"target")
 	lib.NoSaveSpell("Disable")
-	
+
 	lib.SetTrackAura({"Serenity","Storm, Earth, and Fire","Blackout Kick!","Hit Combo"})
-	
+
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Kick")
 	table.insert(cfg.plistdps,"Detocs")
@@ -357,25 +357,26 @@ lib.classes["MONK"][3] = function() --Windwalker
 	table.insert(cfg.plistdps,"Spinning Crane Kick_aoe")
 	table.insert(cfg.plistdps,"Blackout Kick")
 	table.insert(cfg.plistdps,"Tiger Palm")
-	
-	
-	
-	
-	
-	
-	
+	table.insert(cfg.plistdps,"Tiger Palm_max")
+
+
+
+
+
+
+
 	--table.insert(cfg.plistdps,"Tiger Palm2")
-	
-	
+
+
 	--table.insert(cfg.plistdps,"Crackling Jade Thunderstorm")
-	
+
 	--table.insert(cfg.plistdps,"Blackout Kick_max")
 	--if not cfg.talents["Rushing Jade Wind"] then
 	--	table.insert(cfg.plistdps,"Blackout Kick_aoe")
 	--end
 	table.insert(cfg.plistdps,"Flying Serpent Kick")
 	table.insert(cfg.plistdps,"end")
-	
+
 	cfg.plistaoe=nil
 
 	cfg.plist=cfg.plistdps
@@ -439,7 +440,7 @@ lib.classes["MONK"][3] = function() --Windwalker
 			return nil
 		end,]]
 		["Spinning Crane Kick_aoe"] = function()
-			if cfg.cleave_targets>=2 then --or lib.GetSpellCD("Spinning Crane Kick")<lib.GetAura({"Serenity"}) 
+			if cfg.cleave_targets>=2 then --or lib.GetSpellCD("Spinning Crane Kick")<lib.GetAura({"Serenity"})
 				return lib.SimpleCDCheck("Spinning Crane Kick")
 			end
 			return nil
@@ -464,7 +465,7 @@ lib.classes["MONK"][3] = function() --Windwalker
 			end
 			return nil
 		end,
-		
+
 		["Energizing Elixir"] = function()
 			if cfg.Power.now<cfg.Power.max and cfg.AltPower.now<=1 then
 				return lib.SimpleCDCheck("Energizing Elixir",lib.GetAura({"Serenity"}))
@@ -485,6 +486,12 @@ lib.classes["MONK"][3] = function() --Windwalker
 		["Tiger Palm_nomax"] = function()
 			if cfg.AltPower.max>cfg.AltPower.now then
 				return lib.SimpleCDCheck("Tiger Palm",math.max(lib.GetAura({"Serenity"}),lib.GetAura({"Blackout Kick!"}),lib.Time2Power(cfg.Power.max)))
+			end
+			return nil
+		end,
+		["Tiger Palm_max"] = function()
+			if cfg.AltPower.max >= cfg.AltPower.now and cfg.Power.max >= cfg.Power.now then
+				return lib.SimpleCDCheck("Tiger Palm")
 			end
 			return nil
 		end,
@@ -552,7 +559,7 @@ lib.classes["MONK"][3] = function() --Windwalker
 				return lib.SimpleCDCheck("Flying Serpent Kick",lib.GetAura({"Serenity"}))
 			end
 		end,
-		
+
 		["Rushing Jade Wind_Serenity"] = function()
 			if lib.GetAura({"Serenity"})>lib.GetSpellCD("Rushing Jade Wind") then
 				return lib.SimpleCDCheck("Rushing Jade Wind")
@@ -573,13 +580,13 @@ lib.classes["MONK"][3] = function() --Windwalker
 			end
 		end,
 	}
-	
+
 	lib.AddRangeCheck({
 	{"Tiger Palm",nil},
 	{"Crackling Jade Thunderstorm",{0,0,1,1}},
 	})
 	--cfg.mode = "dps"
-	
+
 	--cfg.spells_aoe={"Spin"}
 	--cfg.spells_single={"Kick"}
 	return true
@@ -592,17 +599,17 @@ lib.classpostload["MONK"] = function()
 	lib.NoSaveSpell("Detocs")
 	lib.SetInterrupt("Kick",{116705}) --Spear Hand Strike
 	lib.NoSaveSpell("Kick")
-	
+
 	--lib.AddSpell("Sphere",{124081},true) -- Zen Sphere
 	--lib.AddAura("Sphere",124081,"buff","player") -- Zen Sphere
 	cfg.case["Sphere_noSphere"] = function()
 		return lib.SimpleCDCheck("Sphere",lib.GetAura({"Sphere"}))
 	end
-	
+
 	lib.AddSpell("Xuen",{123904}) --Invoke Xuen, the White Tiger
-	
+
 	lib.AddSpell("Blackout Kick",{100784}) --Blackout Kick
-	
+
 	lib.AddSpell("Chi-Wave",{115098}) -- Chi-Wave
 	cfg.case["Chi-Wave"] = function()
 		return lib.SimpleCDCheck("Chi-Wave",lib.GetAura({"Serenity"}))
@@ -611,9 +618,9 @@ lib.classpostload["MONK"] = function()
 	cfg.case["Chi Burst"] = function()
 		return lib.SimpleCDCheck("Chi Burst",lib.GetAura({"Serenity"}))
 	end
-	
+
 	lib.AddSpell("Zen Meditation",{115176},true)
-		
+
 	cfg.case["Fortifying"] = function()
 		if not lib.hardtarget() then return nil end
 		if lib.GetAura({"Touch of Death"})>0 then
@@ -621,7 +628,7 @@ lib.classpostload["MONK"] = function()
 		end
 		return nil
 	end
-	
+
 	lib.AddAura("Power_Strikes",129914,"buff","player")
 
 	cfg.case["Jab_aoe"] = function()
@@ -644,7 +651,7 @@ lib.classpostload["MONK"] = function()
 		lib.CDadd("Purifying Brew")
 		lib.CDadd("Black Ox Brew")
 		lib.CDadd("Exploding Keg")
-		
+
 		lib.CDAddCleave("Strike of the Windlord",nil,{205414})
 		lib.CDadd("Energizing Elixir")
 		lib.CDadd("Touch of Death")
