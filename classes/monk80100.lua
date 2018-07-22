@@ -33,24 +33,28 @@ lib.classes["MONK"][1] = function() --Brewmaster
 	lib.AddResourceBar(cfg.Power.max)
 	lib.ChangeResourceBarType(cfg.Power.type)
 	cfg.talents={
-		["Blackout Combo"]=IsPlayerSpell(196736), --Chi Explosion
-		--["RJW"]=IsPlayerSpell(116847) --Rushing Jade Wind
+		["Chi Wave"]=IsPlayerSpell(115098),
+		["Chi Burst"]=IsPlayerSpell(123986),
+		["Black Ox Brew"]=IsPlayerSpell(115399),
+		["Healing Elixir"]=IsPlayerSpell(122281),
+		["Dampen Harm"]=IsPlayerSpell(122278),
+		["Rushing Jade Wind"]=IsPlayerSpell(116847),
+		["Guard"]=IsPlayerSpell(115295),
+		["Blackout Combo"]=IsPlayerSpell(196736),
 	}
 
-	lib.AddSpell("Keg Smash",{121253},"target") --Keg Smash
-	lib.AddSpell("Exploding Keg",{214326},"target")
+	lib.AddSpell("Keg Smash",{121253},"target")
 	lib.AddCleaveSpell("Keg Smash")
-	lib.FixSpell("Keg Smash","cost")
+	-- lib.FixSpell("Keg Smash","cost")
 	lib.AddSpell("Tiger Palm",{100780})
-	lib.FixSpell("Tiger Palm","cost")
+	-- lib.FixSpell("Tiger Palm","cost")
 	lib.AddSpell("Blackout Strike",{205523})
 	lib.AddSpell("Rushing Jade Wind",{116847},true)
 	lib.AddSpell("Healing Elixir",{122281})
 	lib.AddCleaveSpell("Rushing Jade Wind",nil,{148187})
-
-	--lib.AddSpell("Haze",{115180}) --Dizzying Haze
-	lib.AddSpell("Breath of Fire",{115181},"target") -- Breath of Fire
-	lib.AddAura("Breath of Fire",123725,"debuff","target") -- Breath of Fire
+	lib.AddSpell("Guard",{115295})
+	lib.AddSpell("Breath of Fire",{115181},"target")
+	lib.AddAura("Breath of Fire",123725,"debuff","target")
 	if cfg.talents["Blackout Combo"] then
 		lib.AddAura("Blackout Combo",228563)
 	end
@@ -71,8 +75,6 @@ lib.classes["MONK"][1] = function() --Brewmaster
 	lib.SetTrackAura({"Stagger1","Stagger2","Blackout Combo"})
 	lib.AddTracking("Ironskin Brew",{255,0,255})
 	cfg.plistdps = {}
-	--table.insert(cfg.plistdps,"Touch of Death")
-	table.insert(cfg.plistdps,"Kick")
 	table.insert(cfg.plistdps,"Detox")
 	table.insert(cfg.plistdps,"Purifying Brew")
 	table.insert(cfg.plistdps,"Ironskin Brew_nomax")
@@ -80,20 +82,20 @@ lib.classes["MONK"][1] = function() --Brewmaster
 	table.insert(cfg.plistdps,"Black Ox Brew")
 	table.insert(cfg.plistdps,"Expel Harm")
 	table.insert(cfg.plistdps,"Healing Elixir")
-	table.insert(cfg.plistdps,"Exploding Keg")
-	table.insert(cfg.plistdps,"Keg Smash")
-	table.insert(cfg.plistdps,"Chi Burst_aoe")
-	table.insert(cfg.plistdps,"Breath of Fire_aoe")
-	table.insert(cfg.plistdps,"Rushing Jade Wind_aoe")
 	if cfg.talents["Blackout Combo"] then
 		table.insert(cfg.plistdps,"Tiger Palm_Blackout Combo")
 	end
+	table.insert(cfg.plistdps,"Keg Smash")
 	table.insert(cfg.plistdps,"Blackout Strike")
 	table.insert(cfg.plistdps,"Breath of Fire")
 	table.insert(cfg.plistdps,"Rushing Jade Wind")
-	table.insert(cfg.plistdps,"Chi Burst")
-	table.insert(cfg.plistdps,"Chi Wave")
 	table.insert(cfg.plistdps,"Tiger Palm_65")
+	if cfg.talents["Chi Burst"] then
+		table.insert(cfg.plistdps,"Chi Burst")
+	end
+	if cfg.talents["Chi Wave"] then
+		table.insert(cfg.plistdps,"Chi Wave")
+	end
 	table.insert(cfg.plistdps,"end")
 
 	cfg.plistaoe = nil
@@ -107,13 +109,13 @@ lib.classes["MONK"][1] = function() --Brewmaster
 		["Ironskin Brew_rebuff"] = function()
 			return lib.SimpleCDCheck("Ironskin Brew",lib.GetAura({"Ironskin Brew"}))
 		end,
-		["Chi Burst_aoe"] = function()
-			if lib.SpellCasting("Chi Burst") then return nil end
-			if cfg.cleave_targets>=cfg.cleave_threshold then
-				return lib.SimpleCDCheck("Chi Burst")
-			end
-			return nil
-		end,
+		-- ["Chi Burst_aoe"] = function()
+		-- 	if lib.SpellCasting("Chi Burst") then return nil end
+		-- 	if cfg.cleave_targets>=cfg.cleave_threshold then
+		-- 		return lib.SimpleCDCheck("Chi Burst")
+		-- 	end
+		-- 	return nil
+		-- end,
 		["Chi Burst"] = function()
 			if lib.SpellCasting("Chi Burst") then return nil end
 			return lib.SimpleCDCheck("Chi Burst")
@@ -125,7 +127,7 @@ lib.classes["MONK"][1] = function() --Brewmaster
 			return nil
 		end,
 		["Expel Harm"] = function()
-			if lib.GetUnitHealth("player","percent")<=80 then
+			if lib.GetUnitHealth("player","percent")<=60 then
 				return lib.SimpleCDCheck("Expel Harm")
 			end
 			return nil
@@ -142,18 +144,18 @@ lib.classes["MONK"][1] = function() --Brewmaster
 			end
 			return nil
 		end,
-		["Rushing Jade Wind_aoe"] = function()
-			if cfg.cleave_targets>=cfg.cleave_threshold then
-				return lib.SimpleCDCheck("Rushing Jade Wind")
-			end
-			return nil
-		end,
-		["Breath of Fire_aoe"] = function()
-			if cfg.cleave_targets>=cfg.cleave_threshold and lib.GetAura({"Keg Smash"})>lib.GetSpellCD("Breath of Fire") then
-				return lib.SimpleCDCheck("Breath of Fire")
-			end
-			return nil
-		end,
+		-- ["Rushing Jade Wind_aoe"] = function()
+		-- 	if cfg.cleave_targets>=cfg.cleave_threshold then
+		-- 		return lib.SimpleCDCheck("Rushing Jade Wind")
+		-- 	end
+		-- 	return nil
+		-- end,
+		-- ["Breath of Fire_aoe"] = function()
+		-- 	if cfg.cleave_targets>=cfg.cleave_threshold and lib.GetAura({"Keg Smash"})>lib.GetSpellCD("Breath of Fire") then
+		-- 		return lib.SimpleCDCheck("Breath of Fire")
+		-- 	end
+		-- 	return nil
+		-- end,
 		["Tiger Palm_Keg Smash"] = function()
 			return lib.SimpleCDCheck("Tiger Palm",lib.Time2Power(lib.GetSpellCost("Keg Smash")))
 		end,
