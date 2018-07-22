@@ -17,7 +17,7 @@ lib.classpreload["MONK"] = function()
 end
 lib.classes["MONK"][1] = function() --Brewmaster
 	lib.stagger=function()
-		cfg.stagger = UnitStagger("player")
+		cfg.stagger = UnitStagger("player") or 0
 		cfg.stagger_hp_old = cfg.stagger_hp
 		cfg.stagger_hp = format("%i",(100/UnitHealthMax("player")*cfg.stagger))
 
