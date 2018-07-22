@@ -268,7 +268,7 @@ lib.classes["MONK"][3] = function() --Windwalker
 	}
 	-- lib.AddSet("Katsuo's Eclipse",{137029})
 	lib.AddSpell("Flying Serpent Kick",{101545})
-	lib.AddSpell("Crackling Jade Thunderstorm",{117952},true)
+	lib.AddSpell("Crackling Jade Lightning",{117952},true)
 	lib.AddSpell("Rising Sun Kick",{107428})
 	lib.AddAura("Mark of the Crane",228287,"debuff","target")
 	lib.AddAura("Blackout Kick!",116768,"buff","player")
@@ -317,14 +317,18 @@ lib.classes["MONK"][3] = function() --Windwalker
 	table.insert(cfg.plistdps,"Touch of Death")
 	if cfg.talents["Serenity"] then
 		table.insert(cfg.plistdps,"Serenity")
+		table.insert(cfg.plistdps,"Rising Sun Kick_Serenity")
+		table.insert(cfg.plistdps,"Fists of Fury_Serenity")
+		table.insert(cfg.plistdps,"Spinning Crane Kick_Serenity")
+		table.insert(cfg.plistdps,"Blackout Kick_Serenity")
+		if cfg.talents["Fist of the White Tiger"] then
+			table.insert(cfg.plistdps,"Fist of the White Tiger_Serenity")
+		end
 	else
 		table.insert(cfg.plistdps,"Storm, Earth, and Fire")
 	end
 	if cfg.talents["Energizing Elixir"] then
 		table.insert(cfg.plistdps,"Energizing Elixir")
-	end
-	if cfg.talents["Serenity"] and cfg.talents["Rushing Jade Wind"] then
-		table.insert(cfg.plistdps,"Rushing Jade Wind_Serenity")
 	end
 	if cfg.talents["Rushing Jade Wind"] then
 		table.insert(cfg.plistdps,"Rushing Jade Wind_aoe")
@@ -351,6 +355,7 @@ lib.classes["MONK"][3] = function() --Windwalker
 	table.insert(cfg.plistdps,"Blackout Kick")
 	table.insert(cfg.plistdps,"Tiger Palm")
 	table.insert(cfg.plistdps,"Tiger Palm_max")
+	table.insert(cfg.plistdps,"Blackout Kick_max")
 	if cfg.talents["Whirling Dragon Punch"] then
 		table.insert(cfg.plistdps,"Rising Sun Kick_noaoe")
 	end
@@ -369,6 +374,7 @@ lib.classes["MONK"][3] = function() --Windwalker
 			return nil
 		end,
 		["Fists of Fury"] = function()
+			-- TODO: Sometimes, energy caps during FoF.  Not sure if that's something that needs to be fixed.
 			return lib.SimpleCDCheck("Fists of Fury",lib.GetAura({"Serenity"})-1.5*cfg.gcd)
 		end,
 		["Fist of the White Tiger"] = function()
@@ -390,24 +396,38 @@ lib.classes["MONK"][3] = function() --Windwalker
 			return nil
 		end,
 		["Chi Burst"] = function()
-			if (cfg.cleave_targets>=2 and (cfg.AltPower.max - cfg.AltPower.now) >= 2) or
-			(cfg.AltPower.max - cfg.AltPower.now) >= 1 then
+			if (cfg.cleave_targets >= 2 and (cfg.AltPower.max - cfg.AltPower.now) >= 2) or
+			(cfg.cleave_targets < 2 and (cfg.AltPower.max - cfg.AltPower.now)) >= 1 then
 				return lib.SimpleCDCheck("Chi Burst")
 			end
 			return nil
 		end,
 		["Serenity"] = function()
-			if lib.GetSpellCD("Fists of Fury")>cfg.gcd and lib.GetSpellCD("Fists of Fury")>lib.GetAura({"Serenity"}) and lib.GetSpellCD("Fists of Fury")<lib.GetAura({"Serenity"})+2*8-3 then -- and lib.GetSpellCD("Serenity")+8*2-cfg.gcd and lib.GetSpellCD("Fists of Fury")<lib.GetSpellCD("Serenity")+8*2
-				return lib.SimpleCDCheck("Serenity",lib.GetAura({"Serenity"}))
-			end
-			return nil
+			-- if lib.GetSpellCD("Fists of Fury")>cfg.gcd and lib.GetSpellCD("Fists of Fury")>lib.GetAura({"Serenity"}) and lib.GetSpellCD("Fists of Fury")<lib.GetAura({"Serenity"})+2*8-3 then -- and lib.GetSpellCD("Serenity")+8*2-cfg.gcd and lib.GetSpellCD("Fists of Fury")<lib.GetSpellCD("Serenity")+8*2
+			return lib.SimpleCDCheck("Serenity",lib.GetAura({"Serenity"}))
+			-- end
+			-- return nil
 		end,
-		--[[["Serenity"] = function()
-			if lib.GetSpellCD("Fists of Fury")>lib.GetSpellCD("Serenity")+cfg.gcd then
-				return lib.SimpleCDCheck("Serenity")
-			end
-			return nil
-		end,]]
+		["Rising Sun Kick_Serenity"] = function()
+			if lib.GetAura({"Serenity"}) == 0 then return nil end
+			return lib.SimpleCDCheck("Rising Sun Kick", nil, nil, nil, nil, true)
+		end,
+		["Fists of Fury_Serenity"] = function()
+			if lib.GetAura({"Serenity"}) == 0 then return nil end
+			return lib.SimpleCDCheck("Fists of Fury", nil, nil, nil, nil, true)
+		end,
+		["Spinning Crane Kick_Serenity"] = function()
+			if lib.GetAura({"Serenity"}) == 0 or cfg.cleave_targets < 2 then return nil end
+			return lib.SimpleCDCheck("Spinning Crane Kick", nil, nil, nil, nil, true)
+		end,
+		["Blackout Kick_Serenity"] = function()
+			if lib.GetAura({"Serenity"}) == 0 then return nil end
+			return lib.SimpleCDCheck("Blackout Kick", nil, nil, nil, nil, true)
+		end,
+		["Fist of the White Tiger_Serenity"] = function()
+			if lib.GetAura({"Serenity"}) == 0 then return nil end
+			return lib.SimpleCDCheck("Fist of the White Tiger", nil, nil, nil, nil, true)
+		end,
 		["Spinning Crane Kick_aoe"] = function()
 			if cfg.cleave_targets>=2 then --or lib.GetSpellCD("Spinning Crane Kick")<lib.GetAura({"Serenity"})
 				return lib.SimpleCDCheck("Spinning Crane Kick")
@@ -441,32 +461,30 @@ lib.classes["MONK"][3] = function() --Windwalker
 			end
 			return nil
 		end,
-		["Tiger Palm2"] = function()
-			if cfg.AltPower.max-cfg.AltPower.now>=2+lib.GetAuraStacks("Power_Strikes") then
-				return lib.SimpleCDCheck("Tiger Palm",lib.GetAura({"Serenity"}))
-			end
-			return nil
-		end,
 		["Tiger Palm"] = function()
-			if cfg.AltPower.max>=cfg.AltPower.now+2 or lib.GetAura({"Serenity"})>lib.GetSpellCD("Tiger Palm") then
-				return lib.SimpleCDCheck("Tiger Palm",lib.GetAura({"Blackout Kick!"})) --,lib.GetAura({"Serenity"})
+			if lib.GetAura({"Serenity"}) > 0 then return nil end
+			if (cfg.AltPower.max - cfg.AltPower.now) > 1 then --or lib.GetAura({"Serenity"})>lib.GetSpellCD("Tiger Palm") then
+				return lib.SimpleCDCheck("Tiger Palm",lib.GetAura({"Blackout Kick!"}))
 			end
 		end,
 		["Tiger Palm_nomax"] = function()
+			if lib.GetAura({"Serenity"}) > 0 then return nil end
 			if cfg.AltPower.max>cfg.AltPower.now then
 				return lib.SimpleCDCheck("Tiger Palm",math.max(lib.GetAura({"Serenity"}),lib.GetAura({"Blackout Kick!"}),lib.Time2Power(cfg.Power.max)))
 			end
 			return nil
 		end,
 		["Tiger Palm_max"] = function()
-			if cfg.AltPower.max >= cfg.AltPower.now and cfg.Power.max >= cfg.Power.now then
+			if lib.GetAura({"Serenity"}) > 0 then return nil end
+			if cfg.Power.now >= cfg.Power.max then
+			-- if cfg.AltPower.max >= cfg.AltPower.now and cfg.Power.max >= cfg.Power.now then
 				return lib.SimpleCDCheck("Tiger Palm")
 			end
 			return nil
 		end,
 		["Blackout Kick_max"] = function()
-			if cfg.AltPower.now==cfg.AltPower.max then
-				return lib.SimpleCDCheck("Blackout Kick")
+			if cfg.AltPower.max - cfg.AltPower.now < 2 then
+				return lib.SimpleCDCheck("Blackout Kick", nil, nil, nil, nil, true)
 			end
 			return nil
 		end,
@@ -476,19 +494,19 @@ lib.classes["MONK"][3] = function() --Windwalker
 			end
 			return nil
 		end,
-		["Chi Burst_aoe"] = function()
-			if cfg.cleave_targets>=3 then
-				if lib.IsLastSpell("Tiger Palm") then
-					return lib.SimpleCDCheck("Chi Burst")
-				end
-				return nil
-			else
-				return lib.SimpleCDCheck("Chi Burst",lib.GetAura({"Serenity"}))
-			end
-		end,
-		["Crackling Jade Thunderstorm"] = function()
+		-- ["Chi Burst_aoe"] = function()
+		-- 	if cfg.cleave_targets>=3 then
+		-- 		if lib.IsLastSpell("Tiger Palm") then
+		-- 			return lib.SimpleCDCheck("Chi Burst")
+		-- 		end
+		-- 		return nil
+		-- 	else
+		-- 		return lib.SimpleCDCheck("Chi Burst",lib.GetAura({"Serenity"}))
+		-- 	end
+		-- end,
+		["Crackling Jade Lightning"] = function()
 			if lib.IsLastSpell("Tiger Palm") then
-				return lib.SimpleCDCheck("Crackling Jade Thunderstorm",lib.GetAura({"Serenity"}))
+				return lib.SimpleCDCheck("Crackling Jade Lightning",lib.GetAura({"Serenity"}))
 			end
 			return nil
 		end,
@@ -512,13 +530,6 @@ lib.classes["MONK"][3] = function() --Windwalker
 				return lib.SimpleCDCheck("Flying Serpent Kick",lib.GetAura({"Serenity"}))
 			end
 		end,
-
-		["Rushing Jade Wind_Serenity"] = function()
-			if lib.GetAura({"Serenity"})>lib.GetSpellCD("Rushing Jade Wind") then
-				return lib.SimpleCDCheck("Rushing Jade Wind")
-			end
-			return nil
-		end,
 		["Rushing Jade Wind_aoe"] = function()
 			if cfg.cleave_targets>=2 then
 				return lib.SimpleCDCheck("Rushing Jade Wind")
@@ -536,7 +547,7 @@ lib.classes["MONK"][3] = function() --Windwalker
 
 	lib.AddRangeCheck({
 	{"Tiger Palm",nil},
-	{"Crackling Jade Thunderstorm",{0,0,1,1}},
+	{"Crackling Jade Lightning",{0,0,1,1}},
 	})
 	--cfg.mode = "dps"
 
@@ -568,9 +579,9 @@ lib.classpostload["MONK"] = function()
 		return lib.SimpleCDCheck("Chi Wave",lib.GetAura({"Serenity"}))
 	end
 	lib.AddSpell("Chi Burst",{123986})
-	cfg.case["Chi Burst"] = function()
-		return lib.SimpleCDCheck("Chi Burst",lib.GetAura({"Serenity"}))
-	end
+	-- cfg.case["Chi Burst"] = function()
+	-- 	return lib.SimpleCDCheck("Chi Burst",lib.GetAura({"Serenity"}))
+	-- end
 
 	lib.AddSpell("Zen Meditation",{115176},true)
 
@@ -640,7 +651,7 @@ lib.classpostload["MONK"] = function()
 		lib.CDadd("Transcendence: Transfer")
 		lib.CDadd("Transcendence")
 
-		--lib.CDadd("Crackling Jade Thunderstorm")
+		--lib.CDadd("Crackling Jade Lightning")
 	end
 end
 end
