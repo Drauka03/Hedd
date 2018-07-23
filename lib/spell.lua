@@ -456,13 +456,13 @@ lib.SetPriority = function()
 end
 
 local tl_spell
-lib.SimpleCDCheck = function (spell, Wait,nousecheck,nothing2do,force) -- nomanacheck, nousecheck, useGCD
+lib.SimpleCDCheck = function (spell, Wait, nousecheck, nothing2do, force, ignoreLastSpell) -- nomanacheck, nousecheck, useGCD
 	if not cfg.spells[spell] then return nil end
 	if HeddDB.CD[cfg.spells[spell].id] and not HeddDB.CD[cfg.spells[spell].id].enabled then return nil end
 	--[[if cfg.norepeat and lib.IsLastSpell(spell) then
 		return nil
 	end]]
-	if lib.LastCheckSpell and not lib.LastCheckSpell(spell) then
+	if not ignoreLastSpell and lib.LastCheckSpell and not lib.LastCheckSpell(spell) then
 		return nil
 	end
 	--if cfg.spells[spell].notEnoughMana and cfg.spells[spell].powerType=="alt" then return nil end
