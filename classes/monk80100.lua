@@ -380,7 +380,7 @@ lib.classes["MONK"][3] = function() --Windwalker
 			return lib.SimpleCDCheck("Fists of Fury",lib.GetAura({"Serenity"})-1.5*cfg.gcd)
 		end,
 		["Fist of the White Tiger"] = function()
-			if (cfg.AltPower.max - cfg.AltPower.now) >= 3 and cfg.Power.now >= lib.GetCurrentSpellPowerCost("Fist of the White Tiger")["cost"] then
+			if (cfg.AltPower.max - cfg.AltPower.now) >= 3 and cfg.Power.now >= lib.GetCurrentSpellPowerCost("Fist of the White Tiger") then
 				return lib.SimpleCDCheck("Fist of the White Tiger")
 			end
 			return nil

@@ -12,8 +12,8 @@ lib.classes["DEATHKNIGHT"] = {}
 local t,t2,s,n
 
 lib.classpreload["DEATHKNIGHT"] = function()
-	lib.SetPower("RUNIC_POWER")
-	lib.SetAltPower("RUNES","RUNE_COST",true)
+	lib.SetPower("RunicPower")
+	lib.SetAltPower("Runes","RUNE_COST",true)
 	lib.AddResourceBar(cfg.Power.max,cfg.Power.max-20)
 	lib.ChangeResourceBarType(cfg.Power.type)
 	if cfg.hiderunes then lib.hideRuneFrame() end
