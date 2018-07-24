@@ -15,10 +15,13 @@ local OptionsPanel = Heddframe.OptionsPanel
 cfg.move = false
 
 local move = function()
-	if ( cfg.move ) then
+	if cfg.move and UnitAffectingCombat("player") then
+		print("Hedd: Cannot enable frame movement while in combat")
+		cfg.move = false
+	elseif cfg.move then
 		Heddframe:RegisterForDrag("LeftButton")
 		Heddframe:SetScript("OnDragStart", function(Heddframe) Heddframe:StartMoving() end)
-		Heddframe:SetScript("OnDragStop", function(Heddframe) 
+		Heddframe:SetScript("OnDragStop", function(Heddframe)
 			Heddframe:StopMovingOrSizing()
 			Heddframe:SetUserPlaced(true)
 			local x, y = Heddframe:GetLeft(), Heddframe:GetBottom()
@@ -26,7 +29,7 @@ local move = function()
 		Heddframe.move:Show()
 		Heddframe.CD:RegisterForDrag("LeftButton")
 		Heddframe.CD:SetScript("OnDragStart", function() Heddframe.CD:StartMoving() end)
-		Heddframe.CD:SetScript("OnDragStop", function() 
+		Heddframe.CD:SetScript("OnDragStop", function()
 			Heddframe.CD:StopMovingOrSizing()
 			Heddframe.CD:SetUserPlaced(true)
 		end)
@@ -247,7 +250,7 @@ lib.Hedd_slash = function(msg, editbox)
 		end
 		print("\nSyntax: \n"..help);
 	end
-	
+
 end
 
 
@@ -299,8 +302,8 @@ local function Hedd_addon_load(self,event,arg1)
 			HeddDB.cleave.hit_time = 0
 			HeddDB.cleave.enable=false
 		end
-		
-		
+
+
 		lib.MainRefresh()
 	end
 end
@@ -428,7 +431,7 @@ pframe=runes_dropdown
 pframe=move
 --[[local autoswitch=lib.CheckboxAdd(OptionsPanel,"DPS/AOE autoswitch",nil,
 	function(self)
-	if self:GetChecked() then 
+	if self:GetChecked() then
 		lib.Hedd_slash("autoswitch on")
 	else
 		lib.Hedd_slash("autoswitch off")
@@ -439,7 +442,7 @@ pframe=autoswitch]]
 
 --[[local hide_incombat=lib.CheckboxAdd(OptionsPanel,"Hide main icon out of combat",nil,
 	function(self)
-	if self:GetChecked() then 
+	if self:GetChecked() then
 		lib.Hedd_slash("show incombat")
 	else
 		lib.Hedd_slash("show always")
@@ -450,7 +453,7 @@ pframe=hide_incombat]]
 
 --[[local hide_incombat_resource=lib.CheckboxAdd(OptionsPanel,"Hide resource out of combat",nil,
 	function(self)
-	if self:GetChecked() then 
+	if self:GetChecked() then
 		lib.Hedd_slash("resource incombat")
 	else
 		lib.Hedd_slash("resource always")
@@ -461,7 +464,7 @@ pframe=hide_incombat_resource]]
 
 local hide_aura=lib.CheckboxAdd(OptionsPanel,"Hide aura display",nil,
 	function(self)
-	if self:GetChecked() then 
+	if self:GetChecked() then
 		lib.Hedd_slash("aura hide")
 	else
 		lib.Hedd_slash("aura show")
@@ -472,7 +475,7 @@ pframe=hide_aura
 
 local hide_dot=lib.CheckboxAdd(OptionsPanel,"Hide dot number display",nil,
 	function(self)
-	if self:GetChecked() then 
+	if self:GetChecked() then
 		lib.Hedd_slash("dot hide")
 	else
 		lib.Hedd_slash("dot show")
@@ -483,7 +486,7 @@ pframe=hide_dot
 
 local hide_tracker=lib.CheckboxAdd(OptionsPanel,"Hide tracker display",nil,
 	function(self)
-	if self:GetChecked() then 
+	if self:GetChecked() then
 		lib.Hedd_slash("tracker hide")
 	else
 		lib.Hedd_slash("tracker show")
@@ -513,13 +516,13 @@ OptionsPanel.refresh = function()
 	hide_dot:SetChecked(HeddDB.DOT=="hide")
 	hide_tracker:SetChecked(HeddDB.tracker=="hide")
 	--autoswitch:SetChecked(HeddDB.autoswitch=="on")
-	
+
 	UIDropDownMenu_SetSelectedID(main_dropdown,main_dropdown.value2id[HeddDB.show])
 	UIDropDownMenu_SetText(main_dropdown, HeddDB.show)
-	
+
 	UIDropDownMenu_SetSelectedID(runes_dropdown,runes_dropdown.value2id[HeddDB.runes])
 	UIDropDownMenu_SetText(runes_dropdown, HeddDB.runes)
-	
+
 	UIDropDownMenu_SetSelectedID(resource_dropdown,resource_dropdown.value2id[HeddDB.resource])
 	UIDropDownMenu_SetText(resource_dropdown, HeddDB.resource)
 end
