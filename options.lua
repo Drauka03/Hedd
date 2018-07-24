@@ -15,9 +15,9 @@ local OptionsPanel = Heddframe.OptionsPanel
 cfg.move = false
 
 local move = function()
-	if cfg.move and UnitAffectingCombat("player") then
-		print("Hedd: Cannot enable frame movement while in combat")
-		cfg.move = false
+	if UnitAffectingCombat("player") then
+		print("Hedd: Cannot enable/disable frame movement while in combat")
+		cfg.move = not cfg.move
 	elseif cfg.move then
 		Heddframe:RegisterForDrag("LeftButton")
 		Heddframe:SetScript("OnDragStart", function(Heddframe) Heddframe:StartMoving() end)
