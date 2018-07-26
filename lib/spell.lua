@@ -6,38 +6,6 @@ local cfg = ns.cfg
 local lib = _G["HEDD_lib"] or CreateFrame("Frame","HEDD_lib")
 ns.lib = lib
 
--- lib.UpdateSpellTT = function(spell)
--- 	if spell and cfg.spells[spell] then
--- 		if not cfg.spells[spell].has_charges then
--- 			if cfg.spells[spell].tt.fullcd then
--- 				cfg.spells[spell].fullcd=hedlib.tofloat(_G[cfg.spells[spell].tt.fullcd]:GetText() or " ")
--- 			else
--- 				cfg.spells[spell].fullcd=0
--- 			end
--- 		end
---
--- 		-- if cfg.spells[spell].powerType=="cd" then
--- 		-- 	cfg.spells[spell].cost=0
--- 		-- 	return
--- 		-- end
---
--- 		if cfg.spells[spell].cost_real then
--- 			cfg.spells[spell].cost=cfg.spells[spell].cost_real
--- 		else
--- 			if cfg.spells[spell].tt.cost then
--- 				cfg.spells[spell].tt.cost_string=_G[cfg.spells[spell].tt.cost]:GetText() or ""
--- 				cfg.spells[spell].cost=0
--- 				for _, pattern in pairs(cfg.spells[spell].tt.pattern_cost) do
--- 					if string.find(cfg.spells[spell].tt.cost_string,pattern) then
--- 						cfg.spells[spell].cost=hedlib.toint(cfg.spells[spell].tt.cost_string)
--- 						break
--- 					end
--- 				end
--- 			end
--- 		end
--- 	end
--- end
-
 local function gsi_inner(...)
 	if ... == "" then
 		return nil
