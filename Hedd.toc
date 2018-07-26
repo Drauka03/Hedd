@@ -30,7 +30,7 @@ lib\legion.lua
 lib\swing.lua
 lib\artifact.lua
 classes\dk70000.lua
-classes\hunter70000.lua
+classes\hunter80100.lua
 classes\shaman80100.lua
 classes\paladin70000.lua
 classes\druid70000.lua
