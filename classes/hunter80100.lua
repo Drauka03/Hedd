@@ -136,271 +136,154 @@ lib.classes["HUNTER"][1] = function () -- BM
 	return true
 end
 
+-- MARKSMAN SPEC
 lib.classes["HUNTER"][2] = function () --MM
-	cfg.cleave_threshold=2
+	cfg.cleave_threshold=3
 	cfg.talents={
-		["Sidewinders"]=IsPlayerSpell(214579),
-		["Patient Sniper"]=IsPlayerSpell(213423),
-		--["Careful Aim"]=IsPlayerSpell(53238),
+		["Master Marksman"]=IsPlayerSpell(260309),
+		["Serpent Sting"]=IsPlayerSpell(271788),
+		["A Murder of Crows"]=IsPlayerSpell(131894),
+		["Careful Aim"]=IsPlayerSpell(260228),
+		["Volley"]=IsPlayerSpell(260243),
+		["Explosive Shot"]=IsPlayerSpell(212431),
+		["Trailblazer"]=IsPlayerSpell(199921),
+		["Natural Mending"]=IsPlayerSpell(270581),
+		["Camouflage"]=IsPlayerSpell(199483),
 		["Steady Focus"]=IsPlayerSpell(193533),
-		["Sentinel"]=IsPlayerSpell(206817),
+		["Stramline"]=IsPlayerSpell(260367),
+		["Hunter's Mark"]=IsPlayerSpell(257284),
+		["Born To Be Wild"]=IsPlayerSpell(266921),
+		["Posthaste"]=IsPlayerSpell(109215),
+		["Binding Shot"]=IsPlayerSpell(109248),
+		["Lethal Shots"]=IsPlayerSpell(260393),
 		["Barrage"]=IsPlayerSpell(120360),
-		["True Aim"]=IsPlayerSpell(199527),
+		["Double Tap"]=IsPlayerSpell(260402),
+		["Calling the Shots"]=IsPlayerSpell(260404),
+		["Lock and Load"]=IsPlayerSpell(194595),
+		["Piercing Shot"]=IsPlayerSpell(198670),
 	}
 	lib.SetSpellIcon("aa",(select(3,GetSpellInfo(75))),true)
-	if cfg.talents["Sidewinders"] then
-		lib.AddSpell("Sidewinders",{214579})
-		lib.SetSpellCost("Sidewinders",-50,"power")
-	else
-		lib.AddSpell("Arcane Shot",{185358})
-		lib.SetSpellCost("Arcane Shot",-5,"power")
-		lib.AddSpell("Multi-Shot",{2643})
---		lib.SetSpellCost("Multi-Shot",-2,"power")
-		lib.OnCleave = function()
-			if cfg.noaoe or cfg.cleave_targets<cfg.cleave_threshold then
-				lib.ReloadSpell("Arcane Shot",{185358,2643})
-				lib.SetSpellCost("Arcane Shot",-5,"power")
-			else
-				lib.ReloadSpell("Arcane Shot",{2643,185358})
-				lib.SetSpellCost("Arcane Shot",-2,"power")
-			end
-		end
-	end
+
 	lib.AddSpell("A Murder of Crows",{131894},"target")
-	lib.AddSpell("Black Arrow",{194599},"target")
-	lib.AddSpell("Sentinel",{206817})
-	lib.AddSpell("Piercing Shot",{198670})
-	lib.AddSpell("Explosive Shot",{212431})
-	lib.AddSpell("Windburst",{204147})
 	lib.AddSpell("Aimed Shot",{19434})
+	lib.AddSpell("Arcane Shot",{185358})
 	lib.AddSpell("Barrage",{120360},nil,nil,true)
+	lib.AddSpell("Black Arrow",{194599},"target")
+	lib.AddSpell("Double Tap",{260402})
+	lib.AddSpell("Explosive Shot",{212431})
+	lib.AddSpell("Hunter's Mark",{257284})
 	lib.AddSpell("Marked Shot",{185901})
+	lib.AddSpell("Multi-Shot",{2643})
+	lib.AddSpell("Piercing Shot",{198670})
+	lib.AddSpell("Rapid Fire",{257044})
+	lib.AddSpell("Serpent Sting",{271788})
+	lib.AddSpell("Steady Shot",{56641})
 	lib.AddSpell("Trueshot",{193526},true)
-	lib.AddAura("Marking Targets",223138,"buff","player")
-	lib.AddAura("Steady Focus",193534,"buff","player")
-	lib.AddAura("Hunter's Mark",185365,"debuff","target")
-	lib.AddAura("True Aim",199803,"debuff","target")
+
+	lib.AddAura("Hunter's Mark",257284,"debuff","target")
 	lib.AddAura("Lock and Load",194594,"buff","player")
+	lib.AddAura("Marking Targets",223138,"buff","player")
+	lib.AddAura("Precise Shots",260242,"buff","player")
+	lib.AddAura("Serpent Sting",271788,"debuff","target")
+	lib.AddAura("Steady Focus",193534,"buff","player")
+	lib.AddAura("Trick Shots",257622,"buff","player")
+	lib.AddAura("True Aim",199803,"debuff","target")
+
 	lib.SetAuraFunction("Lock and Load","OnApply",function() lib.ReloadSpell("Aimed Shot") end)
 	lib.SetAuraFunction("Lock and Load","OnFade",function() lib.ReloadSpell("Aimed Shot") end)
 
-	lib.AddAura("Vulnerable",187131,"debuff","target") --198925
-	lib.SetTrackAura("Vulnerable")
-	--[[lib.SetAuraFunction("Vulnerable","OnStacks",function()
-		lib.UpdateTrackAura(cfg.GUID["target"],lib.GetAuraStacks("Vulnerable")>0 and lib.GetAuraStacks("Vulnerable") or nil)
-	end)]]
-
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Kick")
+	-- TODO: Figure out what to do about Hunter's Mark because it's only worth applying if the enemy will die in 20+ seconds
+	if cfg.talents["Hunter's Mark"] then
+		table.insert(cfg.plistdps,"Hunter's Mark")
+	end
 	table.insert(cfg.plistdps,"Trueshot")
-	if cfg.talents["Sentinel"] then --not cfg.talents["Sidewinders"] and
-		table.insert(cfg.plistdps,"Marked Shot_Sentinel")
-		table.insert(cfg.plistdps,"Sentinel")
+	table.insert(cfg.plistdps,"Aimed Shot_almostcapped")
+	if cfg.talents["A Murder of Crows"] then
+		table.insert(cfg.plistdps,"A Murder of Crows")
 	end
-
-	table.insert(cfg.plistdps,"Windburst")
-	if not cfg.talents["Sidewinders"] and cfg.talents["True Aim"] then
-		table.insert(cfg.plistdps,"Arcane Shot_TA")
-	end
-	if cfg.talents["Patient Sniper"] then
-		if cfg.talents["Sidewinders"] then
-			table.insert(cfg.plistdps,"Sidewinders_PS")
-		else
-			table.insert(cfg.plistdps,"Arcane Shot_PS")
-		end
-		table.insert(cfg.plistdps,"Marked Shot_PS")
-	else
-		table.insert(cfg.plistdps,"Marked Shot")
-	end
-	if not cfg.talents["Sidewinders"] and cfg.talents["Steady Focus"] then
-		table.insert(cfg.plistdps,"Arcane Shot_SF")
-	end
-	if cfg.talents["Careful Aim"] then
-		table.insert(cfg.plistdps,"Aimed Shot_CA")
-	end
-	table.insert(cfg.plistdps,"A Murder of Crows")
 	table.insert(cfg.plistdps,"Barrage")
-	if not cfg.talents["Patient Sniper"] then
+	table.insert(cfg.plistdps,"Double Tap")
+	table.insert(cfg.plistdps,"Rapid Fire")
+	if cfg.talents["Serpent Sting"] then
+		table.insert(cfg.plistdps,"Serpent Sting")
+	end
+	table.insert(cfg.plistdps,"Arcane Shot_precise")
+	table.insert(cfg.plistdps,"Multi-Shot_precise")
+	table.insert(cfg.plistdps,"Aimed Shot")
+	if cfg.talents["Explosive Shot"] then
+		table.insert(cfg.plistdps,"Explosive Shot")
+	end
+	table.insert(cfg.plistdps,"Arcane Shot")
+	table.insert(cfg.plistdps,"Multi-Shot")
+	if cfg.talents["Piercing Shot"] then
 		table.insert(cfg.plistdps,"Piercing Shot")
 	end
-	if cfg.talents["Patient Sniper"] then
-		table.insert(cfg.plistdps,"Aimed Shot_PS")
-	end
-	table.insert(cfg.plistdps,"Aimed Shot_Lock and Load")
-
-	table.insert(cfg.plistdps,"Explosive Shot")
-	if cfg.talents["Patient Sniper"] then
-		table.insert(cfg.plistdps,"Piercing Shot")
-	end
-
-	if cfg.talents["Sidewinders"] then
-		if not cfg.talents["Patient Sniper"] then
-			table.insert(cfg.plistdps,"Sidewinders_marked")
-		end
-	else
-		table.insert(cfg.plistdps,"Arcane Shot_marked")
-	end
-
-	table.insert(cfg.plistdps,"Black Arrow")
-	table.insert(cfg.plistdps,"Aimed Shot_60")
-	table.insert(cfg.plistdps,"Marked Shot")
-	if cfg.talents["Sidewinders"] then
-		table.insert(cfg.plistdps,"Sidewinders")
-	else
-		table.insert(cfg.plistdps,"Arcane Shot")
-	end
+	table.insert(cfg.plistdps,"Steady Shot")
 	table.insert(cfg.plistdps,"end")
 
 	cfg.plistaoe = nil
-	lib.hunter_CA = function()
-		if cfg.talents["Careful Aim"] then
-			if lib.GetUnitHealth("target","percent")<80 then return false end
-			if cfg.cleave_targets>1 and not cfg.noaoe then return false end
-			return true
-		else
-			return false
-		end
-	end
-
-	lib.hunter_AI_Vulnerable = function()
-		if lib.GetSpellCD("Aimed Shot")+lib.GetSpellCT("Aimed Shot")<lib.GetAura({"Vulnerable"}) then
-			return true
-		else
-			return false
-		end
-	end
 	cfg.plist = cfg.plistdps
 	cfg.case = {}
 	cfg.case = {
-		--CA
-		--[[["Windburst_CA"] = function()
-			if lib.hunter_CA() then
-				return lib.SimpleCDCheck("Windburst")
-			end
-			return nil
-		end,]]
-		["Arcane Shot_SF"] = function()
-			if lib.IsLastSpell("Arcane Shot") then
-				return lib.SimpleCDCheck("Arcane Shot",lib.GetAura({"Steady Focus"}))
-			end
-			return nil
+		["Hunter's Mark"] = function()
+			return lib.SimpleCDCheck("Hunter's Mark", lib.GetAura({"Hunter's Mark"}))
 		end,
-		--[[["Arcane Shot_CA_TA"] = function()
-			if lib.hunter_CA() then
-				if lib.IsLastSpell("Aimed Shot") or lib.SpellCasting("Aimed Shot") then
-					if lib.GetAuraStacks("True Aim")<8 then
-						return lib.SimpleCDCheck("Arcane Shot")
-					else
-						return lib.SimpleCDCheck("Arcane Shot",lib.GetAura({"True Aim"})-2)
-					end
-				end
-			end
-			return nil
-		end,]]
-		["Arcane Shot_TA"] = function()
-			if lib.IsLastSpell("Aimed Shot") or lib.SpellCasting("Aimed Shot") then
-				if lib.GetAuraStacks("True Aim")<8 then
-					return lib.SimpleCDCheck("Arcane Shot")
-				else
-					return lib.SimpleCDCheck("Arcane Shot",lib.GetAura({"True Aim"})-2)
-				end
-			end
-			return nil
+		["Trueshot"] = function()
+			if lib.GetSpellCharges("Aimed Shot") > 0 then return nil end
+			return lib.SimpleCDCheck("Trueshot")
 		end,
---[[		["Marked Shot_CA"] = function()
-			if lib.IsLastSpell("Marked Shot") then return nil end
-			if lib.GetAura({"Hunter's Mark"})>lib.GetSpellCD("Marked Shot") then
-				if cfg.talents["Sidewinders"] then
-					if cfg.talents["Patient Sniper"] then
-						if not lib.hunter_AI_Vulnerable() then
-							return lib.SimpleCDCheck("Marked Shot")
-						end
-					else
-						return lib.SimpleCDCheck("Marked Shot")
-					end
-				else
-					return lib.SimpleCDCheck("Marked Shot")
-				end
-			end
-			return nil
-		end,]]
-		["Marked Shot_PS"] = function()
-			if lib.IsLastSpell("Marked Shot") then return nil end
-			if lib.GetAura({"Hunter's Mark"})>lib.GetSpellCD("Marked Shot") then
-				return lib.SimpleCDCheck("Marked Shot",lib.GetAura({"Vulnerable"})-2)
-			end
-			return nil
-		end,
-		["Marked Shot"] = function()
-			if lib.IsLastSpell("Marked Shot") then return nil end
-			if lib.GetAura({"Hunter's Mark"})>lib.GetSpellCD("Marked Shot") then
-				return lib.SimpleCDCheck("Marked Shot")
-			end
-			return nil
-		end,
-		["Marked Shot_Sentinel"] = function()
-			if lib.IsLastSpell("Marked Shot") then return nil end
-			if not lib.IsLastSpell("Sentinel") then return nil end
-			if lib.GetAura({"Hunter's Mark"})>lib.GetSpellCD("Marked Shot") then
-				return lib.SimpleCDCheck("Marked Shot")
-			end
-			return nil
-		end,
-		["Sidewinders_marked"] = function()
-			if lib.GetAura({"Marking Targets"})>lib.GetSpellCD("Sidewinders") then
-				return lib.SimpleCDCheck("Sidewinders",lib.GetAura({"Hunter's Mark"}))
-			end
-			return nil
-		end,
-		["Sidewinders"] = function()
-			if cfg.talents["Patient Sniper"] then
-				return lib.SimpleCDCheck("Sidewinders",nil,lib.GetSpellMaxCharges("Sidewinders"))
-			else
-				return lib.SimpleCDCheck("Sidewinders")
-			end
-			return nil
-		end,
-		["Sidewinders_PS"] = function()
-			if cfg.Power.max==cfg.Power.now then return nil end
-			return lib.SimpleCDCheck("Sidewinders",lib.GetAura({"Vulnerable","Hunter's Mark"},"max"))
-		end,
-		["Arcane Shot_PS"] = function()
-			if cfg.Power.max==cfg.Power.now then return nil end
-			if lib.GetAura({"Marking Targets"})>lib.GetSpellCD("Arcane Shot") then
-				return lib.SimpleCDCheck("Arcane Shot",lib.GetAura({"Vulnerable","Hunter's Mark"},"max"))
-			end
-			return nil
-		end,
-		["Aimed Shot_PS"] = function()
-			if lib.GetSpellCD("Aimed Shot")+lib.GetSpellCT("Aimed Shot")<lib.GetAura({"Vulnerable"}) then
-				return lib.SimpleCDCheck("Aimed Shot",cfg.talents["Barrage"] and lib.Time2Power(60) or 0)
-			end
-			return nil
-		end,
-		["Sentinel"] = function()
-			return lib.SimpleCDCheck("Sentinel",lib.GetAura({"Marking Targets","Hunter's Mark"},"max"))
-		end,
-		["Arcane Shot_marked"] = function()
-			if lib.GetAura({"Marking Targets"})>lib.GetSpellCD("Arcane Shot") then
-				return lib.SimpleCDCheck("Arcane Shot",lib.GetAura({"Hunter's Mark"}))
-			end
-			return nil
-		end,
-		["Aimed Shot_Lock and Load"] = function()
-			if lib.GetAura({"Lock and Load"})>lib.GetSpellCD("Aimed Shot") then
+		["Aimed Shot_almostcapped"] = function()
+			if lib.GetSpellCharges("Aimed Shot") > 1 or
+			(lib.GetSpellCharges("Aimed Shot") == 1 and lib.GetSpellCT("Aimed Shot") + 2 > lib.GetSpellCD("Aimed Shot", false, 2)) then
 				return lib.SimpleCDCheck("Aimed Shot")
 			end
 			return nil
 		end,
-
-		["Aimed Shot_CA"] = function()
-			if lib.GetUnitHealth("target","percent")>=80 then
-				return lib.SimpleCDCheck("Aimed Shot")
+		["Barrage"] = function()
+			if cfg.cleave_targets < 2 then return nil end
+			return lib.SimpleCDCheck("Barrage")
+		end,
+		["Rapid Fire"] = function()
+			if (not cfg.talents["Streamline"] and cfg.Power.now >= 75) or
+			(cfg.talents["Streamline"] and cfg.Power.now >= 69) then return nil end
+			if cfg.cleave_targets >= cfg.cleave_threshold and lib.GetAura("Trick Shots") == 0 then return nil end
+			return lib.SimpleCDCheck("Rapid Fire")
+		end,
+		["Serpent Sting"] = function()
+			return lib.SimpleCDCheck("Serpent Sting", lib.GetAura({"Serpent Sting"}) - 3)
+		end,
+		["Arcane Shot_precise"] = function()
+			if cfg.cleave_targets >= cfg.cleave_threshold then return nil end
+			if lib.GetAura({"Precise Shots"}) == 0 then return nil end
+			return lib.SimpleCDCheck("Arcane Shot")
+		end,
+		["Multi-Shot_precise"] = function()
+			if cfg.cleave_targets < cfg.cleave_threshold then return nil end
+			if lib.GetAura({"Precise Shots"}) == 0 then return nil end
+			return lib.SimpleCDCheck("Multi-Shot")
+		end,
+		["Aimed Shot"] = function()
+			if cfg.Power.now > 90 then return nil end
+			if cfg.cleave_targets >= cfg.cleave_threshold and lib.GetAura("Trick Shots") == 0 then return nil end
+			return lib.SimpleCDCheck("Aimed Shot")
+		end,
+		["Arcane Shot"] = function()
+			if cfg.cleave_targets >= cfg.cleave_threshold then return nil end
+			if (lib.GetSpellCD("Rapid Fire") < 3 and lib.Time2Power(90) < 3) or
+			cfg.Power.now > 90 then
+				return lib.SimpleCDCheck("Arcane Shot")
 			end
 			return nil
 		end,
-		["Aimed Shot_60"] = function()
-			return lib.SimpleCDCheck("Aimed Shot",cfg.talents["Barrage"] and lib.Time2Power(60) or 0)
+		["Multi-Shot"] = function()
+			if cfg.cleave_targets < cfg.cleave_threshold then return nil end
+			return lib.SimpleCDCheck("Multi-Shot")
+		end,
+		["Steady Shot"] = function()
+			-- TODO: Take Steady Focus into account
+			return lib.SimpleCDCheck("Steady Shot")
 		end,
 	}
 
@@ -609,7 +492,10 @@ lib.classpostload["HUNTER"] = function()
 
 	cfg.onpower=true
 	lib.CD = function()
+		-- GENERAL
 		lib.CDadd("Kick")
+		lib.CDadd("A Murder of Crows")
+
 		lib.CDadd("Hatchet Toss")
 		lib.CDadd("Mend")
 		lib.CDadd("Misdirection")
@@ -617,10 +503,8 @@ lib.classpostload["HUNTER"] = function()
 		lib.CDadd("Harpoon")
 		lib.CDadd("Aspect of the Wild")
 		lib.CDadd("Aspect of the Eagle")
-		lib.CDadd("Trueshot")
 		lib.CDadd("Bestial Wrath")
 		lib.CDadd("Fury of the Eagle")
-		lib.CDadd("A Murder of Crows")
 		lib.CDadd("Stampede")
 		lib.CDAddCleave("Barrage")
 		lib.CDadd("Snake Hunter")
@@ -628,16 +512,13 @@ lib.classpostload["HUNTER"] = function()
 		lib.CDadd("Steel Trap")
 		lib.CDadd("Caltrops")
 		lib.CDadd("Powershot")
-		--lib.CDAddCleave("Carve")
-		--lib.CDAddCleave("Butchery")
-		--lib.CDAddCleave("Explosive Trap",nil,13812)
+		-- MARKSMAN
+		lib.CDadd("Double Tap")
+		lib.CDadd("Explosive Shot")
+		lib.CDadd("Trueshot")
+
 		lib.CDAddCleave("Marked Shot",nil,212621)
-		if cfg.talents["Sidewinders"] then
-			lib.CDAddCleave("Sidewinders",nil,214581)
-		else
-			lib.CDAddCleave("Multi-Shot")
-		end
-		--lib.CDAddCleave("Dragonsfire Grenade",nil,194859)
+		lib.CDAddCleave("Multi-Shot")
 	end
 end
 end
