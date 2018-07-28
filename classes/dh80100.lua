@@ -20,105 +20,99 @@ lib.classes["DEMONHUNTER"][1] = function()
 	lib.ChangeResourceBarType(cfg.Power.type)
 	lib.LoadSwingTimer()
 	cfg.talents={
-		["Fel Mastery"]=IsPlayerSpell(192939),
-		["Prepared"]=IsPlayerSpell(203551),
+		["Blind Fury"]=IsPlayerSpell(203550),
+		["Demonic Appetite"]=IsPlayerSpell(206478),
+		["Felblade"]=IsPlayerSpell(232893),
+		["Insatiable Hunger"]=IsPlayerSpell(258876),
 		["Demon Blades"]=IsPlayerSpell(203555),
+		["Immolation Aura"]=IsPlayerSpell(258920),
+		["Trail of Ruin"]=IsPlayerSpell(258881),
+		["Fel Mastery"]=IsPlayerSpell(192939),
+		["Fel Barrage"]=IsPlayerSpell(258925),
+		["Soul Rending"]=IsPlayerSpell(204909),
+		["Desperate Instincts"]=IsPlayerSpell(205411),
+		["Netherwalk"]=IsPlayerSpell(196555),
+		["Cycle of Hatred"]=IsPlayerSpell(258887),
 		["First Blood"]=IsPlayerSpell(206416),
-		["Momentum"]=IsPlayerSpell(206476),
-		["Bloodlet"]=IsPlayerSpell(206473),
+		["Dark Slash"]=IsPlayerSpell(258860),
+		["Unleashed Power"]=IsPlayerSpell(206477),
+		["Master of the Glaive"]=IsPlayerSpell(203556),
+		["Fel Eruption"]=IsPlayerSpell(211881),
 		["Demonic"]=IsPlayerSpell(213410),
-		--["Demon Speed_trait"]=lib.IsPlayerTrait(201469),
-		["Anguish of the Deceiver_trait"]=lib.IsPlayerTrait(201473),
-		--["RJW"]=IsPlayerSpell(116847) --Rushing Jade Wind
+		["Momentum"]=IsPlayerSpell(206476),
+		["Nemesis"]=IsPlayerSpell(206491),
 	}
-	cfg.dh_cap=50
-	if cfg.talents["First Blood"] then
-		cfg.dh_cap=55
-	end
-	lib.AddSpell("Chaos Strike",{201427,162794})
-	lib.AddSpell("Blur",{198589})
-	lib.AddAura("Blur",212800,"buff","player")
-	lib.AddSpell("Blade Dance",{210152,188499},true)
-	lib.AddCleaveSpell("Blade Dance",nil,{200685,199552,210153,210155})
-	lib.AddSpell("Metamorphosis",{191427})
-	if cfg.talents["Momentum"] or cfg.talents["Prepared"] then
-		lib.AddSpell("Vengeful Retreat",{198793})
-		lib.AddCleaveSpell("Vengeful Retreat",nil,{198813})
-	end
-	lib.AddSpell("Fel Eruption",{211881},"target")
-	lib.AddSpell("Fury of the Illidari",{201467})
-	lib.AddAura("Metamorphosis",162264,"buff","player")
-	lib.AddAura("Momentum",208628,"buff","player")
 
+	lib.AddSpell("Blade Dance",{210152,188499},true)
+	lib.AddSpell("Blur",{198589})
+	lib.AddSpell("Chaos Strike",{201427,162794})
+	lib.AddSpell("Dark Slash",{258860})
+	lib.AddSpell("Darkness",{196718})
 	if not cfg.talents["Demon Blades"] then
 		lib.AddSpell("Demon's Bite",{162243})
 	end
-	lib.AddSpell("Fel Rush",{195072})
-	lib.AddCleaveSpell("Fel Rush",nil,{192611})
-	lib.AddSpell("Throw Glaive",{185123})
-	--lib.AddCleaveAdder("Throw Glaive")
 	lib.AddSpell("Eye Beam",{198013},nil,nil,true)
-	lib.AddCleaveSpell("Eye Beam",nil,{198030})
+	lib.AddSpell("Fel Barrage",{258925})
+	lib.AddSpell("Fel Eruption",{211881},"target")
+	lib.AddSpell("Fel Rush",{195072})
+	lib.AddSpell("Felblade",{232893})
+	lib.AddSpell("Immolation Aura",{258920})
+	lib.AddSpell("Metamorphosis",{191427})
+	lib.AddSpell("Nemesis",{206491},"target")
+	lib.AddSpell("Throw Glaive",{185123})
+	lib.AddSpell("Vengeful Retreat",{198793})
+
+	-- lib.AddCleaveSpell("Blade Dance",nil,{200685,199552,210153,210155})
+	-- lib.AddCleaveSpell("Eye Beam",nil,{198030})
+	-- lib.AddCleaveSpell("Fel Rush",nil,{192611})
+	-- lib.AddCleaveSpell("Vengeful Retreat",nil,{198813})
+
+	lib.AddAura("Blur",212800,"buff","player")
+	lib.AddAura("Metamorphosis",162264,"buff","player")
+	lib.AddAura("Momentum",208628,"buff","player")
+	lib.AddAura("Nemesis2",208579,"buff","player")
+	lib.AddAura("Prepared",203650,"buff","player")
+
 	lib.SetAuraFunction("Metamorphosis","OnApply",function()
 		lib.ReloadSpell("Chaos Strike",{201427,162794})
 		lib.ReloadSpell("Blade Dance",{210152,188499},true)
-		end)
+	end)
 	lib.SetAuraFunction("Metamorphosis","OnFade",function()
 		lib.ReloadSpell("Chaos Strike",{162794,201427})
 		lib.ReloadSpell("Blade Dance",{188499,210152},true)
 	end)
 
-	lib.AddSpell("Felblade",{232893})
-	lib.AddSpell("Fel Barrage",{211053})
-	lib.AddSpell("Chaos Blades",{247938},true)
-	lib.AddSpell("Nemesis",{206491},"target")
-	lib.AddAura("Nemesis2",208579,"buff","player")
-
-	lib.SetTrackAura({"Metamorphosis","Chaos Blades","Nemesis","Nemesis2","Momentum"})
+	lib.SetTrackAura({"Metamorphosis","Nemesis","Nemesis2","Momentum"})
 
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Kick")
-	if cfg.talents["Bloodlet"] and cfg.talents["Momentum"] then
-		table.insert(cfg.plistdps,"Throw Glaive_Momentum_range")
-		table.insert(cfg.plistdps,"Fel Barrage_Momentum_range")
-	end
-	if cfg.talents["Prepared"] or cfg.talents["Momentum"] then
+	if cfg.talents["Momentum"] then
 		table.insert(cfg.plistdps,"Vengeful Retreat")
+		table.insert(cfg.plistdps,"Fel Rush_max")
 	end
-	if cfg.talents["Fel Mastery"] then
-		table.insert(cfg.plistdps,"Fel Rush_Fel Mastery")
-	else
-		if cfg.talents["Momentum"] then
-			table.insert(cfg.plistdps,"Fel Rush_Momentum")
-		else
-			table.insert(cfg.plistdps,"Fel Rush_ranged")
-		end
+	if cfg.talents["Fel Barrage"] then
+		table.insert(cfg.plistdps,"Fel Barrage")
 	end
-	table.insert(cfg.plistdps,"Nemesis")
-	table.insert(cfg.plistdps,"Fel Rush_max")
-	table.insert(cfg.plistdps,"Fel Barrage")
-	table.insert(cfg.plistdps,"Fury of the Illidari")
-	if cfg.talents["Demonic"] then
-		table.insert(cfg.plistdps,"Eye Beam_Demonic")
+	if cfg.talents["Dark Slash"] then
+		table.insert(cfg.plistdps,"Dark Slash")
 	end
-	table.insert(cfg.plistdps,"Fel Eruption")
-	if cfg.talents["Bloodlet"] then
-		table.insert(cfg.plistdps,"Throw Glaive")
+	table.insert(cfg.plistdps,"Eye Beam")
+	if cfg.talents["Nemesis"] then
+		table.insert(cfg.plistdps,"Nemesis")
 	end
 	table.insert(cfg.plistdps,"Metamorphosis")
-	table.insert(cfg.plistdps,"Chaos Blades")
-	table.insert(cfg.plistdps,"Eye Beam_aoe")
 	table.insert(cfg.plistdps,"Blade Dance_aoe")
-	table.insert(cfg.plistdps,"Fel Rush_aoe")
-	if cfg.talents["First Blood"] then
-		table.insert(cfg.plistdps,"Blade Dance")
+	if cfg.talents["Immolation Aura"] then
+		table.insert(cfg.plistdps,"Immolation Aura")
 	end
-	table.insert(cfg.plistdps,"Felblade")
+	table.insert(cfg.plistdps,"Blade Dance")
+	if cfg.talents["Felblade"] then
+		table.insert(cfg.plistdps,"Felblade")
+	end
 	table.insert(cfg.plistdps,"Chaos Strike")
 	if cfg.talents["Demon Blades"] then
-		if not cfg.talents["Momentum"] then
-			table.insert(cfg.plistdps,"Throw Glaive")
-		end
+		table.insert(cfg.plistdps,"Fel Rush")
+		table.insert(cfg.plistdps,"Throw Glaive")
 	else
 		table.insert(cfg.plistdps,"Demon's Bite")
 	end
@@ -127,186 +121,43 @@ lib.classes["DEMONHUNTER"][1] = function()
 	cfg.plistaoe = nil
 	cfg.plist=cfg.plistdps
 
-
 	cfg.case = {
-		["Blur_Fel Rush"] = function()
-			if lib.GetSpellCD("Fel Rush")>cfg.gcd and lib.GetSpellCD("Fel Rush")>lib.GetSpellCD("Blur") then
-				return lib.SimpleCDCheck("Blur",lib.GetAura({"Momentum"}))
-			end
-			return nil
+		["Vengeful Retreat"] = function()
+			if lib.GetAura({"Prepared"}) > 0 then return nil end
+			-- if lib.GetAura({"Prepared"}) > 0 or lib.GetSpellCharges("Fel Rush") == 0 then return nil end
+			return lib.SimpleCDCheck("Vengeful Retreat")
 		end,
-		["Fel Barrage5_Momentum"] = function()
-			if (not cfg.talents["Momentum"] or lib.GetAura({"Momentum"})>lib.GetSpellCD("Fel Barrage")) and lib.GetSpellCharges("Fel Barrage")>=5 then
-				return lib.SimpleCDCheck("Fel Barrage")
-			end
-			return nil
-		end,
-		["Fel Barrage4_Momentum"] = function()
-			if (not cfg.talents["Momentum"] or lib.GetAura({"Momentum"})>lib.GetSpellCD("Fel Barrage")) and lib.GetSpellCharges("Fel Barrage")>=4 then
-				return lib.SimpleCDCheck("Fel Barrage")
-			end
-			return nil
-		end,
-		["Fel Barrage4_aoe"] = function()
-			if cfg.cleave_targets>=2 and (not cfg.talents["Momentum"] or lib.GetAura({"Momentum"})>lib.GetSpellCD("Fel Barrage")) and lib.GetSpellCharges("Fel Barrage")>=4 then
-				return lib.SimpleCDCheck("Fel Barrage")
-			end
-			return nil
-		end,
-		["Fury of the Illidari"] = function()
-			if (not cfg.talents["Momentum"] or lib.GetAura({"Momentum"})>lib.GetSpellCD("Fury of the Illidari")) then
-				return lib.SimpleCDCheck("Fury of the Illidari")
-			end
-			return nil
-		end,
-		["Throw Glaive_Momentum_range"] = function()
-			if lib.GetAura({"Momentum"})>lib.GetSpellCD("Throw Glaive") and not lib.inrange("Chaos Strike") then
-				return lib.SimpleCDCheck("Throw Glaive")
-			end
-			return nil
-		end,
-		["Fel Barrage_Momentum_range"] = function()
-			if lib.GetAura({"Momentum"})>lib.GetSpellCD("Fel Barrage") and not lib.inrange("Chaos Strike") then
-				return lib.SimpleCDCheck("Fel Barrage")
-			end
-			return nil
-		end,
-		["Throw Glaive"] = function()
-			if (not cfg.talents["Momentum"] or lib.GetAura({"Momentum"})>lib.GetSpellCD("Throw Glaive")) then
-				return lib.SimpleCDCheck("Throw Glaive")
-			end
-			return nil
-		end,
-
-		["Felblade"] = function()
-			if cfg.Power.now<=cfg.Power.max-30 then
-				return lib.SimpleCDCheck("Felblade") --,lib.GetAura({"Momentum"})-cfg.gcd
-			end
-			return nil
-		end,
-		["Fel Rush_Fel Mastery"] = function()
-			if cfg.Power.now<=cfg.Power.max-25 then
-				return lib.SimpleCDCheck("Fel Rush",lib.GetAura({"Momentum"})) -- cfg.gcd)
-			end
-			return nil
-		end,
-		["Fel Rush_max"] = function ()
-			return lib.SimpleCDCheck("Fel Rush",lib.GetSpellCD("Fel Rush",nil,lib.GetSpellMaxCharges("Fel Rush")))
-		end,
-		["Fel Rush_Momentum"] = function()
-			return lib.SimpleCDCheck("Fel Rush",lib.GetAura({"Momentum"})) -- cfg.gcd)
-		end,
-		["Fel Rush_Prepared_ranged"] = function()
-			if not lib.inrange("Chaos Strike") and (lib.IsLastSpell("Vengeful Retreat") or lib.IsLastSpell("Throw Glaive")) then
-				return lib.SimpleCDCheck("Fel Rush",lib.GetAura({"Momentum"})) -- cfg.gcd)
-			end
-			return nil
-		end,
-		["Fel Rush_ranged"] = function()
-			if not lib.inrange("Chaos Strike") then
-				return lib.SimpleCDCheck("Fel Rush",lib.GetAura({"Momentum"})) -- cfg.gcd)
-			end
-			return nil
-		end,
-		["Vengeful Retreat"] = function() --_Prepared
-			if cfg.Power.now<=cfg.Power.max-20 and lib.inrange("Chaos Strike") then --(lib.GetSpellCD("Vengeful Retreat")+lib.GetSpellCD("gcd")==lib.GetSpellCD("Fel Rush") or lib.GetSpellCD("Vengeful Retreat")+lib.GetSpellCD("gcd")==lib.GetSpellCD("Throw Glaive"))
-				return lib.SimpleCDCheck("Vengeful Retreat",lib.GetAura({"Momentum"})) -- cfg.gcd)
-			end
-			return nil
-		end,
-		["Vengeful Retreat_ranged"] = function()
-			if not lib.inrange("Chaos Strike") and lib.IsLastSpell("Fel Rush") then
-				return lib.SimpleCDCheck("Vengeful Retreat",lib.GetAura({"Momentum"})) -- cfg.gcd)
-			end
-			return nil
-		end,
-
-
-		["Eye Beam_single"] = function()
-			if cfg.noaoe then
-				return lib.SimpleCDCheck("Eye Beam",lib.GetAura({"Metamorphosis"}))
-			end
-			return nil
-		end,
-		["Eye Beam_Momentum"] = function()
-			if (not cfg.talents["Momentum"] or lib.GetAura({"Momentum"})>lib.GetSpellCD("Eye Beam")) then
-				return lib.SimpleCDCheck("Eye Beam",lib.GetAura({"Metamorphosis"}))
-			end
-			return nil
-		end,
-		["Eye Beam_Demonic"] = function()
-			if (not cfg.talents["Momentum"] or lib.GetAura({"Momentum"})>lib.GetSpellCD("Eye Beam")) then
-				return lib.SimpleCDCheck("Eye Beam",lib.GetAura({"Metamorphosis"}))
-			end
-			return nil
-		end,
-		["Eye Beam_aoe"] = function()
-			if cfg.cleave_targets>=2 then --and (not cfg.talents["Momentum"] or lib.GetAura({"Momentum"})>lib.GetSpellCD("Eye Beam"))
-				return lib.SimpleCDCheck("Eye Beam") --,lib.GetAura({"Metamorphosis"})
-			end
-			return nil
-		end,
-		["Eye Beam_Momentum_single"] = function()
-			if cfg.noaoe and lib.GetAura({"Momentum"})>lib.GetSpellCD("Eye Beam") then
-				return lib.SimpleCDCheck("Eye Beam",lib.GetAura({"Metamorphosis"}))
-			end
-			return nil
-		end,
-		["Chaos Strike_cap"] = function()
-			if cfg.Power.now>=cfg.Power.max-30 then
-				return lib.SimpleCDCheck("Chaos Strike")
-			end
-			return nil
-		end,
-		["Chaos Strike_Momentum"] = function()
-			if lib.GetAura({"Momentum"})>lib.GetSpellCD("Chaos Strike") and (cfg.noaoe or cfg.cleave_targets<=2) then
-				return lib.SimpleCDCheck("Chaos Strike")
-			end
-			return nil
-		end,
-		["Annihilation"] = function()
-			if lib.GetAura({"Metamorphosis"})>lib.GetSpellCD("Chaos Strike") then
-				return lib.SimpleCDCheck("Chaos Strike")
-			end
-			return nil
-		end,
-		--[[["Chaos Strike"] = function()
-			if cfg.Power.now<cfg.dh_cap then return nil end
-			return lib.SimpleCDCheck("Chaos Strike")
-		end,]]
-		["Blade Dance_aoe"] = function()
-			if cfg.cleave_targets>=2 then
-				if lib.GetSpellCD("Eye Beam",true)<=lib.GetSpellCD("Blade Dance",true) then
-					return nil
-				end
-				return lib.SimpleCDCheck("Blade Dance")
-			end
-			return nil
-		end,
-		["Fel Rush_aoe_aoe"] = function()
-			if cfg.cleave_targets>=2 then
+		["Fel Rush_max"] = function()
+			if lib.GetSpellCD("Fel Rush", false, 1) > lib.GetSpellCD("Vengeful Retreat") then return nil end
+			if lib.GetAura({"Prepared"}) == 0 or
+			lib.GetSpellCharges("Fel Rush") == 2 or
+			(lib.GetSpellCharges("Fel Rush") == 1 and lib.GetSpellCD("Fel Rush", false, 2) < 3) then
 				return lib.SimpleCDCheck("Fel Rush")
 			end
 			return nil
 		end,
-		["Metamorphosis"] = function()
---			if cfg.Power.now>=cfg.Power.max-30 then
-				return lib.SimpleCDCheck("Metamorphosis",lib.GetAura({"Metamorphosis"}))
-			--end
-			--return nil
+		["Dark Slash"] = function()
+			if cfg.Power.now < 80 then return nil end
+			return lib.SimpleCDCheck("Dark Slash")
 		end,
-		["Throw Glaive_range"] = function()
-			if not lib.inrange("Chaos Strike") then
-				return lib.SimpleCDCheck("Throw Glaive")
-			end
-			return nil
+		["Blade Dance_aoe"] = function()
+			if cfg.cleave_targets < 3 then return nil end
+			return lib.SimpleCDCheck("Blade Dance")
+		end,
+		["Felblade"] = function()
+			if cfg.Power.now >= 80 then return nil end
+			return lib.SimpleCDCheck("Felblade")
+		end,
+		["Fel Rush"] = function()
+			if lib.GetSpellCD("Fel Rush", false, 1) > lib.GetSpellCD("Vengeful Retreat") then return nil end
+			return lib.SimpleCDCheck("Fel Rush")
 		end,
 	}
 	lib.SetInterrupt("Kick",{183752})
 	lib.AddRangeCheck({
-	{"Chaos Strike",nil},
-	{"Kick",{0,0,1,1}},
-	{"Throw Glaive",{0,1,0,1}},
+		{"Chaos Strike",nil},
+		{"Kick",{0,0,1,1}},
+		{"Throw Glaive",{0,1,0,1}},
 	})
 	return true
 end
@@ -584,7 +435,6 @@ lib.classpostload["DEMONHUNTER"] = function()
 		lib.CDadd("Kick")
 		lib.CDadd("Fel Eruption")
 		--lib.CDadd("Throw Glaive")
-		lib.CDadd("Fury of the Illidari")
 		--lib.CDadd("Blur")
 		lib.CDAddCleave("Spirit Bomb",nil,218677)
 		lib.CDadd("Fiery Brand")
@@ -592,7 +442,6 @@ lib.classpostload["DEMONHUNTER"] = function()
 		lib.CDadd("Soul Barrier")
 		lib.CDadd("Metamorphosis")
 		lib.CDadd("Nemesis")
-		lib.CDadd("Chaos Blades")
 		lib.CDadd("Eye Beam")
 		--lib.CDAddCleave("Blade Dance",nil,200685)
 		lib.CDadd("Vengeful Retreat")
