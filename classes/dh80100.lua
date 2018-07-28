@@ -161,6 +161,7 @@ lib.classes["DEMONHUNTER"][1] = function()
 	})
 	return true
 end
+
 -- VENGEANCE SPEC
 lib.classes["DEMONHUNTER"][2] = function()
 	cfg.MonitorSpells=true
@@ -168,85 +169,81 @@ lib.classes["DEMONHUNTER"][2] = function()
 	lib.AddResourceBar(cfg.Power.max)
 	lib.ChangeResourceBarType(cfg.Power.type)
 	cfg.talents={
+		["Abyssal Strike"]=IsPlayerSpell(207550),
+		["Agonizing Flames"]=IsPlayerSpell(207548),
+		["Razor Spikes"]=IsPlayerSpell(209400),
+		["Feast of Souls"]=IsPlayerSpell(207697),
+		["Fallout"]=IsPlayerSpell(227174),
+		["Burning Alive"]=IsPlayerSpell(207739),
 		["Flame Crash"]=IsPlayerSpell(227322),
-		--["Prepared"]=IsPlayerSpell(203551),
-		--["Demon Blades"]=IsPlayerSpell(203555),
-		--["First Blood"]=IsPlayerSpell(206416),
+		["Charred Flesh"]=IsPlayerSpell(264002),
+		["Felblade"]=IsPlayerSpell(232893),
+		["Soul Rending"]=IsPlayerSpell(217996),
+		["Feed the Demon"]=IsPlayerSpell(218612),
 		["Fracture"]=IsPlayerSpell(263642),
+		["Concentrated Sigils"]=IsPlayerSpell(207666),
+		["Quickened Sigils"]=IsPlayerSpell(209281),
+		["Sigil of Chains"]=IsPlayerSpell(202138),
+		["Gluttony"]=IsPlayerSpell(264004),
+		["Spirit Bomb"]=IsPlayerSpell(247454),
+		["Fel Devastation"]=IsPlayerSpell(212084),
+		["Last Resort"]=IsPlayerSpell(209258),
+		["Void Reaver"]=IsPlayerSpell(268175),
+		["Soul Barrier"]=IsPlayerSpell(263648),
 	}
 
-	lib.AddSpell("Shear",{203782})
+	lib.AddSpell("Consume Magic",{278326})
 	lib.AddSpell("Demon Spikes",{203720})
-	lib.AddAura("Demon Spikes",203819,"buff","player")
-	lib.AddAura("Soul Fragments",203981,"buff","player")
-	lib.SetTrackAura("Soul Fragments")
-	--[[lib.SetAuraFunction("Soul Fragments","OnStacks",function()
-		lib.UpdateTrackAura(cfg.GUID["player"],lib.GetAuraStacks("Soul Fragments")>0 and lib.GetAuraStacks("Soul Fragments") or nil)
-	end)]]
-	lib.AddSpell("Soul Cleave",{228477})
-	lib.AddSpell("Soul Barrier",{227225},true)
 	lib.AddSpell("Fel Devastation",{212084},nil,nil,true)
-	lib.AddCleaveSpell("Soul Cleave",nil,{228478})
-	lib.AddSpell("Fracture",{263642})
-	lib.AddSpell("Throw Glaive",{204157})
-	--lib.AddCleaveAdder("Throw Glaive")
-	lib.AddSpell("Immolation Aura",{178740},true)
-	lib.AddSpell("Soul Carver",{207407},"target")
-	lib.AddSpell("Infernal Strike",{189110})
-	lib.SaveSpell(189111) --For Casts
-	lib.AddSpell("Fel Eruption",{211881},"target")
-	lib.AddSpell("Spirit Bomb",{218679})
-	lib.AddAura("Spirit Bomb",224509,"debuff","target") --Frailty
-	lib.AddSpell("Fiery Brand",{204021})
 	lib.AddSpell("Felblade",{232893})
-	lib.AddAura("Fiery Brand",207744,"debuff","target")
-
-
+	lib.AddSpell("Fiery Brand",{204021})
+	lib.AddSpell("Fracture",{263642})
+	lib.AddSpell("Immolation Aura",{178740},true)
+	lib.AddSpell("Infernal Strike",{189110})
+	lib.AddSpell("Shear",{203782})
 	lib.AddSpell("Sigil of Flame",{204596})
+	lib.AddSpell("Soul Barrier",{227225},true)
+	lib.AddSpell("Soul Cleave",{228477})
+	lib.AddSpell("Spirit Bomb",{247454})
+	lib.AddSpell("Throw Glaive",{204157})
+
+	-- lib.AddCleaveSpell("Soul Cleave",nil,{228478})
+
+	lib.AddAura("Demon Spikes",203819,"buff","player")
+	lib.AddAura("Fiery Brand",207744,"debuff","target")
 	lib.AddAura("Sigil of Flame",204598,"debuff","target")
+	lib.AddAura("Soul Fragments",203981,"buff","player")
+	lib.AddAura("Spirit Bomb",224509,"debuff","target") --Frailty
+
+	lib.SetTrackAura("Soul Fragments")
+
+	lib.SaveSpell(189111) --For Casts
 
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Kick")
-	table.insert(cfg.plistdps,"Spirit Bomb")
-	table.insert(cfg.plistdps,"Felblade_range")
-	table.insert(cfg.plistdps,"Throw Glaive_range")
-
-	table.insert(cfg.plistdps,"Demon Spikes_hp")
-	table.insert(cfg.plistdps,"Soul Barrier_hp")
-	table.insert(cfg.plistdps,"Fel Devastation_heal")
-	table.insert(cfg.plistdps,"Soul Cleave_heal")
-	table.insert(cfg.plistdps,"Fiery Brand_hp")
-	table.insert(cfg.plistdps,"Soul Carver")
-	table.insert(cfg.plistdps,"Fel Eruption_noaoe")
-	table.insert(cfg.plistdps,"Immolation Aura")
-	if cfg.talents["Flame Crash"] then
-		table.insert(cfg.plistdps,"Infernal Strike_Flame Crash_aoe")
+	if cfg.talents["Spirit Bomb"] then
+		table.insert(cfg.plistdps,"Spirit Bomb_4")
 	end
-	if cfg.talents["Flame Crash"] then
-		table.insert(cfg.plistdps,"Sigil of Flame_Flame Crash_aoe")
-	else
-		table.insert(cfg.plistdps,"Sigil of Flame_aoe")
-	end
-	if not cfg.talents["Flame Crash"] then
-		table.insert(cfg.plistdps,"Infernal Strike_aoe")
-	end
-
-	table.insert(cfg.plistdps,"Fel Devastation_aoe")
-	table.insert(cfg.plistdps,"Spirit Bomb_aoe")
-	table.insert(cfg.plistdps,"Spirit Bomb4")
-	table.insert(cfg.plistdps,"Soul Cleave_aoe")
-	table.insert(cfg.plistdps,"Infernal Strike2")
-	table.insert(cfg.plistdps,"Fel Devastation")
+	table.insert(cfg.plistdps,"Infernal Strike")
 	if cfg.talents["Fracture"] then
 		table.insert(cfg.plistdps,"Fracture")
 	end
-	table.insert(cfg.plistdps,"Soul Cleave_cap")
-	table.insert(cfg.plistdps,"Felblade")
-	table.insert(cfg.plistdps,"Fel Eruption")
+	table.insert(cfg.plistdps,"Demon Spikes")
+	table.insert(cfg.plistdps,"Immolation Aura")
+	if cfg.talents["Spirit Bomb"] then
+		table.insert(cfg.plistdps,"Spirit Bomb")
+	else
+		table.insert(cfg.plistdps,"Soul Cleave")
+	end
+	table.insert(cfg.plistdps,"Soul Cleave_SB")
 	table.insert(cfg.plistdps,"Sigil of Flame")
+	if cfg.talents["Burning Alive"] then
+		table.insert(cfg.plistdps,"Fiery Brand")
+	end
 	if not cfg.talents["Fracture"] then
 		table.insert(cfg.plistdps,"Shear")
 	end
+	table.insert(cfg.plistdps,"Throw Glaive")
 	table.insert(cfg.plistdps,"end")
 
 	cfg.plistaoe = nil
@@ -254,178 +251,57 @@ lib.classes["DEMONHUNTER"][2] = function()
 
 
 	cfg.case = {
-		["Infernal Strike_aoe"] = function()
-			if lib.IsLastSpell(189111) then return nil end
-			if lib.GetSpellCD("Immolation Aura")<=cfg.gcd then return nil end
-			if cfg.cleave_targets>1 then
-				return lib.SimpleCDCheck("Infernal Strike")
-			end
-			return nil
-		end,
-		["Fel Devastation_aoe"] = function()
-			if cfg.cleave_targets>1 and lib.GetAura({"Immolation Aura"})>lib.GetSpellCD("Fel Devastation") then
-				return lib.SimpleCDCheck("Fel Devastation")
-			end
-			return nil
-		end,
-		["Fel Devastation"] = function()
-			if lib.GetAura({"Immolation Aura"})>lib.GetSpellCD("Fel Devastation") then
-				return lib.SimpleCDCheck("Fel Devastation")
-			end
-			return nil
-		end,
-		["Fel Eruption_noaoe"] = function()
-			if cfg.cleave_targets<=1 or cfg.noaoe then
-				return lib.SimpleCDCheck("Fel Eruption")
-			end
-			return nil
-		end,
-		["Demon Spikes_hp"] = function()
-			if lib.GetUnitHealth("player","percent")<=90 then
-				return lib.SimpleCDCheck("Demon Spikes",lib.GetAura({"Demon Spikes"})) --,lib.GetSpellCD("Demon Spikes",nil,lib.GetSpellMaxCharges("Demon Spikes"))-cfg.gcd) -- cfg.gcd)
-			end
-			return nil
-		end,
-		["Soul Barrier_hp"] = function()
-			if lib.GetUnitHealth("player","percent")<=90 then
-				return lib.SimpleCDCheck("Soul Barrier",lib.GetAura({"Soul Barrier"})) --,lib.GetSpellCD("Demon Spikes",nil,lib.GetSpellMaxCharges("Demon Spikes"))-cfg.gcd) -- cfg.gcd)
-			end
-			return nil
-		end,
-		["Fiery Brand_hp"] = function()
-			if lib.GetUnitHealth("player","percent")<=90 then
-				return lib.SimpleCDCheck("Fiery Brand")
-			end
-			return nil
-		end,
-		["Fiery Brand"] = function()
-			if lib.GetAura({"Immolation Aura"})>lib.GetSpellCD("Fiery Brand") then
-				return lib.SimpleCDCheck("Fiery Brand")
-			end
-			return nil
-		end,
-		["Soul Carver"] = function()
-			if lib.GetAura({"Immolation Aura"})>lib.GetSpellCD("Soul Carver") then
-				return lib.SimpleCDCheck("Soul Carver")
-			end
-			return nil
-		end,
-		["Sigil of Flame"] = function()
-			if lib.GetAura({"Immolation Aura"})>math.max(0,lib.GetSpellCD("Sigil of Flame")-1) then
-				return lib.SimpleCDCheck("Sigil of Flame")
-			end
-			return nil
-		end,
-		["Infernal Strike2"] = function()
-			if lib.GetSpellCD("Immolation Aura")<=cfg.gcd then return nil end
-			if lib.GetAura({"Immolation Aura"})>lib.GetSpellCD("Infernal Strike",nil,lib.GetSpellMaxCharges("Infernal Strike")) then
-				return lib.SimpleCDCheck("Infernal Strike",lib.GetSpellCD("Infernal Strike",nil,lib.GetSpellMaxCharges("Infernal Strike"))-cfg.gcd) -- cfg.gcd)
-			end
-			return nil
-		end,
-		["Spirit Bomb"] = function()
-			if cfg.Power.now<30 or cfg.Power.now>=cfg.Power.max-20 then return nil end
-			if lib.GetAuraStacks("Soul Fragments")>0 then
-				return lib.SimpleCDCheck("Spirit Bomb",lib.GetAura({"Spirit Bomb"}))
-			end
-			return nil
-		end,
-		["Spirit Bomb4"] = function()
-			if cfg.Power.now<30 or cfg.Power.now>=cfg.Power.max-20 then return nil end
+		["Spirit Bomb_4"] = function()
 			if lib.GetAuraStacks("Soul Fragments")>=4 then
 				return lib.SimpleCDCheck("Spirit Bomb")
 			end
 			return nil
 		end,
-		["Spirit Bomb_aoe"] = function()
-			if cfg.Power.now<30 or cfg.Power.now>=cfg.Power.max-20 then return nil end
-			if lib.GetAuraStacks("Soul Fragments")>0 and cfg.cleave_targets>1 then
-				return lib.SimpleCDCheck("Spirit Bomb")
-			end
-			return nil
+		["Fracture"] = function()
+			if cfg.Power.max - cfg.Power.now < 30 then return nil end
+			if lib.GetAuraStacks("Soul Fragments") > 3 then return nil end
+			return lib.SimpleCDCheck("Fracture")
 		end,
-		["Infernal Strike_Flame Crash_aoe"] = function()
-			if lib.IsLastSpell(189111) then return nil end
-			if lib.IsLastSpell("Sigil of Flame") then return nil end
-			if lib.GetSpellCD("Immolation Aura")<=cfg.gcd then return nil end
-			if cfg.cleave_targets>1 then
-				return lib.SimpleCDCheck("Infernal Strike",lib.GetAura({"Sigil of Flame"})-3.8)
-			end
-			return nil
-		end,
-		["Sigil of Flame_Flame Crash_aoe"] = function()
-			if lib.IsLastSpell(189111) then return nil end
-			if cfg.cleave_targets>1 then
-				return lib.SimpleCDCheck("Sigil of Flame",lib.GetAura({"Sigil of Flame"})-3.8)
-			end
-			return nil
-		end,
-		["Sigil of Flame_aoe"] = function()
-			if cfg.cleave_targets>1 then
-				return lib.SimpleCDCheck("Sigil of Flame",lib.GetAura({"Sigil of Flame"})-3.8)
-			end
-			return nil
-		end,
-		["Soul Cleave_cap"] = function()
-			--if lib.GetSpellCD("Fel Devastation")<=cfg.gcd then return nil end
-			if cfg.Power.now>=cfg.Power.max-20 then
-				return lib.SimpleCDCheck("Soul Cleave")
-			end
-			return nil
-		end,
-		["Soul Cleave_aoe"] = function()
-			if lib.GetSpellCD("Fel Devastation")<=cfg.gcd then return nil end
-			if cfg.cleave_targets>1 then
-				return lib.SimpleCDCheck("Soul Cleave")
-			end
-			return nil
-		end,
-		["Soul Cleave_heal"] = function()
-			if lib.GetSpellCD("Fel Devastation")<=cfg.gcd then return nil end
-			if lib.GetSpellCD("Demon Spikes")<=cfg.gcd then return nil end
-			if lib.GetSpellCD("Soul Barrier")<=cfg.gcd then return nil end
-			if lib.GetUnitHealth("player","percent")<=80 then
-				return lib.SimpleCDCheck("Soul Cleave")
-			end
-			return nil
-		end,
-		["Fel Devastation_heal"] = function()
-			if lib.GetUnitHealth("player","percent")<=60 then
-				return lib.SimpleCDCheck("Fel Devastation")
-			end
-			return nil
-		end,
-		["Felblade"] = function()
-			if cfg.Power.now<cfg.Power.max-20 then
-				return lib.SimpleCDCheck("Felblade")
-			end
-			return nil
+		["Demon Spikes"] = function()
+			if lib.GetSpellCharges("Demon Spikes") ~= lib.GetSpellMaxCharges("Demon Spikes") then return nil end
+			return lib.SimpleCDCheck("Demon Spikes")
 		end,
 		["Immolation Aura"] = function()
-			if cfg.Power.now<=cfg.Power.max-20 then
-				return lib.SimpleCDCheck("Immolation Aura")
+			if cfg.talents["Fallout"] and lib.GetAuraStacks("Soul Fragments") >= 4 then return nil end
+			if cfg.Power.max - cfg.Power.now < 20 then return nil end
+			return lib.SimpleCDCheck("Immolation Aura")
+		end,
+		["Spirit Bomb"] = function()
+			if lib.GetAuraStacks("Soul Fragments") == 0 and cfg.Power.max - cfg.Power.now < 20 then return nil end
+			return lib.SimpleCDCheck("Spirit Bomb")
+		end,
+		["Soul Cleave"] = function()
+			if cfg.Power.max - cfg.Power.now < 20 or
+			(lib.GetAuraStacks("Soul Fragments") >= 4 and cfg.Power.now > 60) then
+				lib.SimpleCDCheck("Soul Cleave")
 			end
 			return nil
 		end,
-		["Throw Glaive_range"] = function()
-			if not lib.inrange("Shear") then
-				return lib.SimpleCDCheck("Throw Glaive")
-			end
-			return nil
+		["Soul Cleave_SB"] = function()
+			if lib.GetAuraStacks("Soul Fragments") < 2 and cfg.Power.max - cfg.Power.now > 20 then return nil end
+			return lib.SimpleCDCheck("Soul Cleave")
 		end,
-		["Felblade_range"] = function()
-			if not lib.inrange("Shear") and lib.inrange("Felblade") then
-				return lib.SimpleCDCheck("Felblade")
-			end
-			return nil
+		["Shear"] = function()
+			if cfg.Power.max - cfg.Power.now < 15 then return nil end
+			if lib.GetAuraStacks("Soul Fragments") >= 4 then return nil end
+			return lib.SimpleCDCheck("Shear")
+		end,
+		["Infernal Strike"] = function()
+			if lib.GetSpellCharges("Infernal Strike") <= 1 then return end
+			return lib.SimpleCDCheck("Infernal Strike")
 		end,
 	}
 	lib.SetInterrupt("Kick",{183752})
 	lib.AddRangeCheck({
-	{"Shear",nil},
-	{"Felblade",{1,1,0,1}},
-	{"Kick",{0,0,1,1}},
-	{"Throw Glaive",{0,1,0,1}},
+		{"Shear",nil},
+		{"Felblade",{1,1,0,1}},
+		{"Kick",{0,0,1,1}},
+		{"Throw Glaive",{0,1,0,1}},
 	})
 	return true
 end
