@@ -245,7 +245,8 @@ lib.basicevents = function()
 		end
 	end
 
-	function Heddevents.COMBAT_LOG_EVENT_UNFILTERED(timeStamp, eventtype,_,sourceGUID,sourceName,_,_,destGUID,destName,destFlags,_,spellId,spellName,_,_,interrupt)
+	function Heddevents.COMBAT_LOG_EVENT_UNFILTERED()
+		local timeStamp, eventtype,_,sourceGUID,sourceName,_,_,destGUID,destName,destFlags,_,SpellID,spellName,_,_,interrupt = CombatLogGetCurrentEventInfo()
 		if eventtype == "UNIT_DIED" or eventtype == "UNIT_DESTROYED" or eventtype == "UNIT_DISSIPATES" then
 			lib.RemoveNPC(destGUID)
 		end
