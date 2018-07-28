@@ -296,80 +296,88 @@ lib.classes["HUNTER"][2] = function () --MM
 	return true
 end
 
+-- SURVIVAL SPEC
 lib.classes["HUNTER"][3] = function () -- Surv
 	cfg.talents={
-		--["Steady_Focus"]=IsPlayerSpell(177667),
-		["Way of the Mok'Nathal"]=IsPlayerSpell(201082),
-		["Serpent Sting"]=IsPlayerSpell(87935),
+		["Viper's Venom"]=IsPlayerSpell(268501),
+		["Terms of Engagement"]=IsPlayerSpell(265895),
+		["Alpha Predator"]=IsPlayerSpell(269737),
+		["Guerilla Tactics"]=IsPlayerSpell(264332),
+		["Hydra's Bite"]=IsPlayerSpell(260241),
 		["Butchery"]=IsPlayerSpell(212436),
+		["Trailblazer"]=IsPlayerSpell(199921),
+		["Natural Mending"]=IsPlayerSpell(270581),
+		["Camouflage"]=IsPlayerSpell(199483),
+		["Bloodseeker"]=IsPlayerSpell(260248),
+		["Steel Trap"]=IsPlayerSpell(162488),
+		["A Murder of Crows"]=IsPlayerSpell(131894),
+		["Born To Be Wild"]=IsPlayerSpell(266921),
+		["Posthaste"]=IsPlayerSpell(109215),
+		["Binding Shot"]=IsPlayerSpell(109248),
+		["Tip of the Spear"]=IsPlayerSpell(260285),
+		["Mongoose Bite"]=IsPlayerSpell(259387),
+		["Flanking Strike"]=IsPlayerSpell(269751),
+		["Birds of Prey"]=IsPlayerSpell(260331),
+		["Wildfire Infusion"]=IsPlayerSpell(271014),
+		["Chakrams"]=IsPlayerSpell(259391),
 	}
 
-	lib.AddSpell("Explosive Trap",{191433})
-	lib.AddAura("Explosive Trap",13812,"debuff","target")
-	lib.AddCleaveSpell("Explosive Trap",nil,{13812})
-	lib.AddSpell("Dragonsfire Grenade",{194855})
-	lib.AddAura("Dragonsfire Grenade",194858,"debuff","target")
-	lib.AddCleaveSpell("Dragonsfire Grenade",nil,{194858,194859})
-	lib.AddSpell("Mongoose Bite",{190928})
-	lib.AddAura("Mongoose Fury",190931,"buff","player")
-	lib.SetTrackAura("Mongoose Fury")
-	--[[lib.SetAuraFunction("Mongoose Fury","OnStacks",function()
-		lib.UpdateTrackAura(cfg.GUID["player"],lib.GetAuraStacks("Mongoose Fury")>0 and lib.GetAuraStacks("Mongoose Fury") or nil)
-	end)]]
-	lib.AddSpell("Flanking Strike",{202800})
-	lib.AddSpell("Raptor Strike",{186270})
-	lib.AddAura("Serpent Sting",118253,"debuff","target")
-	lib.AddAura("Mok'Nathal Tactics",201081,"buff","player")
-	lib.AddAura("Raptor Strike",201081,"buff","player")
-	lib.AddSpell("Fury of the Eagle",{203415},nil,nil,true)
-	lib.AddSpell("Steel Trap",{162488})
-	lib.AddAura("Steel Trap",162487,"debuff","target")
-	lib.AddSpell("Throwing Axes",{200163})
-	lib.AddSpell("Snake Hunter",{201078})
-	lib.AddSpell("Hatchet Toss",{193265})
-	lib.AddSpell("Harpoon",{190925})
-	lib.AddSpell("Caltrops",{194277})
-	lib.AddAura("Caltrops",194279,"debuff","target")
-	lib.AddSpell("Lacerate",{185855},"target")
 	lib.AddSpell("A Murder of Crows",{206505},"target")
-	lib.AddSpell("Spitting Cobra",{194407},true)
 	lib.AddSpell("Aspect of the Eagle",{186289},true)
-	if cfg.talents["Butchery"] then
-		lib.AddSpell("Butchery",{212436})
-		lib.AddCleaveSpell("Butchery",nil,{212436})
-	else
-		lib.AddSpell("Carve",{187708})
-		lib.AddCleaveSpell("Carve",nil,{187708})
-	end
+	lib.AddSpell("Binding Shot",{109248})
+	if not lib.AddSpellIfTalented("Butchery",{212436}) then lib.AddSpell("Carve",{187708}) end
+	lib.AddSpellIfTalented("Camouflage",{199483})
+	lib.AddSpellIfTalented("Chakrams",{259391})
+	lib.AddSpell("Coordinated Assault",{266779})
+	lib.AddSpellIfTalented("Flanking Strike",{269751})
+	lib.AddSpell("Harpoon",{190925})
+	lib.AddSpell("Kill Command",{259489})
+	if not lib.AddSpellIfTalented("Mongoose Bite",{259387}) then lib.AddSpell("Raptor Strike",{186270}) end
+	lib.AddSpell("Serpent Sting",{259491})
+	lib.AddSpellIfTalented("Steel Trap",{162488})
+	lib.AddSpell("Wildfire Bomb",{259495})
+
+	lib.AddCleaveSpell("Carve",nil,{187708})
+
+	lib.AddAura("Mongoose Fury",259388,"buff","player")
+	lib.AddAura("Serpent Sting",259491,"debuff","target")
+	lib.AddAura("Viper's Venom",268552,"buff","player")
+	lib.AddAura("Wildfire Bomb",269747,"debuff","target")
 
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Kick")
 	table.insert(cfg.plistdps,"Mend_pet")
-	table.insert(cfg.plistdps,"Harpoon")
-	table.insert(cfg.plistdps,"Hatchet Toss")
-	table.insert(cfg.plistdps,"Fury of the Eagle_Mongoose Fury")
-	if cfg.talents["Way of the Mok'Nathal"] then
-		table.insert(cfg.plistdps,"Raptor Strike_buff")
+	table.insert(cfg.plistdps,"Harpoon_range")
+	table.insert(cfg.plistdps,"Coordinated Assault")
+	table.insert(cfg.plistdps,"Kill Command")
+	table.insert(cfg.plistdps,"Wildfire Bomb")
+	table.insert(cfg.plistdps,"Serpent Sting_vv")
+	table.insert(cfg.plistdps,"Serpent Sting")
+	if cfg.talents["Steel Trap"] then
+		table.insert(cfg.plistdps,"Steel Trap")
 	end
-	table.insert(cfg.plistdps,"A Murder of Crows")
-	table.insert(cfg.plistdps,"Steel Trap")
-	table.insert(cfg.plistdps,"Explosive Trap")
-	table.insert(cfg.plistdps,"Caltrops")
-	table.insert(cfg.plistdps,"Dragonsfire Grenade")
-	if cfg.talents["Serpent Sting"] then
-		table.insert(cfg.plistdps,"Raptor Strike_debuff")
+	if cfg.talents["A Murder of Crows"] then
+		table.insert(cfg.plistdps,"A Murder of Crows")
 	end
-	table.insert(cfg.plistdps,"Aspect of the Eagle")
-	table.insert(cfg.plistdps,"Snake Hunter")
-	table.insert(cfg.plistdps,"Mongoose Bite_Mongoose Fury")
-	table.insert(cfg.plistdps,"Mongoose Bite_max")
-	table.insert(cfg.plistdps,"Lacerate")
-	table.insert(cfg.plistdps,"Flanking Strike")
-	table.insert(cfg.plistdps,"Butchery_aoe")
-	table.insert(cfg.plistdps,"Carve_aoe")
-	table.insert(cfg.plistdps,"Spitting Cobra")
-	table.insert(cfg.plistdps,"Throwing Axes")
-	table.insert(cfg.plistdps,"Raptor Strike_nomax")
+	if cfg.talents["Flanking Strike"] then
+		table.insert(cfg.plistdps,"Flanking Strike")
+	end
+	if cfg.talents["Chakrams"] then
+		table.insert(cfg.plistdps,"Chakrams")
+	end
+	if cfg.talents["Butchery"] then
+		table.insert(cfg.plistdps,"Butchery_aoe")
+	else
+		table.insert(cfg.plistdps,"Carve_aoe")
+	end
+	if cfg.talents["Terms of Engagement"] then
+		table.insert(cfg.plistdps,"Harpoon")
+	end
+	if cfg.talents["Mongoose Bite"] then
+		table.insert(cfg.plistdps,"Mongoose Bite")
+	else
+		table.insert(cfg.plistdps,"Raptor Strike")
+	end
 	table.insert(cfg.plistdps,"end")
 
 	cfg.plistaoe = {}
@@ -379,94 +387,57 @@ lib.classes["HUNTER"][3] = function () -- Surv
 	cfg.plist = cfg.plistdps
 
 	cfg.case = {
-		["Hatchet Toss"] = function()
-			if lib.inrange("Mongoose Bite") then return nil end
-			if lib.inrange("Hatchet Toss") then
-				return lib.SimpleCDCheck("Hatchet Toss")
-			end
-			return nil
-		end,
-		["Harpoon"] = function()
+		["Harpoon_range"] = function()
 			if lib.inrange("Mongoose Bite") then return nil end
 			if lib.inrange("Harpoon") then
 				return lib.SimpleCDCheck("Harpoon")
 			end
 			return nil
 		end,
-		--[[["Flanking Strike"] = function()
-			return lib.SimpleCDCheck("Flanking Strike",lib.Time2Power(cfg.Power.max-10))
-		end,]]
+		["Coordinated Assault"] = function()
+			if cfg.Power.now < 70 or lib.GetSpellCD("Kill Command") == 0 or lib.GetSpellCD("Wildfire Bomb") == 0 then return nil end
+			return lib.SimpleCDCheck("Coordinated Assault")
+		end,
+		["Kill Command"] = function()
+			if cfg.Power.now > 75 then return nil end
+			return lib.SimpleCDCheck("Kill Command")
+		end,
+		["Wildfire Bomb"] = function()
+			if lib.GetAura({"Wildfire Bomb"}) > 2 then return nil end
+			return lib.SimpleCDCheck("Wildfire Bomb")
+		end,
+		["Serpent Sting_vv"] = function()
+			if lib.GetAura("Viper's Venom") == 0 then return nil end
+			return lib.SimpleCDCheck("Serpent Sting")
+		end,
+		["Serpent Sting"] = function()
+			if lib.GetAura({"Serpent Sting"}) > 3 then return nil end
+			return lib.SimpleCDCheck("Serpent Sting")
+		end,
 		["Flanking Strike"] = function()
-			return lib.SimpleCDCheck("Flanking Strike",lib.Time2Power(85))
-		end,
-		["Lacerate"] = function()
-			return lib.SimpleCDCheck("Lacerate",lib.GetAura({"Lacerate"})-3.6)
-		end,
-		["Caltrops"] = function()
-			return lib.SimpleCDCheck("Caltrops",lib.GetAura({"Caltrops"})-1.8)
-		end,
-		["Raptor Strike_nomax"] = function()
-			return lib.SimpleCDCheck("Raptor Strike",lib.Time2Power(cfg.Power.max))
-		end,
-		["Raptor Strike_buff"] = function()
-			if lib.GetAuraStacks("Mok'Nathal Tactics")<4 then
-				return lib.SimpleCDCheck("Raptor Strike",lib.GetAura({"Mongoose Fury"}))
-			else
-				return lib.SimpleCDCheck("Raptor Strike",lib.GetAura({"Mok'Nathal Tactics"})-2.4)
-			end
-		end,
-		["Raptor Strike_debuff"] = function()
-			if cfg.cleave_targets>=2 and not cfg.noaoe then
-				return lib.SimpleCDCheck("Carve",lib.GetAura({"Serpent Sting"})-4.5)
-			end
-			return lib.SimpleCDCheck("Raptor Strike",lib.GetAura({"Serpent Sting"})-4.5)
-		end,
-		["Mongoose Bite_max"] = function()
-			if lib.IsChanneling("Fury of the Eagle") then return nil end
-			return lib.SimpleCDCheck("Mongoose Bite",lib.GetSpellCD("Mongoose Bite",nil,lib.GetSpellMaxCharges("Mongoose Bite"))-(lib.GetSpellMaxCharges("Mongoose Bite")-1)*cfg.gcd)
-		end,
-		["Snake Hunter"] = function()
-			if lib.GetSpellCharges("Mongoose Bite")==0 and lib.GetAura({"Mongoose Fury"})>lib.GetSpellCD("Snake Hunter")+4*cfg.gcd then
-				return lib.SimpleCDCheck("Snake Hunter") --,lib.GetAura({"Aspect of the Eagle"})
-			end
-			return nil
-		end,
-		["Aspect of the Eagle"] = function()
-			if lib.GetSpellCharges("Mongoose Bite")<lib.GetSpellMaxCharges("Mongoose Bite") and lib.GetAura({"Mongoose Fury"})>lib.GetSpellCD("Aspect of the Eagle")+3*cfg.gcd then
-				return lib.SimpleCDCheck("Aspect of the Eagle",lib.GetAura({"Aspect of the Eagle"}))
-			end
-			return nil
-		end,
-		["Mongoose Bite_Mongoose Fury"] = function()
-			if lib.IsChanneling("Fury of the Eagle") then return nil end
-			if lib.GetAura({"Mongoose Fury"})>lib.GetSpellCD("Mongoose Bite") then
-				return lib.SimpleCDCheck("Mongoose Bite")
-			end
-			return nil
-		end,
-		["Fury of the Eagle_Mongoose Fury"] = function()
-			if lib.GetAura({"Mongoose Fury"})>lib.GetSpellCD("Fury of the Eagle") then --lib.GetAuraStacks("Mongoose Fury")>=6
-				return lib.SimpleCDCheck("Fury of the Eagle",lib.GetAura({"Mongoose Fury"})-cfg.gcd)
-			end
-			return nil
-		end,
-		["Carve_aoe"] = function()
-			if cfg.cleave_targets>=4 then
-				return lib.SimpleCDCheck("Carve") --,lib.Time2Power(75)
-			end
-			return nil
+			if cfg.Power.now > 60 then return nil end
+			return lib.SimpleCDCheck("Flanking Strike")
 		end,
 		["Butchery_aoe"] = function()
-			if cfg.cleave_targets>=2 then
-				return lib.SimpleCDCheck("Butchery") --,lib.Time2Power(85)
-			end
-			return nil
+			if cfg.cleave_targets < 3 then return nil end
+			return lib.SimpleCDCheck("Butchery")
+		end,
+		["Carve_aoe"] = function()
+			if cfg.cleave_targets < 3 then return nil end
+			return lib.SimpleCDCheck("Carve")
+		end,
+		["Raptor Strike"] = function()
+			if cfg.Power.now < 70 then return nil end
+			return lib.SimpleCDCheck("Raptor Strike")
+		end,
+		["Mongoose Bite"] = function()
+			if cfg.Power.now < 40 then return nil end
+			return lib.SimpleCDCheck("Mongoose Bite")
 		end,
 	}
 
 	lib.AddRangeCheck({
 	{"Mongoose Bite",nil},
-	{"Hatchet Toss",{0,0,1,1}},
 	{"Harpoon",{1,1,0,1}},
 	})
 	--cfg.mode = "dps"
@@ -495,30 +466,28 @@ lib.classpostload["HUNTER"] = function()
 		-- GENERAL
 		lib.CDadd("Kick")
 		lib.CDadd("A Murder of Crows")
-
-		lib.CDadd("Hatchet Toss")
 		lib.CDadd("Mend")
 		lib.CDadd("Misdirection")
 		lib.CDtoggleOff("Misdirection")
-		lib.CDadd("Harpoon")
-		lib.CDadd("Aspect of the Wild")
-		lib.CDadd("Aspect of the Eagle")
-		lib.CDadd("Bestial Wrath")
-		lib.CDadd("Fury of the Eagle")
-		lib.CDadd("Stampede")
 		lib.CDAddCleave("Barrage")
-		lib.CDadd("Snake Hunter")
+		lib.CDAddCleave("Multi-Shot")
+
+		-- BEAST MASTERY
+		lib.CDadd("Aspect of the Wild")
+		lib.CDadd("Bestial Wrath")
 		lib.CDadd("Spitting Cobra")
-		lib.CDadd("Steel Trap")
-		lib.CDadd("Caltrops")
-		lib.CDadd("Powershot")
+		lib.CDadd("Stampede")
+
 		-- MARKSMAN
 		lib.CDadd("Double Tap")
 		lib.CDadd("Explosive Shot")
 		lib.CDadd("Trueshot")
-
 		lib.CDAddCleave("Marked Shot",nil,212621)
-		lib.CDAddCleave("Multi-Shot")
+
+		-- SURVIVAL
+		lib.CDadd("Aspect of the Eagle")
+		lib.CDadd("Harpoon")
+		lib.CDadd("Steel Trap")
 	end
 end
 end

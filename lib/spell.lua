@@ -128,6 +128,17 @@ lib.AddSpell = function(spell,ids,addbuff,cost_real,nointerupt,nousecheck,noplay
 	return false
 end
 
+lib.AddSpellIfTalented = function(spell,ids,addbuff,cost_real,nointerupt,nousecheck,noplayercheck)
+	if (not spell) or (not ids) then return false end
+	if type(ids)=="number" then
+		ids = {ids}
+	end
+	if cfg.talents[spell] then
+		return lib.AddSpell(spell, ids, addbuff, cost_real, nointerrupt, nousecheck, noplayercheck)
+	end
+	return false
+end
+
 lib.SaveSpellState = function(spell)
 	cfg.sspell[spell]=cfg.sspell[spell] or {}
 	cfg.sspell[spell].castingTime=cfg.spells[spell].castingTime
