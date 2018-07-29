@@ -11,7 +11,6 @@ lib.classes["WARRIOR"] = {}
 local t,s
 
 lib.classpreload["WARRIOR"] = function()
-	lib.AddSet("T18",{124319,124329,124334,124340,124346})
 	lib.SetPower("Rage")
 	lib.AddResourceBar(cfg.Power.max)
 	lib.ChangeResourceBarType(cfg.Power.type)
@@ -205,89 +204,101 @@ lib.classes["WARRIOR"][2] = function () --Fury
 	return true
 end
 
--- TODO: Update Arms for 8.0.1
 lib.classes["WARRIOR"][1] = function () --Arms
-	--cfg.nousecheck=true
 	lib.LoadSwingTimer()
 	cfg.talents={
+		["War Machine"]=IsPlayerSpell(262231),
+		["Sudden Death"]=IsPlayerSpell(29725),
+		["Skullsplitter"]=IsPlayerSpell(260643),
+		["Double Time"]=IsPlayerSpell(103827),
+		["Impending Victory"]=IsPlayerSpell(202168),
+		["Storm Bolt"]=IsPlayerSpell(107570),
+		["Massacre"]=IsPlayerSpell(281001),
 		["Fervor of Battle"]=IsPlayerSpell(202316),
-		["Overpower"]=IsPlayerSpell(7384),
 		["Rend"]=IsPlayerSpell(772),
+		["Second Wind"]=IsPlayerSpell(29838),
+		["Bounding Stride"]=IsPlayerSpell(202163),
+		["Defensive Stance"]=IsPlayerSpell(197690),
+		["Collateral Damage"]=IsPlayerSpell(268243),
+		["Warbreaker"]=IsPlayerSpell(262161),
+		["Cleave"]=IsPlayerSpell(845),
+		["In For The Kill"]=IsPlayerSpell(248621),
+		["Avatar"]=IsPlayerSpell(107574),
+		["Deadly Calm"]=IsPlayerSpell(262228),
+		["Anger Management"]=IsPlayerSpell(152278),
+		["Dreadnaught"]=IsPlayerSpell(262150),
 		["Ravager"]=IsPlayerSpell(152277),
-		["Focused Rage"]=IsPlayerSpell(207982),
-		["Shattered Defenses"]=lib.IsPlayerTrait(248580),
-		["Executioner's Precision"]=lib.IsPlayerTrait(238147),
 	}
-	lib.AddSpell("Rend",{772},"target") -- Rend
-	lib.SetDOT("Rend")
-	lib.AddSpell("Overpower",{7384})
-	lib.AddSpell("Warbreaker",{209577})
-	lib.AddAura("Overpower",60503,"buff","player")
-	lib.AddAura("Shattered Defenses",248625,"buff","player")
-	lib.AddSpell("Colossus Smash",{167105})
-	lib.AddAura("Colossus Smash",208086,"debuff","target")
-	lib.AddAura("Executioner's Precision",242188,"debuff","target")
-	lib.AddSpell("Focused Rage",{207982},true)
 
-	--[[lib.SetAuraFunction("Colossus Smash","OnStacks",function()
-		lib.UpdateTrackAura(cfg.GUID["target"],lib.GetAuraStacks("Colossus Smash")>0 and lib.GetAuraStacks("Colossus Smash") or nil)
-	end)]]
-	lib.AddSpell("Mortal Strike",{12294})
-	lib.AddSpell("Slam",{1464})
+	lib.AddSpell("Avatar",{107574},true)
+	lib.AddSpell("Battle Shout",{6673},true)
 	lib.AddSpell("Bladestorm",{227847},true)
+	lib.AddSpell("Charge",{100})
 	lib.AddSpell("Cleave",{845})
-	lib.AddAura("Cleave",188923,"buff","player")
-	lib.AddCleaveSpell("Cleave")
+	lib.AddSpell("Colossus Smash",{167105})
+	lib.AddSpell("Deadly Calm",{262228})
+	lib.AddSpell("Execute",{163201})
+	-- lib.AddSpell("Heroic Leap",{6544})
+	lib.AddSpell("Mortal Strike",{12294})
+	lib.AddSpell("Overpower",{7384})
+	lib.AddSpell("Ravager",{152277})
+	lib.AddSpell("Rend",{772},"target")
+	lib.AddSpell("Skullsplitter",{260643})
+	lib.AddSpell("Slam",{1464})
+	lib.AddSpell("Sweeping Strikes",{260708},true)
+	lib.AddSpell("Warbreaker",{262161})
 	lib.AddSpell("Whirlwind",{1680})
-	lib.AddCleaveSpell("Whirlwind",nil,{199658,199850})
-	lib.SetTrackAura({"Shattered Defenses","Focused Rage","Cleave","Colossus Smash"})
-	cfg.warrior_cap=lib.GetSpellCost("Mortal Strike")+(cfg.talents["Fervor of Battle"] and lib.GetSpellCost("Whirlwind") or lib.GetSpellCost("Slam"))
+
+	lib.AddAura("Deep Wounds",262304,"debuff","target")
+	lib.AddAura("Colossus Smash",208086,"debuff","target")
+	lib.AddAura("Overpower",60503,"buff","player")
+	lib.AddAura("Sudden Death",29725,"buff","player")
+
+	lib.SetDOT("Rend")
+
+	lib.SetTrackAura({"Colossus Smash"})
+
+	-- cfg.warrior_cap=lib.GetSpellCost("Mortal Strike")+(cfg.talents["Fervor of Battle"] and lib.GetSpellCost("Whirlwind") or lib.GetSpellCost("Slam"))
 
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Charge_range")
 	table.insert(cfg.plistdps,"Kick")
-	table.insert(cfg.plistdps,"Victory Rush")
-	table.insert(cfg.plistdps,"Battle Cry")
-	table.insert(cfg.plistdps,"Avatar")
-	table.insert(cfg.plistdps,"Bladestorm_aoe")
-	table.insert(cfg.plistdps,"Cleave_aoe3")
-	table.insert(cfg.plistdps,"Whirlwind_aoe3")
+	table.insert(cfg.plistdps,"Sweeping Strikes")
 	if cfg.talents["Rend"] then
-		table.insert(cfg.plistdps,"Rend_noRend")
+		table.insert(cfg.plistdps,"Rend")
 	end
-	table.insert(cfg.plistdps,"Colossus Smash_Buff")
-	table.insert(cfg.plistdps,"Warbreaker_Buff")
-	if cfg.talents["Ravager"] then
-		table.insert(cfg.plistdps,"Ravager")
+	if cfg.talents["Skullsplitter"] then
+		table.insert(cfg.plistdps,"Skullsplitter")
 	end
-	if cfg.talents["Executioner's Precision"] then
-		table.insert(cfg.plistdps,"Mortal Strike_Executioner's Precision")
+	if cfg.talents["Deadly Calm"] then
+		table.insert(cfg.plistdps,"Deadly Calm")
 	end
-	table.insert(cfg.plistdps,"Execute")
-	table.insert(cfg.plistdps,"Mortal Strike")
-	--table.insert(cfg.plistdps,"Execute_Colossus Smash")
-
-	if not cfg.talents["Shattered Defenses"] then
+	if cfg.talents["Avatar"] then
+		table.insert(cfg.plistdps,"Avatar")
+	end
+	if cfg.talents["Warbreaker"] then
+		table.insert(cfg.plistdps,"Warbreaker")
+	else
 		table.insert(cfg.plistdps,"Colossus Smash")
 	end
-	if cfg.talents["Overpower"] then
-		table.insert(cfg.plistdps,"Overpower")
-	end
-	table.insert(cfg.plistdps,"Cleave_aoe2")
-	table.insert(cfg.plistdps,"Whirlwind_aoe2")
-	if cfg.talents["Focused Rage"] then
-		table.insert(cfg.plistdps,"Focused Rage")
+	table.insert(cfg.plistdps,"Execute_SD")
+	table.insert(cfg.plistdps,"Execute_aoe2")
+	table.insert(cfg.plistdps,"Execute_aoe4")
+	table.insert(cfg.plistdps,"Mortal Strike")
+	if cfg.talents["Ravager"] then
+		table.insert(cfg.plistdps,"Ravager")
 	else
-		if cfg.talents["Fervor of Battle"] then
-			table.insert(cfg.plistdps,"Whirlwind_nogcd")
-		else
-			table.insert(cfg.plistdps,"Slam_nogcd")
-		end
+		table.insert(cfg.plistdps,"Bladestorm")
 	end
-
-
-	if cfg.talents["Rend"] then
-		table.insert(cfg.plistdps,"Rend_reRend")
+	table.insert(cfg.plistdps,"Cleave_aoe")
+	table.insert(cfg.plistdps,"Whirlwind_aoe_cs")
+	table.insert(cfg.plistdps,"Overpower")
+	table.insert(cfg.plistdps,"Execute")
+	table.insert(cfg.plistdps,"Whirlwind_aoe")
+	if cfg.talents["Fervor of Battle"] then
+		table.insert(cfg.plistdps,"Whirlwind")
+	else
+		table.insert(cfg.plistdps,"Slam")
 	end
 	table.insert(cfg.plistdps,"end")
 
@@ -296,145 +307,66 @@ lib.classes["WARRIOR"][1] = function () --Arms
 
 	cfg.case = {}
 	cfg.case = {
-		["Focused Rage"] = function()
-			if lib.GetAuraStacks("Focused Rage")==3 then return nil end
-			if cfg.Power.now<(lib.GetSpellCost("Mortal Strike")+lib.GetSpellCost("Focused Rage")) then
-				return lib.SimpleCDCheck("Focused Rage",lib.GetSwingCD())
-			end
-			return lib.SimpleCDCheck("Focused Rage")
+		["Sweeping Strikes"] = function()
+			if cfg.cleave_targets < 2 then return nil end
+			return lib.SimpleCDCheck("Sweeping Strikes")
 		end,
-		["Battle Cry"] = function()
-			return lib.SimpleCDCheck("Battle Cry",lib.GetSpellCD("Colossus Smash"))
+		["Rend"] = function()
+			if lib.GetAura({"Colossus Smash"}) > 0 or cfg.cleave_targets > 3 then return nil end
+			return lib.SimpleCDCheck("Rend", lib.GetAura({"Rend"}) - 4)
 		end,
-		["Whirlwind_aoe2"] = function()
-			if cfg.cleave_targets>=2 then
-				if cfg.Power.now<lib.GetSpellCost("Whirlwind") then
-					return lib.SimpleCDCheck("Whirlwind",lib.GetSwingCD())
-				else
-					return lib.SimpleCDCheck("Whirlwind")
-				end
-			end
-			return nil
-		end,
-		["Cleave_aoe2"] = function()
-			if cfg.cleave_targets>=2 then
-				if cfg.Power.now<lib.GetSpellCost("Cleave") then
-					return lib.SimpleCDCheck("Cleave",lib.GetSwingCD())
-				else
-					return lib.SimpleCDCheck("Cleave")
-				end
-			end
-			return nil
-		end,
-		["Bladestorm_aoe"] = function()
-			if cfg.cleave_targets>=4 then
-				return lib.SimpleCDCheck("Bladestorm")
-			end
-			return nil
-		end,
-		["Whirlwind_aoe3"] = function()
-			if cfg.cleave_targets>=3 then
-				if cfg.Power.now<lib.GetSpellCost("Whirlwind") then
-					return lib.SimpleCDCheck("Whirlwind",lib.GetSwingCD())
-				else
-					return lib.SimpleCDCheck("Whirlwind")
-				end
-			end
-			return nil
-		end,
-		["Cleave_aoe3"] = function()
-			if cfg.cleave_targets>=3 then
-				if cfg.Power.now<lib.GetSpellCost("Cleave") then
-					return lib.SimpleCDCheck("Cleave",lib.GetSwingCD())
-				else
-					return lib.SimpleCDCheck("Cleave")
-				end
-			end
-			return nil
+		["Skullsplitter"] = function()
+			if cfg.Power.now >= 70 then return nil end
+			return lib.SimpleCDCheck("Skullsplitter")
 		end,
 		["Avatar"] = function()
-			return lib.SimpleCDCheck("Avatar",lib.GetSpellCD("Colossus Smash"))
+			if lib.GetSpellCD("Colossus Smash") >= 10 then return nil end
+			return lib.SimpleCDCheck("Avatar")
 		end,
-		["Rend_reRend"] = function()
-			return lib.SimpleCDCheck("Rend",lib.GetAura({"Rend"})-4.5)
+		["Execute_SD"] = function()
+			if lib.GetAura({"Sudden Death"}) == 0 then return nil end
+			return lib.SimpleCDCheck("Execute")
 		end,
-		["Rend_noRend"] = function()
-			return lib.SimpleCDCheck("Rend",lib.GetAura({"Rend"}))
-		end,
-		["Colossus Smash_Buff"] = function()
-			if cfg.talents["Shattered Defenses"] then
-				return lib.SimpleCDCheck("Colossus Smash",lib.GetAura({"Shattered Defenses"}))
-			end
-			return lib.SimpleCDCheck("Colossus Smash",lib.GetAura({"Colossus Smash"}))
-		end,
-		["Warbreaker_Buff"] = function()
-			return lib.SimpleCDCheck("Warbreaker",math.max(lib.GetAura({"Shattered Defenses"}),lib.GetAura({"Colossus Smash"})))
-		end,
-		["Execute_Colossus Smash"] = function()
-			if lib.GetUnitHealth("target","percent")>20 then return nil end
-			if lib.GetAura({"Colossus Smash"})>lib.GetSpellCD("Execute") then
+		["Execute_aoe2"] = function()
+			if cfg.cleave_targets < 2 or cfg.cleave_targets > 3 then return nil end
+			if lib.GetAura({"Sudden Death"}) > 0 or
+			lib.GetAura({"Colossus Smash"}) > 0 or
+			cfg.Power.now > 40 then
 				return lib.SimpleCDCheck("Execute")
 			end
 			return nil
 		end,
-		["Overpower"] = function()
-			if lib.GetAura({"Overpower"})==0 then return nil end
-			if cfg.Power.now<lib.GetSpellCost("Overpower") then
-				return lib.SimpleCDCheck("Overpower",lib.GetSwingCD())
-			else
-				return lib.SimpleCDCheck("Overpower")
-			end
-		end,
-		["Whirlwind_nogcd"] = function()
-			if lib.isSpellUsable("Execute") then return nil end
-			if lib.GetSpellCD("Colossus Smash")<lib.GetSpellCD("Whirlwind")+cfg.gcd then return nil end
-			if lib.GetSpellCD("Mortal Strike")<lib.GetSpellCD("Whirlwind")+cfg.gcd then return nil end
-			if cfg.Power.now<cfg.warrior_cap then
-				if lib.GetSpellCD("Mortal Strike")>lib.GetSwingCD() then
-					if cfg.Power.now+25>cfg.warrior_cap or lib.GetSpellCD("Mortal Strike")>lib.GetSwingCD(1) then
-						if cfg.Power.now<lib.GetSpellCost("Whirlwind") then
-							return lib.SimpleCDCheck("Whirlwind",lib.GetSwingCD())
-						else
-							return lib.SimpleCDCheck("Whirlwind")
-						end
-					end
-				end
-				return nil
-			end
-			return lib.SimpleCDCheck("Whirlwind")
-		end,
-		["Slam_nogcd"] = function()
-			if lib.isSpellUsable("Execute") then return nil end
-			if lib.GetSpellCD("Colossus Smash")<lib.GetSpellCD("Slam")+cfg.gcd then return nil end
-			if lib.GetSpellCD("Mortal Strike")<lib.GetSpellCD("Slam")+cfg.gcd then return nil end
-			if cfg.Power.now<cfg.warrior_cap then
-				if lib.GetSpellCD("Mortal Strike")>lib.GetSwingCD() then
-					if cfg.Power.now+25>cfg.warrior_cap or lib.GetSpellCD("Mortal Strike")>lib.GetSwingCD(1) then
-						if cfg.Power.now<lib.GetSpellCost("Slam") then
-							return lib.SimpleCDCheck("Slam",lib.GetSwingCD())
-						else
-							return lib.SimpleCDCheck("Slam")
-						end
-					end
-				end
-				return nil
-			end
-			return lib.SimpleCDCheck("Slam")
+		["Execute_aoe4"] = function()
+			if cfg.cleave_targets < 4 or lib.GetAura({"Sweeping Strikes"}) == 0 then return nil end
+			return lib.SimpleCDCheck("Execute")
 		end,
 		["Mortal Strike"] = function()
-			if cfg.Power.now<lib.GetSpellCost("Mortal Strike") then
-				return lib.SimpleCDCheck("Mortal Strike",lib.GetSwingCD())
-			else
-				return lib.SimpleCDCheck("Mortal Strike")
-			end
+			if lib.GetUnitHealth("target","percent") < 20 then return nil end
+			return lib.SimpleCDCheck("Mortal Strike")
 		end,
-		["Mortal Strike_Executioner's Precision"] = function()
-			if lib.GetAuraStacks("Executioner's Precision")<2 then return nil end
-			if cfg.Power.now<lib.GetSpellCost("Mortal Strike") then
-				return lib.SimpleCDCheck("Mortal Strike",lib.GetSwingCD())
-			else
-				return lib.SimpleCDCheck("Mortal Strike")
-			end
+		["Cleave_aoe"] = function()
+			if cfg.cleave_targets < 2 then return nil end
+			return lib.SimpleCDCheck("Cleave", lib.GetAura({"Deep Wounds"}))
+		end,
+		["Whirlwind_aoe_cs"] = function()
+			if cfg.cleave_targets < 2 or lib.GetAura({"Colossus Smash"}) == 0 then return nil end
+			return lib.SimpleCDCheck("Whirlwind")
+		end,
+		["Execute"] = function()
+			if cfg.Power.now < 40 and lib.GetAura({"Colossus Smash"}) == 0 then return nil end
+			return lib.SimpleCDCheck("Execute")
+		end,
+		["Whirlwind_aoe"] = function()
+			if cfg.cleave_targets < 2 then return nil end
+			return lib.SimpleCDCheck("Whirlwind")
+		end,
+		["Whirlwind"] = function()
+			if lib.GetUnitHealth("target","percent") < 20 or cfg.cleave_targets > 1 or cfg.Power.now < 60 then return nil end
+			return lib.SimpleCDCheck("Whirlwind")
+		end,
+		["Slam"] = function()
+			if lib.GetUnitHealth("target","percent") < 20 or cfg.cleave_targets > 1 or cfg.Power.now < 50 then return nil end
+			return lib.SimpleCDCheck("Slam")
 		end,
 	}
 
@@ -732,9 +664,9 @@ lib.classpostload["WARRIOR"] = function()
 	end
 
 	lib.AddRangeCheck({
-	{"Execute",nil},
-	{"Charge",{0,1,0,1}},
-	{"Heroic Throw",{0,0,1,1}},
+		{"Execute",nil},
+		{"Charge",{0,1,0,1}},
+		{"Heroic Throw",{0,0,1,1}},
 	})
 end
 end

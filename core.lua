@@ -48,7 +48,7 @@ end
 lib.reload=reload
 
 lib.basicevents = function()
-	function Heddevents.UNIT_POWER_FREQUENT(unit,powerType)
+	function Heddevents.UNIT_POWER_UPDATE(unit,powerType)
 		if unit=="player" then
 			--print(powerType)
 			lib.UpdatePower(powerType)
@@ -288,7 +288,7 @@ lib.basicevents = function()
 				Heddevents.UNIT_HEALTH_FREQUENT(unitID)
 			end
 		end
-		Heddevents.UNIT_POWER_FREQUENT("player")
+		-- Heddevents.UNIT_POWER_UPDATE("player")
 		lib.UpdateShape()
 		lib.UpdateAllSpells()
 		--lib.UpdateSpell("gcd")

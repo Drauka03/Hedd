@@ -30,6 +30,9 @@ end
 lib.Regen_Orig=lib.Regen
 
 lib.UpdatePower = function(powerToken)
+	if powerToken ~= nil and cfg.AltPower.token == nil and cfg.Power.token ~= powerToken then
+		cfg.AltPower.token = powerToken
+	end
 	powerType = lib.PowerTokenToType(powerToken)
 	powerType=powerType or cfg.Power.type
 	if cfg.Power.type~=powerType then

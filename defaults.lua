@@ -27,17 +27,17 @@ function lib.defaults()
 
 	cfg.Power={}
 	cfg.Power.now=UnitPower("player")
-	cfg.Power.type_num,cfg.Power.type=UnitPowerType("player")
+	cfg.Power.type_num,cfg.Power.token=UnitPowerType("player")
 	cfg.Power.max=UnitPowerMax("player")
 	cfg.Power.regen = (select(2,GetPowerRegen()))
 	cfg.Power.real=cfg.Power.now
 	cfg.Power.local_type=_G[cfg.Power.type]
 	cfg.Power.onpower=nil
-	
+
 	cfg.AltPower={}
 	cfg.AltPower.now=0
 	cfg.AltPower.max=0
-	cfg.AltPower.type_num=cfg.Power.type_num
+	-- cfg.AltPower.type_num=cfg.Power.type_num
 	cfg.AltPower.func=nil
 	cfg.AltPower.local_type=nil
 
