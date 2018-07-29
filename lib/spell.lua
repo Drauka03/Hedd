@@ -128,6 +128,37 @@ lib.AddSpell = function(spell,ids,addbuff,cost_real,nointerupt,nousecheck,noplay
 	return false
 end
 
+lib.RemoveSpell = function(spell)
+	cfg.spells[spell] = nil
+end
+
+lib.ScanSpells = function()
+	local spellList = {}
+	i = 1
+	while true do
+		local skillType, special = GetSpellBookItemInfo(i, "spell")
+		if skillType == nil then
+			-- print("Finished scanning spells")
+			break
+		elseif skillType == "SPELL" then
+			local spellName = select(1, GetSpellInfo(special))
+			if IsPlayerSpell(special) then
+				if spellList[spellName] == nil then
+					spellList[spellName] = {}
+				end
+				if spellList[spellName][1] ~= special then
+					table.insert(spellList[spellName], special)
+				end
+			end
+		end
+		i = i + 1
+	end
+
+	for spellName, spellIDs in pairs(spellList) do
+		lib.AddSpell(spellName, spellIDs)
+	end
+end
+
 lib.AddSpellIfTalented = function(spell,ids,addbuff,cost_real,nointerupt,nousecheck,noplayercheck)
 	if (not spell) or (not ids) then return false end
 	if type(ids)=="number" then
@@ -137,6 +168,21 @@ lib.AddSpellIfTalented = function(spell,ids,addbuff,cost_real,nointerupt,nousech
 		return lib.AddSpell(spell, ids, addbuff, cost_real, nointerrupt, nousecheck, noplayercheck)
 	end
 	return false
+end
+
+lib.ScanTalents = function()
+	-- print("Scanning talents")
+	local talentInfo = {}
+	for row=1,7 do
+		for col=1,3 do
+			local talentID, name, _, selected, _, spellID, _, _, _, _, known = GetTalentInfo(row, col, 1)
+			if selected or known then
+				-- print("Adding known talent " .. name .. " (" .. spellID .. ")")
+				talentInfo[name] = spellID
+			end
+		end
+	end
+	return talentInfo
 end
 
 lib.SaveSpellState = function(spell)
