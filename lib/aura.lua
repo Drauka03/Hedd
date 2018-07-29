@@ -631,6 +631,14 @@ lib.UnitHasDebuff = function(unit, debuffName)
 	return false
 end
 
+lib.UnitHasAura = function(unit, auraName)
+	for i=1,40 do
+		local name = select(1, UnitAura(unit, i))
+		if name == auraName then return true end
+	end
+	return false
+end
+
 lib.AuraInTime = function (spell , mint, maxt)
 	if not cfg.aura[spell] then return nil end
 	if cfg.aura[spell].faded >= mint and cfg.aura[spell].faded <=maxt then
