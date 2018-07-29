@@ -392,8 +392,11 @@ end
 
 lib.FindTotem = function(totemName)
 	for i=1,4 do
-		if select(2, GetTotemInfo(i)) == totemName then
-			return lib.GetTotem(i)
+		local _, tn, st, dur, _ = GetTotemInfo(i)
+		if tn == totemName then
+			tl_totem = dur - (GetTime()-st)
+			tl_totem = (tl_totem>0) and tl_totem or 0
+			return tl_totem
 		end
 	end
 	return 0
