@@ -390,6 +390,15 @@ lib.HaveTotem = function(spell,totemtype)
 	return nil
 end
 
+lib.FindTotem = function(totemName)
+	for i=1,4 do
+		if select(2, GetTotemInfo(i)) == totemName then
+			return lib.GetTotem(i)
+		end
+	end
+	return 0
+end
+
 local i_spell,noprio,prio_count,n_case
 lib.SetPriority = function()
 	cfg.FindPriority=true
