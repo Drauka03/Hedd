@@ -6,38 +6,6 @@ local cfg = ns.cfg
 local lib = _G["HEDD_lib"] or CreateFrame("Frame","HEDD_lib")
 ns.lib = lib
 
--- lib.UpdateSpellTT = function(spell)
--- 	if spell and cfg.spells[spell] then
--- 		if not cfg.spells[spell].has_charges then
--- 			if cfg.spells[spell].tt.fullcd then
--- 				cfg.spells[spell].fullcd=hedlib.tofloat(_G[cfg.spells[spell].tt.fullcd]:GetText() or " ")
--- 			else
--- 				cfg.spells[spell].fullcd=0
--- 			end
--- 		end
---
--- 		-- if cfg.spells[spell].powerType=="cd" then
--- 		-- 	cfg.spells[spell].cost=0
--- 		-- 	return
--- 		-- end
---
--- 		if cfg.spells[spell].cost_real then
--- 			cfg.spells[spell].cost=cfg.spells[spell].cost_real
--- 		else
--- 			if cfg.spells[spell].tt.cost then
--- 				cfg.spells[spell].tt.cost_string=_G[cfg.spells[spell].tt.cost]:GetText() or ""
--- 				cfg.spells[spell].cost=0
--- 				for _, pattern in pairs(cfg.spells[spell].tt.pattern_cost) do
--- 					if string.find(cfg.spells[spell].tt.cost_string,pattern) then
--- 						cfg.spells[spell].cost=hedlib.toint(cfg.spells[spell].tt.cost_string)
--- 						break
--- 					end
--- 				end
--- 			end
--- 		end
--- 	end
--- end
-
 local function gsi_inner(...)
 	if ... == "" then
 		return nil
@@ -108,7 +76,7 @@ lib.AddSpell = function(spell,ids,addbuff,cost_real,nointerupt,nousecheck,noplay
 				cfg.spells[spell].start = 0
 				cfg.spells[spell].isUsable = true
 				cfg.spells[spell].notEnoughMana = nil
-				local cspc = lib.GetCurrentSpellPowerCost(id)
+				local cspc = lib.GetCurrentSpellPowerCostFull(id)
 				if cspc then
 					cfg.spells[spell].cost = cspc["cost"] or 0
 					cfg.spells[spell].powerType = cspc["type"] or "None"
@@ -157,6 +125,17 @@ lib.AddSpell = function(spell,ids,addbuff,cost_real,nointerupt,nousecheck,noplay
 		end
 	end
 	if cfg.spells[spell] then return true end
+	return false
+end
+
+lib.AddSpellIfTalented = function(spell,ids,addbuff,cost_real,nointerupt,nousecheck,noplayercheck)
+	if (not spell) or (not ids) then return false end
+	if type(ids)=="number" then
+		ids = {ids}
+	end
+	if cfg.talents[spell] then
+		return lib.AddSpell(spell, ids, addbuff, cost_real, nointerrupt, nousecheck, noplayercheck)
+	end
 	return false
 end
 
@@ -209,22 +188,30 @@ lib.ReloadSpell=function(spell,ids,...)
 	lib.AddSpell(spell,ids,...)
 end
 
-lib.GetCurrentSpellPowerCost = function(spell)
+lib.GetCurrentSpellPowerCost = function(spell, typeNum)
+	local cspc = lib.GetCurrentSpellPowerCostFull(spell, typeNum)
+	if cspc == nil or #cspc == 0 then return 0 end
+	return cspc["cost"]
+end
+
+lib.GetCurrentSpellPowerCostFull = function(spell, typeNum)
 	local spc = GetSpellPowerCost(spell)
-	if #spc == 0 then
-		return nil
-	elseif #spc == 1 then
-		-- print(hedlib.dump(spc[1]))
+	if spc == nil or #spc == 0 then
+		return {}
+	elseif #spc == 1 and lib.CheckCostType(spc[1], typeNum, true) then
 		return spc[1]
 	end
 	for k, v in pairs(spc) do
-		if v["hasRequiredAura"] then
-			-- print(hedlib.dump(v))
+		if v["hasRequiredAura"] and lib.CheckCostType(v, typeNum, true) then
 			return v
 		end
 	end
-	-- print(hedlib.dump(spc[1]))
 	return spc[1]
+end
+
+lib.CheckCostType = function(cost, typeNum, default)
+	if typeNum == nil then return default end
+	return cost["type"] == typeNum
 end
 
 lib.SetSpellCost = function(spell,powercost,powertype)
@@ -528,7 +515,10 @@ lib.GetSpellCD = function (spell,noregen,charge)
 			cfg.spells[spell].tl=math.max(cfg.spells[spell].tl,lib.Time2Power(cfg.spells[spell].cost))
 		end
 		if cfg.spells[spell].generalPowerType=="alt" and cfg.class=="DEATHKNIGHT" then
-			cfg.spells[spell].tl=math.max(cfg.spells[spell].tl,lib.GetNumRunesReadyCD(cfg.spells[spell].cost))
+			-- cfg.spells[spell].tl=math.max(cfg.spells[spell].tl,lib.GetNumRunesReadyCD(cfg.spells[spell].cost))
+			-- print("Finding cost for " .. spell)
+			-- print(hedlib.dump(lib.GetCurrentSpellPowerCost(spell, Enum.PowerType["Runes"])))
+			cfg.spells[spell].tl=math.max(cfg.spells[spell].tl,lib.GetNumRunesReadyCD(lib.GetCurrentSpellPowerCost(spell, Enum.PowerType["Runes"])))
 		end
 		if lib.SpellCasting(spell) then
 			if cfg.spells[spell].has_charges then

@@ -12,7 +12,7 @@ local t,s
 
 lib.classpreload["WARRIOR"] = function()
 	lib.AddSet("T18",{124319,124329,124334,124340,124346})
-	lib.SetPower("Rage")
+	lib.SetPower("RAGE")
 	lib.AddResourceBar(cfg.Power.max)
 	lib.ChangeResourceBarType(cfg.Power.type)
 	lib.AddSpell("Battle Cry",{1719},true)
@@ -21,13 +21,13 @@ end
 lib.classes["WARRIOR"][2] = function () --Fury
 	cfg.talents={
 		["Wrecking Ball"]=IsPlayerSpell(215569),
+		["Frenzy"]=IsPlayerSpell(206313),
 		["Inner Rage"]=IsPlayerSpell(215573),
 		["Frothing Berserker"]=IsPlayerSpell(215571),
 		["Outburst"]=IsPlayerSpell(206320),
-		["Carnage"]=IsPlayerSpell(202922),
 	}
 	lib.AddAura("Enrage",184362,"buff","player")
-
+	
 	lib.AddSpell("Rampage",{184367})
 	lib.AddSpell("Bloodthirst",{23881})
 	lib.AddSpell("Raging Blow",{85288})
@@ -38,51 +38,50 @@ lib.classes["WARRIOR"][2] = function () --Fury
 	lib.AddAura("Odyn's Fury",205546,"debuff","target")
 	lib.AddAura("Juggernaut",201009,"buff","player")
 	lib.AddCleaveSpell("Whirlwind",nil,{199667,44949})
-
+	
 	lib.AddAura("Meat Cleaver",85739,"buff","player")
 	lib.AddAura("Wrecking Ball",215570,"buff","player")
-	lib.AddAura("Furious Slash",202539,"buff","player")
+	lib.AddAura("Frenzy",202539,"buff","player")
 	lib.AddAura("Massacre",206316,"buff","player")
 	lib.AddAura("Frothing Berserker",215572,"buff","player")
-
+	
 	lib.SetTrackAura({"Battle Cry","Juggernaut","Enrage","Frothing Berserker","Massacre","Wrecking Ball","Meat Cleaver"})
 	lib.AddTracking("Battle Cry",{255,0,0})
 	lib.AddTracking("Frothing Berserker",{255,0,0})
 	lib.AddTracking("Enrage",{255,0,0})
 	lib.AddTracking("Meat Cleaver",{0,0,255})
-
+	
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Charge_range")
 	table.insert(cfg.plistdps,"Kick")
-	table.insert(cfg.plistdps,"Furious Slash_Frenzy")
+	if cfg.talents["Frenzy"] then
+		table.insert(cfg.plistdps,"Furious Slash_Frenzy")
+	end
 	table.insert(cfg.plistdps,"Battle Cry")
 	table.insert(cfg.plistdps,"Avatar")
 	table.insert(cfg.plistdps,"Bloodbath")
 	table.insert(cfg.plistdps,"Whirlwind_aoe")
 	table.insert(cfg.plistdps,"Bladestorm_aoe")
 	table.insert(cfg.plistdps,"Execute")
-	--table.insert(cfg.plistdps,"Rampage_noEnrage")
-	table.insert(cfg.plistdps,"Rampage")
+	table.insert(cfg.plistdps,"Rampage_noEnrage")
 	table.insert(cfg.plistdps,"Bloodthirst_noEnrage")
-	table.insert(cfg.plistdps,"Raging Blow_2charges")
 	if cfg.talents["Outburst"] then
 		table.insert(cfg.plistdps,"Berserker Rage_noEnrage")
 	end
-	--table.insert(cfg.plistdps,"Odyn's Fury")
+	table.insert(cfg.plistdps,"Odyn's Fury")
 	table.insert(cfg.plistdps,"Bloodthirst")
 	table.insert(cfg.plistdps,"Whirlwind_aoe4")
-	table.insert(cfg.plistdps,"Dragon Roar")
 	table.insert(cfg.plistdps,"Raging Blow")
-	table.insert(cfg.plistdps,"Furious Slash")
-	table.insert(cfg.plistdps,"Whirlwind")
 	if cfg.talents["Wrecking Ball"] then
 		table.insert(cfg.plistdps,"Whirlwind_Wrecking Ball")
 	end
+	table.insert(cfg.plistdps,"Dragon Roar")
 	table.insert(cfg.plistdps,"Whirlwind_aoe2")
+	table.insert(cfg.plistdps,"Furious Slash")
 	table.insert(cfg.plistdps,"end")
-
+	
 	cfg.plistaoe = nil
-
+	
 	cfg.plist=cfg.plistdps
 
 	cfg.case = {}
@@ -99,9 +98,6 @@ lib.classes["WARRIOR"][2] = function () --Fury
 				return lib.SimpleCDCheck("Bladestorm")
 			end
 			return nil
-		end,
-		["Raging Blow_2charges"] = function ()
-			return lib.SimpleCDCheck("Raging Blow",lib.GetSpellCD("Raging Blow",nil,lib.GetSpellMaxCharges("Raging Blow")))
 		end,
 		["Raging Blow_Enrage"] = function ()
 			if lib.GetAura({"Enrage"})>lib.GetSpellCD("Raging Blow") then
@@ -144,10 +140,10 @@ lib.classes["WARRIOR"][2] = function () --Fury
 			return nil
 		end,
 		["Furious Slash_Frenzy"] = function ()
-			if lib.GetAuraStacks("Furious Slash")<3 or lib.GetAura({"Furious Slash"})<3 then
+			if lib.GetAuraStacks("Frenzy")<3 then
 				return lib.SimpleCDCheck("Furious Slash")
 			end
-			return nil
+			return lib.SimpleCDCheck("Furious Slash",lib.GetAura({"Frenzy"})-cfg.gcd)
 		end,
 		["Battle Cry"] = function ()
 			if cfg.Power.now>=lib.GetSpellCost("Rampage") then return nil end
@@ -167,12 +163,6 @@ lib.classes["WARRIOR"][2] = function () --Fury
 			if cfg.Power.now==cfg.Power.max or lib.GetAura({"Massacre"})>0 then return lib.SimpleCDCheck("Rampage") end
 			if cfg.talents["Frothing Berserker"] then return nil end
 			return lib.SimpleCDCheck("Rampage",lib.GetAura({"Enrage"}))
-		end,
-		["Rampage"] = function ()
-			if lib.GetAura({"Enrage"}) == 0 or cfg.Power.now > 95 then
-				return lib.SimpleCDCheck("Rampage")
-			end
-			return nil
 		end,
 		["Execute"] = function ()
 			if cfg.noaoe or cfg.cleave_targets<4 then
@@ -198,14 +188,13 @@ lib.classes["WARRIOR"][2] = function () --Fury
 		["Dragon Roar"] = function ()
 			return lib.SimpleCDCheck("Dragon Roar",lib.GetAura({"Battle Cry"}))
 		end,
-
+		
 	}
 
 	--cfg.spells_aoe={"ww"}
 	return true
 end
 
--- TODO: Update Arms for 8.0.1
 lib.classes["WARRIOR"][1] = function () --Arms
 	--cfg.nousecheck=true
 	lib.LoadSwingTimer()
@@ -228,7 +217,7 @@ lib.classes["WARRIOR"][1] = function () --Arms
 	lib.AddAura("Colossus Smash",208086,"debuff","target")
 	lib.AddAura("Executioner's Precision",242188,"debuff","target")
 	lib.AddSpell("Focused Rage",{207982},true)
-
+	
 	--[[lib.SetAuraFunction("Colossus Smash","OnStacks",function()
 		lib.UpdateTrackAura(cfg.GUID["target"],lib.GetAuraStacks("Colossus Smash")>0 and lib.GetAuraStacks("Colossus Smash") or nil)
 	end)]]
@@ -242,7 +231,7 @@ lib.classes["WARRIOR"][1] = function () --Arms
 	lib.AddCleaveSpell("Whirlwind",nil,{199658,199850})
 	lib.SetTrackAura({"Shattered Defenses","Focused Rage","Cleave","Colossus Smash"})
 	cfg.warrior_cap=lib.GetSpellCost("Mortal Strike")+(cfg.talents["Fervor of Battle"] and lib.GetSpellCost("Whirlwind") or lib.GetSpellCost("Slam"))
-
+			
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Charge_range")
 	table.insert(cfg.plistdps,"Kick")
@@ -266,7 +255,7 @@ lib.classes["WARRIOR"][1] = function () --Arms
 	table.insert(cfg.plistdps,"Execute")
 	table.insert(cfg.plistdps,"Mortal Strike")
 	--table.insert(cfg.plistdps,"Execute_Colossus Smash")
-
+	
 	if not cfg.talents["Shattered Defenses"] then
 		table.insert(cfg.plistdps,"Colossus Smash")
 	end
@@ -284,16 +273,16 @@ lib.classes["WARRIOR"][1] = function () --Arms
 			table.insert(cfg.plistdps,"Slam_nogcd")
 		end
 	end
-
-
+	
+	
 	if cfg.talents["Rend"] then
 		table.insert(cfg.plistdps,"Rend_reRend")
 	end
 	table.insert(cfg.plistdps,"end")
-
+	
 	cfg.plistaoe = nil
 	cfg.plist=cfg.plistdps
-
+	
 	cfg.case = {}
 	cfg.case = {
 		["Focused Rage"] = function()
@@ -437,8 +426,8 @@ lib.classes["WARRIOR"][1] = function () --Arms
 			end
 		end,
 	}
-
-
+	
+	
 	lib.mypower = function(power)
 		if cfg.Power.now<power then
 			power=power-cfg.Power.now
@@ -463,7 +452,7 @@ lib.classes["WARRIOR"][30] = function ()
 	lib.AddSpell("Shield_Slam",{23922}) -- Shield Slam
 	lib.AddAura("snb",50227,"buff","player") -- Sword and Board
 	lib.AddAura("Unyielding_Strikes",169686,"buff","player") -- Unyielding Strikes
-	lib.AddSpell("Devastate",{20243}) -- Devastate
+	lib.AddSpell("Devastate",{20243}) -- Devastate 
 	lib.AddSpell("Shield_Block",{2565}) -- Shield Block
 	lib.AddAura("Shield_Block",132404,"buff","player") -- Shield Block
 	lib.AddSpell("Shield_Barrier",{112048},true) -- Shield Barrier
@@ -472,25 +461,25 @@ lib.classes["WARRIOR"][30] = function ()
 	lib.AddAura("Ultimatum",122510,"buff","player") -- Ultimatum
 	lib.AddSpell("Shield Wall",{871},true) -- Shield Wall
 	lib.AddSpell("Last Stand",{12975},true) -- Last Stand
-	lib.AddSpell("Demoralizing Shout",{1160},"target") -- Demoralizing Shout
-
+	lib.AddSpell("Demoralizing Shout",{1160},"target") -- Demoralizing Shout 
+	
 	--[[lib.AddSpell("cb",{12809}) -- Concussion Blow
-
+	
 	lib.AddSpell("br",{18499}) -- Berserker Rage
 	lib.AddSpell("ir",{1134}) -- Inner Rage
 
 	lib.AddSpell("vr",{34428}) -- Victory Rush
 	lib.AddSpell("hs",{78}) -- Heroic Strike
-
+				
 	lib.AddAura("Rend",94009,"debuff","target") -- Rend
-
+	
 	lib.AddAura("ths",87096,"buff","player") -- Thunderstruck
 	lib.AddAura("Incite",86627,"buff","player") -- Incite
 
 	lib.AddAuras("Clap",{6343,54404,90315,8042,45477,58180,68055,51693},"debuff","target") -- Thunder Clap
-
+	
 	lib.AddAuras("Demo",{1160,702,99,50256,24423,81130,26017},"debuff","target") -- Demoralizing Shout ]]
-
+	
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"shout_nobuff")
 	table.insert(cfg.plistdps,"Charge_range")
@@ -512,7 +501,7 @@ lib.classes["WARRIOR"][30] = function ()
 	table.insert(cfg.plistdps,"hs_nomax")
 	table.insert(cfg.plistdps,"end")
 
-
+	
 	cfg.plistaoe = {}
 	table.insert(cfg.plistaoe,"shout_nobuff")
 	table.insert(cfg.plistaoe,"Charge_range")
@@ -558,7 +547,7 @@ lib.classes["WARRIOR"][30] = function ()
 		["Clap_noWounds"] = function()
 			return lib.SimpleCDCheck("Clap",lib.GetAura({"Deep_Wounds"})-4.5)
 		end,
-
+		
 		["Shield_Slam_snb"] = function()
 			if lib.GetAura({"snb"})>lib.GetSpellCD("Shield_Slam") then
 				return lib.SimpleCDCheck("Shield_Slam")
@@ -577,8 +566,8 @@ lib.classes["WARRIOR"][30] = function ()
 			end
 			return nil
 		end,
-
-
+	
+	
 		["sw_ths"] = function()
 			if lib.GetAuraStacks("ths")==3 then
 				return lib.SimpleCDCheck("sw")
@@ -606,7 +595,7 @@ lib.classes["WARRIOR"][30] = function ()
 			end
 			return nil
 		end,
-
+		
 		["bs"] = function ()
 			if cfg.Power.now<20 then
 				return lib.SimpleCDCheck("bs")
@@ -630,7 +619,7 @@ lib.classpostload["WARRIOR"] = function()
 			return nil
 		end
 	end
-
+	
 	lib.AddSpell("Berserker Rage",{18499},true) -- Berserker Rage
 	cfg.case["br_noEnrage"] = function ()
 		return lib.SimpleCDCheck("Berserker_Rage",lib.GetAura({"Enrage"}))
@@ -639,7 +628,7 @@ lib.classpostload["WARRIOR"] = function()
 	cfg.case["shout_nobuff"] = function()
 		return lib.SimpleCDCheck("Battle_Shout",lib.GetAuras("Attack_Power"))
 	end
-
+	
 	lib.AddSpell("Execute",{5308,163201}) -- Execute
 	lib.AddAura("Sudden_Death",52437,"buff","player") -- Sudden Death
 	cfg.case["Execute_SD"] = function()
@@ -648,10 +637,10 @@ lib.classpostload["WARRIOR"] = function()
 		end
 		return nil
 	end
-
+	
 	--lib.AddSpell("Sunder",{7386}) -- Sunder
 	--cfg.gcd_spell="Sunder"
-
+	
 	--cfg.bnt=0
 
 	lib.AddSpell("strike",{88161}) -- Strike
@@ -662,35 +651,35 @@ lib.classpostload["WARRIOR"] = function()
 		end
 		return nil
 	end
-
+	
 	lib.AddSpell("Victory Rush",{34428}) -- Victory Rush/Impending
 	lib.AddAura("Victorious",32216,"buff","player")
 	cfg.case["Victory Rush"] = function()
 		if lib.GetAura({"Victorious"})==0 then return nil end
-		if lib.GetUnitHealth("player","percent")<=85 then
+		if lib.GetUnitHealth("player","percent")<=85 then 
 			return lib.SimpleCDCheck("Victory Rush")
 		end
 		return nil
 	end
-
+	
 	lib.AddSpell("Heroic Throw",{57755})
-
+	
 
 	lib.AddSpell("Bloodbath",{12292},true) -- Bloodbath
 	cfg.case["Bloodbath_cd"] = function()
-		if (lib.GetSpellCD("Bloodbath")+10>lib.GetSpellCD("Dragon Roar") or lib.GetSpellCD("Bloodbath")+10>lib.GetSpellCD("Storm Bolt")) then
+		if (lib.GetSpellCD("Bloodbath")+10>lib.GetSpellCD("Dragon Roar") or lib.GetSpellCD("Bloodbath")+10>lib.GetSpellCD("Storm Bolt")) then 
 			return lib.SimpleCDCheck("Bloodbath")
 		end
 		return nil
 	end
-
-	lib.AddSpell("Avatar",{107574},true) -- Avatar
+	
+	lib.AddSpell("Avatar",{107574},true) -- Avatar	
 	lib.AddSpell("Shockwave",{46968}) -- Shockwave
-	lib.AddSpell("Dragon Roar",{118000}) -- Dragon Roar
+	lib.AddSpell("Dragon Roar",{118000}) -- Dragon Roar	
 	lib.AddSpell("Storm Bolt",{107570}) -- Storm Bolt
 	lib.AddSpell("Ravager",{152277},true)
 	lib.AddSpell("Siegebreaker",{176289})
-
+	
 	lib.CD = function()
 		lib.CDadd("Kick")
 		lib.CDadd("Battle Cry")
@@ -703,8 +692,8 @@ lib.classpostload["WARRIOR"] = function()
 		--lib.CDadd("Ravager")
 		lib.CDadd("Siegebreaker")
 		lib.CDadd("Bloodbath")
-
-
+		
+		
 		lib.CDadd("Dragon Roar")
 		lib.CDadd("Storm Bolt")
 		lib.CDadd("Shockwave")
@@ -716,9 +705,9 @@ lib.classpostload["WARRIOR"] = function()
 		lib.CDadd("Shield Wall",nil,nil,"turnoff")
 		lib.CDadd("Last Stand",nil,nil,"turnoff")
 	end
-
+	
 	--[[lib.SetSpellFunction("Execute","OnUpdate",function()
-		if
+		if 
 		lib.GetUnitHealth("target","percent")
 	end)]]
 	function Heddclassevents.UNIT_HEALTH_FREQUENT(unit)
@@ -729,8 +718,8 @@ lib.classpostload["WARRIOR"] = function()
 			end]]
 			--print(lib.GetUnitHealth("target","percent"))
 		end
-	end
-
+	end	
+	
 	lib.AddRangeCheck({
 	{"Execute",nil},
 	{"Charge",{0,1,0,1}},

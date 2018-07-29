@@ -891,7 +891,7 @@ lib.PrintAuraId = function(id)
 		if name then
 			if id==SpellID then
 				type=debuffType or "other";
-				print(i.." "..unitCaster.." "..type.." "..count.." "..name.." = "..SpellID.." "..lib.GetAura({cfg.id2aura[id]}))
+				print(i.." unitCaster:"..unitCaster.." type:"..type.." count:"..count.." name:"..name.." = SpellID:"..SpellID.." "..lib.GetAura({cfg.id2aura[id]}))
 			end
 		--else
 			--print(i.." no aura")

@@ -29,8 +29,9 @@ lib\common.lua
 lib\legion.lua
 lib\swing.lua
 lib\artifact.lua
-classes\dk70000.lua
-classes\hunter70000.lua
+classes\dh80100.lua
+classes\dk80100.lua
+classes\hunter80100.lua
 classes\shaman80100.lua
 classes\paladin70000.lua
 classes\druid70000.lua
@@ -39,6 +40,5 @@ classes\rogue70000.lua
 classes\monk80100.lua
 classes\warrior70000.lua
 classes\warlock70000.lua
-classes\dh70000.lua
 core.lua
 options.lua
