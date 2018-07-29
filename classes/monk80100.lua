@@ -245,7 +245,6 @@ lib.classes["MONK"][1] = function() --Brewmaster
 	return true
 end
 lib.classes["MONK"][3] = function() --Windwalker
-	-- TODO: Change SetAltPower for all specs
 	lib.SetAltPower("Chi")
 	cfg.MonitorSpells=true
 	lib.LastCheckSpell=function(spell)
@@ -256,57 +255,32 @@ lib.classes["MONK"][3] = function() --Windwalker
 		end
 	end
 	cfg.chi_hit=2
-	cfg.talents={
-		["Chi Wave"]=IsPlayerSpell(115098),
-		["Chi Burst"]=IsPlayerSpell(123986),
-		["Fist of the White Tiger"]=IsPlayerSpell(261947),
-		["Energizing Elixir"]=IsPlayerSpell(115288),
-		["Diffuse Magic"]=IsPlayerSpell(122783),
-		["Dampen Harm"]=IsPlayerSpell(122278),
-		["Rushing Jade Wind"]=IsPlayerSpell(116847),
-		["Xuen"]=IsPlayerSpell(123904),
-		["Whirling Dragon Punch"]=IsPlayerSpell(152175),
-		["Serenity"]=IsPlayerSpell(152173),
-	}
-	-- lib.AddSet("Katsuo's Eclipse",{137029})
-	lib.AddSpell("Flying Serpent Kick",{101545})
-	lib.AddSpell("Crackling Jade Lightning",{117952},true)
-	lib.AddSpell("Rising Sun Kick",{107428})
-	lib.AddAura("Mark of the Crane",228287,"debuff","target")
-	lib.AddAura("Blackout Kick!",116768,"buff","player")
-	lib.AddSpell("Tiger Palm",{100780})
-	-- lib.FixSpell("Tiger Palm","cost")
-	lib.AddSpell("Fists of Fury",{113656},nil,nil,true)
-	lib.AddCleaveSpell("Fists of Fury",nil,{117418})
-	lib.AddSpell("Spinning Crane Kick",{101546},true)
-	lib.AddCleaveSpell("Spinning Crane Kick",nil,{107270})
-	lib.AddSpell("Rushing Jade Wind",{116847},true)
-	lib.AddCleaveSpell("Rushing Jade Wind",nil,{148187})
-	lib.AddSpell("Whirling Dragon Punch",{152175})
-	lib.AddCleaveSpell("Whirling Dragon Punch",nil,{158221})
-	lib.AddSpell("Energizing Elixir",{115288})
-	lib.NoSaveSpell("Energizing Elixir")
-	lib.AddSpell("Healing Elixir",{122281})
-	lib.NoSaveSpell("Healing Elixir")
-	lib.AddSpell("Fist of the White Tiger",{261947})
-
-	lib.AddSpell("Vivify",{116670})
-	lib.NoSaveSpell("Vivify")
 	cfg.heal=60
+	cfg.talents = lib.ScanTalents()
+
+	lib.ScanSpells()
+	lib.AddAura("Blackout Kick!",116768,"buff","player")
+	lib.AddAura("Hit Combo",196741,"buff","player")
+	lib.AddAura("Mark of the Crane",228287,"debuff","target")
+	lib.AddAura("Rushing Jade Wind",116847,"buff","player")
+	lib.AddAura("Touch of Death",115080,"debuff","target")
+	lib.AddAura("Touch of Karma",122470,"debuff","target")
+	lib.AddAura("Disable",116095,"debuff","target")
+
+	lib.NoSaveSpell("Disable")
+	lib.NoSaveSpell("Energizing Elixir")
+	lib.NoSaveSpell("Healing Elixir")
+	lib.NoSaveSpell("Touch of Karma")
+	lib.NoSaveSpell("Vivify")
+
+	-- Fix for Serenity and Storm, Earth, and Fire having the same SpellIDs when Serenity is talented
 	if cfg.talents["Serenity"] then
+		lib.RemoveSpell("Storm, Earth, and Fire")
 		lib.AddSpell("Serenity",{152173},true)
 		lib.NoSaveSpell("Serenity")
 	else
-		lib.AddSpell("Storm, Earth, and Fire",{137639},true)
 		lib.NoSaveSpell("Storm, Earth, and Fire")
 	end
-
-	lib.AddAura("Hit Combo",196741,"buff","player")
-	lib.AddSpell("Touch of Death",{115080},true)
-	lib.AddSpell("Touch of Karma",{122470},"target")
-	lib.NoSaveSpell("Touch of Karma")
-	lib.AddSpell("Disable",{116095},"target")
-	lib.NoSaveSpell("Disable")
 
 	lib.SetTrackAura({"Serenity","Storm, Earth, and Fire","Blackout Kick!","Hit Combo"})
 
@@ -315,7 +289,7 @@ lib.classes["MONK"][3] = function() --Windwalker
 	table.insert(cfg.plistdps,"Detox")
 	table.insert(cfg.plistdps,"Healing Elixir")
 	table.insert(cfg.plistdps,"heal")
-	table.insert(cfg.plistdps,"Xuen")
+	table.insert(cfg.plistdps,"Invoke Xuen, the White Tiger")
 	table.insert(cfg.plistdps,"Touch of Death")
 	if cfg.talents["Serenity"] then
 		table.insert(cfg.plistdps,"Serenity")
@@ -572,7 +546,7 @@ lib.classpostload["MONK"] = function()
 		return lib.SimpleCDCheck("Sphere",lib.GetAura({"Sphere"}))
 	end
 
-	lib.AddSpell("Xuen",{123904}) --Invoke Xuen, the White Tiger
+	lib.AddSpell("Invoke Xuen, the White Tiger",{123904}) --Invoke Xuen, the White Tiger
 
 	lib.AddSpell("Blackout Kick",{100784}) --Blackout Kick
 
@@ -623,10 +597,10 @@ lib.classpostload["MONK"] = function()
 		lib.CDadd("Touch of Death")
 		lib.CDadd("Serenity")
 		lib.CDadd("Storm, Earth, and Fire")
-		if cfg.spells["Xuen"] then
-			lib.CDadd("Xuen")
-			lib.CDaddTimers("Xuen","Xuen",function(self, event, unitID, castid, SpellID)
-				if event=="UNIT_SPELLCAST_SUCCEEDED" and unitID=="player" and SpellID==lib.GetSpellID("Xuen") then
+		if cfg.spells["Invoke Xuen, the White Tiger"] then
+			lib.CDadd("Invoke Xuen, the White Tiger")
+			lib.CDaddTimers("Invoke Xuen, the White Tiger","Invoke Xuen, the White Tiger",function(self, event, unitID, castid, SpellID)
+				if event=="UNIT_SPELLCAST_SUCCEEDED" and unitID=="player" and SpellID==lib.GetSpellID("Invoke Xuen, the White Tiger") then
 					CooldownFrame_SetTimer(self.cooldown,GetTime(),45,1)
 				end
 			end
