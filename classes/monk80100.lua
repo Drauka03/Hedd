@@ -399,7 +399,7 @@ lib.classes["MONK"][3] = function() --Windwalker
 		end,
 		["Chi Burst"] = function()
 			if (cfg.cleave_targets >= 2 and (cfg.AltPower.max - cfg.AltPower.now) >= 2) or
-			(cfg.cleave_targets < 2 and (cfg.AltPower.max - cfg.AltPower.now)) >= 1 then
+			(cfg.cleave_targets < 2 and (cfg.AltPower.max - cfg.AltPower.now) >= 1) then
 				return lib.SimpleCDCheck("Chi Burst")
 			end
 			return nil
