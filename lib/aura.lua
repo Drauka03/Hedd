@@ -141,7 +141,7 @@ end--]]
 
 lib.AddAura = function(spell,id,atype,unit,caster) --,onchange
 	if not lib.Hedd_GSI(id) then
-		--print("Warning!!! Aura \""..spell.."\" with id="..id.." is not in game!")
+		-- print("Warning!!! Aura \""..spell.."\" with id="..id.." is not in game!")
 		return
 	end
 
@@ -197,7 +197,7 @@ lib.AddAura = function(spell,id,atype,unit,caster) --,onchange
 	lib.SetAuraRefresh(spell)
 	--cfg.aura_found[unit]=cfg.aura_found[unit] or {}
 	--cfg.aura_found[unit][id]=false
-	--print("Adding "..cfg.aura[spell].name)
+	-- print("Adding "..cfg.aura[spell].name)
 	--lib.UpdateAura(spell)
 end
 
@@ -638,6 +638,25 @@ lib.UnitHasAura = function(unit, auraName)
 	end
 	return false
 end
+
+-- TODO: Revisit making this work
+-- lib.ScanForAura = function(unit, auraName, atype)
+-- 	atype = atype or "buff"
+-- 	local filter = "HELPFUL"
+-- 	if atype == "debuff" then
+-- 		filter = "HARMFUL"
+-- 	end
+-- 	if cfg.aura[auraName] == nil then
+-- 		for i=1,40 do
+-- 			local name, _, count, _, duration, expirationTime, unitCaster, _, _, spellId, _ = UnitAura(unit, i, filter)
+-- 			if name == auraName then
+-- 				print("Adding aura " .. name .. " (" .. spellId .. ") with type " .. atype .. " on unit " .. unit)
+-- 				lib.AddAura(name, spellId, atype, unit, unitCaster)
+-- 			end
+-- 		end
+-- 	end
+-- 	return lib.GetAura({auraName})
+-- end
 
 lib.AuraInTime = function (spell , mint, maxt)
 	if not cfg.aura[spell] then return nil end
