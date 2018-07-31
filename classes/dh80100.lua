@@ -309,7 +309,7 @@ end
 lib.classpostload["DEMONHUNTER"] = function()
 	lib.CD = function()
 		lib.CDadd("Kick")
-		lib.CDadd("Fel Eruption")
+		-- lib.CDadd("Fel Eruption")
 		--lib.CDadd("Throw Glaive")
 		--lib.CDadd("Blur")
 		lib.CDAddCleave("Spirit Bomb",nil,218677)
@@ -322,12 +322,15 @@ lib.classpostload["DEMONHUNTER"] = function()
 		--lib.CDAddCleave("Blade Dance",nil,200685)
 		lib.CDadd("Vengeful Retreat")
 		lib.CDadd("Fel Rush")
-		lib.CDAddCleave("Immolation Aura",nil,187727,178741) -- 187727
+		-- lib.CDAddCleave("Immolation Aura",nil,187727,178741) -- 187727
 		lib.CDadd("Sigil of Flame")
-		lib.CDAddCleave("Infernal Strike",nil,189112,189111)
-		lib.CDAddCleave("Fel Devastation")
+		-- lib.CDAddCleave("Infernal Strike",nil,189112,189111)
+		-- lib.CDAddCleave("Fel Devastation")
+		lib.CDadd("Infernal Strike")
+		lib.CDadd("Fel Devastation")
 		lib.CDadd("Throw Glaive")
 		lib.CDadd("Fel Barrage")
+		lib.CDadd("Immolation Aura")
 	end
 end
 end
