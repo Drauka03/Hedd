@@ -16,6 +16,7 @@ end
 lib.classes["PRIEST"][3] = function()
 	lib.SetPower("Insanity")
 	lib.SetAltPower("Mana")
+	lib.InitCleave()
 
 	cfg.talents = lib.ScanTalents()
 	lib.ScanSpells()
@@ -28,10 +29,13 @@ lib.classes["PRIEST"][3] = function()
 	lib.RemoveSpell("Smite")
 	lib.RemoveSpell("Void Bolt")
 	lib.RemoveSpell("Void Eruption")
+	lib.RemoveSpell("Shadowfiend")
 	lib.AddSpell("Mind Flay", {15407})
 	lib.AddSpell("Shadow Word: Void", {205351})
 	lib.AddSpell("Void Bolt", {228266})
 	lib.AddSpell("Void Eruption", {228260})
+	lib.AddSpell("Shadowfiend", {34433})
+	lib.AddSpell("Mindbender", {200174})
 
 	cfg.voidform_cost = 90
 	if cfg.talents["Legacy of the Void"] then
@@ -45,11 +49,19 @@ lib.classes["PRIEST"][3] = function()
 	if not cfg.talents["Mindbender"] then
 		table.insert(cfg.plistdps, "Shadowfiend")
 	end
+	if cfg.talents["Dark Void"] then
+		table.insert(cfg.plistdps, "Dark Void_aoe")
+	elseif cfg.talents["Misery"] then
+		table.insert(cfg.plistdps, "Vampiric Touch_aoe")
+	end
 	table.insert(cfg.plistdps, "Vampiric Touch")
 	if cfg.talents["Misery"] then
 		table.insert(cfg.plistdps, "Shadow Word: Pain_misery")
 	else
 		table.insert(cfg.plistdps, "Shadow Word: Pain")
+	end
+	if cfg.talents["Shadow Crash"] then
+		table.insert(cfg.plistdps, "Shadow Crash_aoe")
 	end
 	table.insert(cfg.plistdps, "Void Eruption")
 	table.insert(cfg.plistdps, "Void Bolt")
@@ -73,6 +85,7 @@ lib.classes["PRIEST"][3] = function()
 	if cfg.talents["Void Torrent"] then
 		table.insert(cfg.plistdps, "Void Torrent")
 	end
+	table.insert(cfg.plistdps, "Mind Sear")
 	table.insert(cfg.plistdps, "Mind Flay")
 	table.insert(cfg.plistdps,"end")
 
@@ -84,7 +97,16 @@ lib.classes["PRIEST"][3] = function()
 			if lib.UnitHasAura("player", "Shadowform") or lib.UnitHasAura("player", "Voidform") then return nil end
 			return lib.SimpleCDCheck("Shadowform")
 		end,
+		["Dark Void_aoe"] = function()
+			if cfg.cleave_targets < cfg.cleave_threshold then return nil end
+			return lib.SimpleCDCheck("Dark Void")
+		end,
+		["Vampiric Touch_aoe"] = function()
+			if cfg.cleave_targets < cfg.cleave_threshold then return nil end
+			return lib.SimpleCDCheck("Vampiric Touch", lib.GetAura({"Vampiric Touch"}))
+		end,
 		["Vampiric Touch"] = function()
+			if cfg.cleave_targets >= cfg.cleave_threshold then return nil end
 			return lib.SimpleCDCheck("Vampiric Touch", lib.GetAura({"Vampiric Touch"}))
 		end,
 		["Shadow Word: Pain"] = function()
@@ -93,33 +115,40 @@ lib.classes["PRIEST"][3] = function()
 		["Shadow Word: Pain_misery"] = function()
 			return lib.SimpleCDCheck("Vampiric Touch", lib.GetAura({"Shadow Word: Pain"}))
 		end,
+		["Shadow Crash_aoe"] = function()
+			if cfg.cleave_targets < cfg.cleave_threshold then return nil end
+			return lib.SimpleCDCheck("Shadow Crash")
+		end,
 		["Void Eruption"] = function()
 			if cfg.Power.now < cfg.voidform_cost or lib.UnitHasAura("player", "Voidform") then return nil end
-			local res = lib.SimpleCDCheck("Void Eruption")
-			-- if res then
-			-- 	lib.SetSpellIcon("Void Eruption", 1386548)
-			-- end
-			return res
+			return lib.SimpleCDCheck("Void Eruption")
 		end,
 		["Void Bolt"] = function()
 			if not lib.UnitHasAura("player", "Voidform") then return nil end
-			local res = lib.SimpleCDCheck("Void Eruption")
-			-- if res then
-			-- 	lib.SetSpellIcon("Void Eruption", 1035040)
-			-- end
-			return res
+			return lib.SimpleCDCheck("Void Eruption")
+		end,
+		["Shadow Word: Void"] = function()
+			if cfg.cleave_targets > 5 then return nil end
+			return lib.SimpleCDCheck("Shadow Word: Void")
+		end,
+		["Mind Blast"] = function()
+			if cfg.cleave_targets > 5 then return nil end
+			return lib.SimpleCDCheck("Mind Blast")
 		end,
 		["Mindbender"] = function()
-			if lib.GetAuraStacks({"Voidform"}) < 5 or lib.GetAuraStacks({"Voidform"}) > 10 then return nil end
+			-- if lib.GetAuraStacks("Voidform") < 5 or lib.GetAuraStacks("Voidform") > 10 then return nil end
 			return lib.SimpleCDCheck("Mindbender")
+		end,
+		["Mind Sear"] = function()
+			if cfg.cleave_targets <= 2 then return nil end
+			return lib.SimpleCDCheck("Mind Sear")
 		end,
 		["Mind Flay"] = function()
 			return lib.SimpleCDCheck("Mind Flay")
 		end,
 	}
 	lib.AddRangeCheck({
-	-- {"Tiger Palm",nil},
-	-- {"Keg Smash",{0,0,1,1}},
+		{"Vampiric Touch", nil}
 	})
 
 	return true
@@ -133,32 +162,9 @@ lib.classpostload["PRIEST"] = function()
 	lib.CD = function()
 		lib.CDadd("Kick")
 		lib.CDadd("Purify Disease")
-		-- lib.CDadd("Ironskin Brew")
-		-- lib.CDadd("Purifying Brew")
-		-- lib.CDadd("Black Ox Brew")
-		-- lib.CDadd("Exploding Keg")
-		--
-		-- lib.CDadd("Energizing Elixir")
-		-- lib.CDadd("Touch of Death")
-		-- lib.CDadd("Serenity")
-		-- lib.CDadd("Storm, Earth, and Fire")
-		-- lib.CDadd("Zen Meditation")
-		-- lib.CDturnoff("Zen Meditation")
-		-- lib.CDadd("Fortifying Brew")
-		-- lib.CDturnoff("Fortifying Brew")
-		-- lib.CDadd("Dampen Harm")
-		-- lib.CDturnoff("Dampen Harm")
-		-- lib.CDadd("Touch of Karma")
-		-- lib.CDturnoff("Touch of Karma")
-		-- lib.CDadd("Fortifying")
-		-- lib.CDturnoff("Fortifying")
-		-- lib.CDadd("Flying Serpent Kick")
-		-- lib.CDadd("Chi Wave")
-		-- lib.CDadd("Chi Burst")
-		-- lib.CDadd("Sphere")
-		-- lib.CDadd("Healing Elixir")
-		-- lib.CDadd("Vivify")
-		-- lib.CDadd("Transcendence: Transfer")
-		-- lib.CDadd("Transcendence")
+		lib.CDadd("Shadowfiend")
+		-- lib.CDadd("Mindbender")
+		lib.CDadd("Dark Ascension")
+		lib.CDadd("Surrender to Madness")
 	end
 end
