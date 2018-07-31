@@ -12,6 +12,7 @@ lib.classes["DRUID"] = {}
 local t,s
 
 lib.classes["DRUID"][1] = function() --Moonkin
+	lib.InitCleave()
 	cfg.talents = lib.ScanTalents()
 	lib.ScanSpells()
 	lib.SetPower("LunarPower")
@@ -205,6 +206,10 @@ lib.classes["DRUID"][3] = function() --Bear
 	lib.ChangeResourceBarType(cfg.Power.type)
 	cfg.bear_moonfire=16*0.3
 
+	lib.AddCleaveSpell("Mangle",{33917})
+	lib.AddCleaveSpell("Maul",{6807})
+	lib.AddCleaveSpell("Swipe",{213771})
+	lib.AddCleaveSpell("Thrash",{77758})
 	lib.AddAura("Incarnation: Guardian of Ursoc",102558,"buff","player")
 	lib.AddAura("Ironfur",192081,"buff","player")
 	lib.AddAura("Galactic Guardian",213708,"buff","player")
@@ -309,7 +314,7 @@ lib.classes["DRUID"][3] = function() --Bear
 			return nil
 		end,
 		["Thrash"] = function()
-			if lib.GetAuraStacks("Thrash")<3 then
+			if lib.GetAuraStacks("Thrash")<3 or lib.GetAura({"Thrash"})<4.5 then
 				-- print(cfg.spells["Thrash"].id)
 				return lib.SimpleCDCheck("Thrash")
 			end
