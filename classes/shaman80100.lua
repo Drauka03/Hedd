@@ -17,6 +17,7 @@ lib.classpreload["SHAMAN"] = function()
 end
 -- ELEMENTAL SPEC
 lib.classes["SHAMAN"][1] = function() --Elem
+	lib.InitCleave()
 	cfg.talents={
 		["Exposed Elements"]=IsPlayerSpell(260694),
 		["Echo of the Elements"]=IsPlayerSpell(108283),
@@ -43,10 +44,18 @@ lib.classes["SHAMAN"][1] = function() --Elem
 
 	lib.SetPower("Maelstrom")
 	cfg.cap=90
-	cfg.cleave_threshold=4
+	-- cfg.cleave_threshold=4
 	lib.AddResourceBar(cfg.Power.max,cfg.cap)
 	lib.ChangeResourceBarType(cfg.Power.type)
 
+	lib.AddCleaveSpell("Chain Lightning",{188443})
+	lib.AddCleaveSpell("Call Lightning",{157348})
+	lib.AddCleaveSpell("Eye of the Storm",{157375})
+	lib.AddCleaveSpell("Earthquake",{61882})
+	lib.AddCleaveSpell("Frost Shock",{196840})
+	lib.AddCleaveSpell("Lava Burst",{51505})
+	lib.AddCleaveSpell("Liquid Magma Totem",{192222})
+	lib.AddCleaveSpell("Storm Elemental",{192249})
 	lib.AddSpell("Lightning Bolt",{188196})
 	lib.AddSpell("Chain Lightning",{188443})
 	lib.AddSpell("Healing Surge",{188070})
@@ -66,11 +75,11 @@ lib.classes["SHAMAN"][1] = function() --Elem
 	lib.AddSpell("Frost Shock",{196840},"target")
 	lib.AddSpell("Icefury",{210714},true)
 	lib.AddSpell("Ascendance",{114050},true)
-	lib.AddSpell("Stormkeeper",{205495},true)
+	lib.AddSpell("Stormkeeper",{205495,191634},true)
 	lib.AddSpell("Primal Elementalist",{117013})
 	lib.AddSpell("Flame Shock",{188389},"target")
 
-	lib.SetDOT("Flame Shock")
+	-- lib.SetDOT("Flame Shock")
 	lib.AddAura("Resonance Totem",{202192},"buff","player")
 	lib.AddAura("Lava Surge",77762,"buff","player")
 	lib.SetTrackAura("Lava Surge")
@@ -87,8 +96,9 @@ lib.classes["SHAMAN"][1] = function() --Elem
 	table.insert(cfg.plistdps,"Storm Elemental_aoe4")
 	table.insert(cfg.plistdps,"Storm Elemental_lightning")
 	table.insert(cfg.plistdps,"Storm Elemental_eye")
-	table.insert(cfg.plistdps,"Chain Lightning_aoe4")
+	table.insert(cfg.plistdps,"Elemental Blast")
 	table.insert(cfg.plistdps,"Lava Burst_aoe3")
+	table.insert(cfg.plistdps,"Chain Lightning_aoe4")
 	table.insert(cfg.plistdps,"Flame Shock_noFlame Shock")
 	table.insert(cfg.plistdps,"Flame Shock_noFlame Shock_re")
 	table.insert(cfg.plistdps,"Fire Elemental")
@@ -97,7 +107,6 @@ lib.classes["SHAMAN"][1] = function() --Elem
 	table.insert(cfg.plistdps,"Ascendance")
 	table.insert(cfg.plistdps,"Earth Shock_Ascendance")
 	table.insert(cfg.plistdps,"Lava Burst_Ascendance")
-	table.insert(cfg.plistdps,"Elemental Blast")
 	table.insert(cfg.plistdps,"Liquid Magma Totem")
 	table.insert(cfg.plistdps,"Stormkeeper")
 	table.insert(cfg.plistdps,"Earthquake_aoe3")
@@ -123,13 +132,13 @@ lib.classes["SHAMAN"][1] = function() --Elem
 			return lib.SimpleCDCheck("Ascendance",lib.GetAura({"Ascendance"}))
 		end,
 		["Chain Lightning_aoe4"] = function()
-			if cfg.cleave_targets>=4 then
+			if cfg.cleave_targets>=4 and cfg.Power.now<((cfg.Power.max-(cfg.cleave_targets*4))-10) then
 				return lib.SimpleCDCheck("Chain Lightning")
 			end
 			return nil
 		end,
 		["Chain Lightning_cleave"] = function()
-			if cfg.cleave_targets>=2 then
+			if cfg.cleave_targets>=2 and cfg.Power.now<((cfg.Power.max-(cfg.cleave_targets*4))-5) then
 				return lib.SimpleCDCheck("Chain Lightning")
 			end
 			return nil
@@ -178,7 +187,7 @@ lib.classes["SHAMAN"][1] = function() --Elem
 			return lib.SimpleCDCheck("Flame Shock",(lib.GetAura({"Flame Shock"})-5.4))
 		end,
 		["Frost Shock_Icefury"] = function()
-			if (cfg.noaoe or cfg.cleave_targets<cfg.cleave_threshold) and (lib.SpellCasting("Icefury") or lib.GetAura({"Icefury"})>lib.GetSpellCD("Frost Shock")) then
+			if (cfg.noaoe or cfg.cleave_targets<4) and (lib.SpellCasting("Icefury") or lib.GetAura({"Icefury"})>lib.GetSpellCD("Frost Shock")) then
 				return lib.SimpleCDCheck("Frost Shock")
 			end
 			return nil
@@ -190,12 +199,14 @@ lib.classes["SHAMAN"][1] = function() --Elem
 			return nil
 		end,
 		["Lava Burst_aoe3"] = function()
+			if cfg.Power.now>=cfg.Power.max-10 then return nil end
 			if cfg.cleave_targets>=3 and lib.GetAura({"Lava Surge"}) > 0 then
 				return lib.SimpleCDCheck("Lava Burst")
 			end
 			return nil
 		end,
 		["Lava Burst_buffed"] = function()
+			if cfg.Power.now>=cfg.Power.max-10 then return nil end
 			if lib.GetSpellCharges("Lava Burst")>1 or
 			lib.GetAura({"Ascendance"})>lib.GetSpellCD("Lava Burst")+lib.GetSpellCT("Lava Burst") or --if you can cast lava burst before ascendance ends
 			lib.GetAura({"Lava Surge"})>lib.GetSpellCD("Lava Burst") then --lava surge is free and instant
@@ -235,7 +246,7 @@ lib.classes["SHAMAN"][1] = function() --Elem
 		end,
 		["Stormkeeper_aoe3"] = function()
 			if cfg.cleave_targets>=3 then
-				return SimpleCDCheck("Stormkeeper")
+				return lib.SimpleCDCheck("Stormkeeper")
 			end
 			return nil
 		end,
@@ -256,6 +267,7 @@ lib.classes["SHAMAN"][1] = function() --Elem
 end
 -- ENHANCEMENT SPEC
 lib.classes["SHAMAN"][2] = function() --Enh
+	lib.InitCleave()
 	cfg.talents={
 		["Boulderfist"]=IsPlayerSpell(246035),
 		["Hot Hand"]=IsPlayerSpell(201900),
@@ -280,6 +292,8 @@ lib.classes["SHAMAN"][2] = function() --Enh
 		["Ascendance"]=IsPlayerSpell(114051),
 	}
 	lib.SetPower("Maelstrom")
+
+	lib.AddCleaveSpell("Crash Lightning",{187874})
 	lib.AddSpell("Windstrike",{115356})
 	lib.AddSpell("Totem Mastery",{262395})
 	lib.AddSpell("Lava Lash",{60103})
@@ -599,6 +613,7 @@ lib.classpostload["SHAMAN"] = function()
 		--lib.CDAddCleave("Earthquake")
 		lib.CDadd("Stormkeeper")
 		lib.CDadd("Ascendance")
+		lib.CDadd("Earth Elemental")
 		lib.CDadd("Fire Elemental")
 		lib.CDadd("Liquid Magma Totem")
 		lib.CDadd("Lightning Shield")

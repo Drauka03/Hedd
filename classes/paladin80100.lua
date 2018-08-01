@@ -10,9 +10,8 @@ local lib = ns.lib
 if cfg.Game.release>=7 then
 lib.classes["PALADIN"] = {}
 
--- protection
-
 lib.classes["PALADIN"][2] = function () --Protection
+	lib.InitCleave()
 	cfg.talents={
 		["Blessed Hammer"]=IsPlayerSpell(204019),
 		["Crusader's Judgment"]=IsPlayerSpell(204023),
@@ -22,6 +21,8 @@ lib.classes["PALADIN"][2] = function () --Protection
 		["Hand of the Protector"]=IsPlayerSpell(213652),
 		["Seraphim"]=IsPlayerSpell(152262)
 	}
+	lib.AddCleaveSpell("HotR",{53595,204019})
+	lib.AddCleaveSpell("Avenger's Shield",{31935})
 	lib.AddSpell("Avenger's Shield",{31935}) -- Avenger's Shield
 	lib.AddSpell("Bastion of Light",{204035}) -- Talent
 	lib.AddSpell("Cons",{26573},true) -- Consecration
@@ -45,9 +46,11 @@ lib.classes["PALADIN"][2] = function () --Protection
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Kick")
 	table.insert(cfg.plistdps,"Cleanse")
+	table.insert(cfg.plistdps,"AS_aoe")
 	table.insert(cfg.plistdps,"Cons")
 	table.insert(cfg.plistdps,"AS_range")
 	table.insert(cfg.plistdps,"Avenger's Shield")
+	table.insert(cfg.plistdps,"HotR_aoe")
 	table.insert(cfg.plistdps,"Judgment")
 	table.insert(cfg.plistdps,"Judgment_2")
 	table.insert(cfg.plistdps,"HotR")
@@ -56,22 +59,28 @@ lib.classes["PALADIN"][2] = function () --Protection
 	table.insert(cfg.plistdps,"Judgment_1")
 	table.insert(cfg.plistdps,"LotP")
 
-	cfg.plistaoe = {}
-	table.insert(cfg.plistaoe,"Kick")
-	table.insert(cfg.plistaoe,"Cleanse")
-	table.insert(cfg.plistaoe,"Avenger's Shield")
-	table.insert(cfg.plistaoe,"AS_range")
-	table.insert(cfg.plistaoe,"AS_GC")
-	table.insert(cfg.plistaoe,"Cons")
-	table.insert(cfg.plistaoe,"HotR")
-	table.insert(cfg.plistaoe,"Judgment")
-	table.insert(cfg.plistaoe,"Judgment_2")
-	table.insert(cfg.plistaoe,"Cons")
-	table.insert(cfg.plistaoe,"Judgment_1")
+	-- cfg.plistaoe = {}
+	-- table.insert(cfg.plistaoe,"Kick")
+	-- table.insert(cfg.plistaoe,"Cleanse")
+	-- table.insert(cfg.plistaoe,"Avenger's Shield")
+	-- table.insert(cfg.plistaoe,"AS_range")
+	-- table.insert(cfg.plistaoe,"AS_GC")
+	-- table.insert(cfg.plistaoe,"Cons")
+	-- table.insert(cfg.plistaoe,"HotR")
+	-- table.insert(cfg.plistaoe,"Judgment")
+	-- table.insert(cfg.plistaoe,"Judgment_2")
+	-- table.insert(cfg.plistaoe,"Cons")
+	-- table.insert(cfg.plistaoe,"Judgment_1")
 
 	cfg.plist = cfg.plistdps
 
 	cfg.case = {
+		["AS_aoe"] = function()
+			if cfg.cleave_targets>=3 then
+				return lib.SimpleCDCheck("Avenger's Shield")
+			end
+			return nil
+		end,
 		["AS_range"] = function() -- uses Avenger Shield when not in melee range
 			if lib.inrange("Rebuke") then return nil end
 			return lib.SimpleCDCheck("Avenger's Shield")
@@ -85,6 +94,12 @@ lib.classes["PALADIN"][2] = function () --Protection
 		["Cons"] = function()
 			if lib.GetAura({"Cons"})>0 then return nil end
 				return lib.SimpleCDCheck("Cons")
+		end,
+		["HotR_aoe"] = function()
+			if cfg.cleave_targets>=3 then
+				return lib.SimpleCDCheck("HotR")
+			end
+			return nil
 		end,
 		["Judgment"] = function()
 			if not cfg.talents["Crusader's Judgment"] then
@@ -123,9 +138,8 @@ lib.classes["PALADIN"][2] = function () --Protection
 	return true
 end
 
--- Retribution
-
 lib.classes["PALADIN"][3] = function () --Retribution
+	lib.InitCleave()
 	lib.SetPower("Mana")
 	lib.SetAltPower("HolyPower")
 	cfg.cleave_threshold=3
@@ -158,6 +172,7 @@ lib.classes["PALADIN"][3] = function () --Retribution
 	lib.AddAura("Judgment",197277,"debuff","target")
 	lib.AddAura("Avenging Wrath",31884,"buff","player")
 
+	lib.AddCleaveSpell("Divine Storm",{53385})
 	lib.AddSpell("Arcane Torrent",{155145}) -- Blood elf racial gives 1 Holy Power
 	lib.AddSpell("Avenging Wrath",{31884,231895},true) -- Avenging Wrath, Crusade talent
 	lib.AddSpell("Blade of Justice",{184575})
