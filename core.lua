@@ -48,9 +48,11 @@ end
 lib.reload=reload
 
 lib.basicevents = function()
-	function Heddevents.UNIT_POWER_UPDATE(unit,powerType)
+	--function Heddevents.UNIT_POWER_UPDATE(unit,powerType)
+	function Heddevents.UNIT_POWER_FREQUENT(unit,powerType)
 		if unit=="player" then
 			--print(powerType)
+			--print(GetTime())
 			lib.UpdatePower(powerType)
 		end
 	end

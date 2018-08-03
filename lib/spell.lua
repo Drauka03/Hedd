@@ -6,6 +6,47 @@ local cfg = ns.cfg
 local lib = _G["HEDD_lib"] or CreateFrame("Frame","HEDD_lib")
 ns.lib = lib
 
+lib.fullcdtime = function(SpellID)
+	Hedd_Tooltip = _G["Hedd_Tooltip"] or CreateFrame('GameTooltip', 'Hedd_Tooltip', UIParent, 'GameTooltipTemplate')
+	Hedd_Tooltip:SetOwner(UIParent, 'ANCHOR_NONE')
+	Hedd_Tooltip:SetSpellByID(SpellID)
+	text=Hedd_TooltipTextRight3:GetText()
+	Hedd_Tooltip:Hide()
+	return hedlib.tofloat(text)
+end
+
+lib.UpdateSpellTT = function(spell)
+	if spell and cfg.spells[spell] then
+		if not cfg.spells[spell].has_charges then 
+			if cfg.spells[spell].tt.fullcd then
+				cfg.spells[spell].fullcd=hedlib.tofloat(_G[cfg.spells[spell].tt.fullcd]:GetText() or " ")
+			else
+				cfg.spells[spell].fullcd=0
+			end
+		end
+
+		--[[if cfg.spells[spell].powerType=="cd" then
+			cfg.spells[spell].cost=0
+			return
+		end]]
+		
+		--[[if cfg.spells[spell].cost_real then
+			cfg.spells[spell].cost=cfg.spells[spell].cost_real
+		else
+			if cfg.spells[spell].tt.cost then
+				cfg.spells[spell].tt.cost_string=_G[cfg.spells[spell].tt.cost]:GetText() or ""
+				cfg.spells[spell].cost=0
+				for _, pattern in pairs(cfg.spells[spell].tt.pattern_cost) do
+					if string.find(cfg.spells[spell].tt.cost_string,pattern) then
+						cfg.spells[spell].cost=hedlib.toint(cfg.spells[spell].tt.cost_string)
+						break
+					end
+				end
+			end
+		end]]
+	end
+end
+
 local function gsi_inner(...)
 	if ... == "" then
 		return nil
@@ -42,11 +83,16 @@ lib.FindSpellBookSlotBySpellID=function(spell)
 	return cfg.spells[spell].spellbook
 end
 
-lib.AddSpell = function(spell,ids,addbuff,cost_real,nointerupt,nousecheck,noplayercheck)
+lib.AddSpell = function(spell,ids,addbuff,cost_real,nointerupt,nousecheck,noplayercheck) --,,cost_real,noplayercheck,powertype,
+	--cfg.spells[spell]=nil
+	--[[powertype=(powertype==true) and "alt" or powertype
+	powertype=powertype or "power"]]
 	if (not spell) or (not ids) then return false end
 	if type(ids)=="number" then
 		ids = {ids}
 	end
+	--nousecheck=nousecheck or nil
+	--cost_real=cost_real or nil
 	for index,id in ipairs(ids) do
 		cfg.id2spell[id]=spell
 		if IsPlayerSpell(id) or noplayercheck or spell=="gcd" then
@@ -76,19 +122,12 @@ lib.AddSpell = function(spell,ids,addbuff,cost_real,nointerupt,nousecheck,noplay
 				cfg.spells[spell].start = 0
 				cfg.spells[spell].isUsable = true
 				cfg.spells[spell].notEnoughMana = nil
-				local cspc = lib.GetCurrentSpellPowerCostFull(id)
-				if cspc then
-					cfg.spells[spell].cost = cspc["cost"] or 0
-					cfg.spells[spell].powerType = cspc["type"] or "None"
-				else
-					cfg.spells[spell].cost = 0
-					cfg.spells[spell].powerType = "None"
-				end
-				cfg.spells[spell].generalPowerType = lib.GeneralPowerType(cfg.spells[spell].powerType)
-				-- print("Spell power type for " .. cfg.spells[spell].name .. ": " .. cfg.spells[spell].powerType)
+				cfg.spells[spell].cost = 0
+				--cfg.spells[spell].powerType = 0
 				cfg.spells[spell].channel = 0
 				cfg.spells[spell].nointerupt = nointerupt or false
 				cfg.spells[spell].buff=0
+				--cfg.spells[spell].powerType=powertype
 				cfg.spells[spell].nousecheck=nousecheck or false
 				cfg.spells[spell].charges=0
 				cfg.spells[spell].charges_max=0
@@ -100,13 +139,48 @@ lib.AddSpell = function(spell,ids,addbuff,cost_real,nointerupt,nousecheck,noplay
 					cfg.spells[spell].has_charges=false
 				end
 				cfg.spells[spell].count=GetSpellCount(id)
+				--if cost_real then cfg.spells[spell].cost_real=cost_real end
 				cfg.spells[spell].cost_real=cost_real or false
-				-- print("Setting fullcd to 0 for " .. spell .. " (" .. id .. ")")
-				cfg.spells[spell].fullcd = 0
+				cfg.spells[spell].tt=_G["Hedd_Tooltip_"..cfg.spells[spell].id] or CreateFrame('GameTooltip', "Hedd_Tooltip_"..cfg.spells[spell].id, nil, 'GameTooltipTemplate')
+				cfg.spells[spell].tt:SetOwner(UIParent, 'ANCHOR_NONE')
+				cfg.spells[spell].tt:SetSpellByID(cfg.spells[spell].id)
+				cfg.spells[spell].tt.id=id
+				for _, tt in pairs(cfg.local_cd) do
+					cfg.spells[spell].tt.fullcd=hedlib.ScanTooltip(cfg.spells[spell].tt,tt,spell) or cfg.spells[spell].tt.fullcd
+				end
+				
+				--[[for _, pattern in pairs(cfg.Power.pattern_cost) do
+					cfg.spells[spell].tt.cost=hedlib.ScanTooltip(cfg.spells[spell].tt,pattern.."$",spell)
+					cfg.spells[spell].tt.cost=cfg.spells[spell].tt.cost or hedlib.ScanTooltip(cfg.spells[spell].tt,pattern.."\n",spell)
+					if cfg.spells[spell].tt.cost then break end
+				end
 
+				--cfg.spells[spell].tt.cost=hedlib.ScanTooltip(cfg.spells[spell].tt,cfg.Power.pattern_cost.."$",spell) --.."$"
+				--cfg.spells[spell].tt.cost=cfg.spells[spell].tt.cost or hedlib.ScanTooltip(cfg.spells[spell].tt,cfg.Power.pattern_cost.."\n",spell) --.."$"
+				if cfg.spells[spell].tt.cost then
+					cfg.spells[spell].powerType="power"
+					cfg.spells[spell].tt.pattern_cost=cfg.Power.pattern_cost
+				else
+					if cfg.AltPower.pattern_cost then
+						for _, tt in pairs(cfg.AltPower.pattern_cost) do
+							cfg.spells[spell].tt.cost=hedlib.ScanTooltip(cfg.spells[spell].tt,tt.."$",spell)
+							if cfg.spells[spell].tt.cost then break end
+						end
+						--cfg.spells[spell].tt.cost=hedlib.ScanTooltip(cfg.spells[spell].tt,cfg.AltPower.pattern_cost.."$",spell)
+						if cfg.spells[spell].tt.cost then
+							cfg.spells[spell].powerType="alt"
+							cfg.spells[spell].tt.pattern_cost=cfg.AltPower.pattern_cost
+						else
+							cfg.spells[spell].powerType="cd"
+						end
+					else
+						cfg.spells[spell].powerType="cd"
+					end
+				end
+				cfg.spells[spell].tt:Hide()--]]
 				lib.FindSpellBookSlotBySpellID(spell)
 				lib.UpdateSpell(spell)
-				if addbuff then
+				if addbuff then 
 					if addbuff=="target" then
 						lib.AddAura(spell,id,"debuff","target")
 					elseif addbuff=="player" then
@@ -126,63 +200,6 @@ lib.AddSpell = function(spell,ids,addbuff,cost_real,nointerupt,nousecheck,noplay
 	end
 	if cfg.spells[spell] then return true end
 	return false
-end
-
-lib.RemoveSpell = function(spell)
-	cfg.spells[spell] = nil
-end
-
-lib.ScanSpells = function()
-	local spellList = {}
-	i = 1
-	while true do
-		local skillType, special = GetSpellBookItemInfo(i, "spell")
-		if skillType == nil then
-			-- print("Finished scanning spells")
-			break
-		elseif skillType == "SPELL" then
-			local spellName = select(1, GetSpellInfo(special))
-			if IsPlayerSpell(special) then
-				if spellList[spellName] == nil then
-					spellList[spellName] = {}
-				end
-				if spellList[spellName][1] ~= special then
-					table.insert(spellList[spellName], special)
-				end
-			end
-		end
-		i = i + 1
-	end
-
-	for spellName, spellIDs in pairs(spellList) do
-		lib.AddSpell(spellName, spellIDs)
-	end
-end
-
-lib.AddSpellIfTalented = function(spell,ids,addbuff,cost_real,nointerupt,nousecheck,noplayercheck)
-	if (not spell) or (not ids) then return false end
-	if type(ids)=="number" then
-		ids = {ids}
-	end
-	if cfg.talents[spell] then
-		return lib.AddSpell(spell, ids, addbuff, cost_real, nointerrupt, nousecheck, noplayercheck)
-	end
-	return false
-end
-
-lib.ScanTalents = function()
-	-- print("Scanning talents")
-	local talentInfo = {}
-	for row=1,7 do
-		for col=1,3 do
-			local talentID, name, _, selected, _, spellID, _, _, _, _, known = GetTalentInfo(row, col, 1)
-			if selected or known then
-				-- print("Adding known talent " .. name .. " (" .. spellID .. ")")
-				talentInfo[name] = spellID
-			end
-		end
-	end
-	return talentInfo
 end
 
 lib.SaveSpellState = function(spell)
@@ -230,34 +247,10 @@ lib.ReloadSpell=function(spell,ids,...)
 			cfg.spells[ids]=nil
 			cfg.spells[spell]=nil
 		end
+		lib.AddSpell(spell,ids,...)
+	else
+		lib.AddSpell(spell,ids,...)
 	end
-	lib.AddSpell(spell,ids,...)
-end
-
-lib.GetCurrentSpellPowerCost = function(spell, typeNum)
-	local cspc = lib.GetCurrentSpellPowerCostFull(spell, typeNum)
-	if cspc == nil or #cspc == 0 then return 0 end
-	return cspc["cost"]
-end
-
-lib.GetCurrentSpellPowerCostFull = function(spell, typeNum)
-	local spc = GetSpellPowerCost(spell)
-	if spc == nil or #spc == 0 then
-		return {}
-	elseif #spc == 1 and lib.CheckCostType(spc[1], typeNum, true) then
-		return spc[1]
-	end
-	for k, v in pairs(spc) do
-		if v["hasRequiredAura"] and lib.CheckCostType(v, typeNum, true) then
-			return v
-		end
-	end
-	return spc[1]
-end
-
-lib.CheckCostType = function(cost, typeNum, default)
-	if typeNum == nil then return default end
-	return cost["type"] == typeNum
 end
 
 lib.SetSpellCost = function(spell,powercost,powertype)
@@ -345,6 +338,8 @@ end
 
 local spells_old={}
 local senabled
+local SpellCost
+local CostInfo
 lib.UpdateSpell = function(spell,now)
 	spell=cfg.spells[spell] and spell or cfg.id2spell[spell]
 	if cfg.spells[spell] and cfg.spells[spell].id then
@@ -362,18 +357,22 @@ lib.UpdateSpell = function(spell,now)
 		if cfg.spells[spell].itemslot then
 			cfg.spells[spell].start, cfg.spells[spell].cd, senabled = GetInventoryItemCooldown("player",cfg.spells[spell].itemslot)
 		end
-		if cfg.spells[spell].start == 0 or cfg.spells[spell].cd == 0 then
-			cfg.spells[spell].cd = 0
+		if not (cfg.spells[spell].start>0 and cfg.spells[spell].cd>0) then -- and senabled
+			cfg.spells[spell].cd=0
 		end
 		cfg.spells[spell].isUsable,cfg.spells[spell].notEnoughMana = IsUsableSpell(cfg.spells[spell].id)
 		cfg.spells[spell].castingTime = select(4,GetSpellInfo(cfg.spells[spell].id))/1000
 		if cfg.spells[spell].castingTime<0 then cfg.spells[spell].castingTime=0 end
-		if lib.IsLastSpell(spell) and cfg.spells[spell].fullcd == 0 then
-			local sfcd = lib.GetSpellFullCD(spell)
-			if sfcd ~= 0 then
-				if cfg.debugspells then print("Updating full cooldown for " .. spell .. " to " .. sfcd) end
-				cfg.spells[spell].fullcd = sfcd
-			end
+		
+		lib.UpdateSpellCost(spell)
+    
+		--cfg.spells[spell].tt=_G["Hedd_Tooltip_"..cfg.spells[spell].id] or CreateFrame('GameTooltip', "Hedd_Tooltip_"..cfg.spells[spell].id, nil, 'GameTooltipTemplate')
+		
+		if cfg.spells[spell].tt then
+			cfg.spells[spell].tt:SetOwner(UIParent, 'ANCHOR_NONE')
+			cfg.spells[spell].tt:SetSpellByID(cfg.spells[spell].id)
+			lib.UpdateSpellTT(spell)
+			cfg.spells[spell].tt:Hide()
 		end
 
 		--if not hedlib.ArrayNotChanged(cfg.spells[spell],spells_old) or now then
@@ -392,6 +391,29 @@ lib.UpdateSpell = function(spell,now)
 	end
 end
 
+lib.UpdateSpellCost = function(spell)
+	SpellCost=GetSpellPowerCost(cfg.spells[spell].id)
+	--cfg.spells[spell].powerType="none"
+	if SpellCost == nil or #SpellCost == 0 then
+		cfg.spells[spell].cost = 0
+		cfg.spells[spell].powerType = "cd"
+		return
+	else
+		for _, CostInfo in pairs(SpellCost) do
+			if CostInfo.name == cfg.Power.type then
+           		cfg.spells[spell].cost = CostInfo.cost
+				cfg.spells[spell].powerType = "power"
+				return
+			elseif CostInfo.name == cfg.AltPower.type then
+				cfg.spells[spell].cost = CostInfo.cost
+				cfg.spells[spell].powerType = "alt"
+				return
+			end
+        end
+	end
+	--cfg.spells[spell].cost = 0
+	--cfg.spells[spell].powerType = "cd"
+end
 local totems_old={}
 lib.UpdateTotem = function(totemtype)
 	totemtype = totemtype or 1
@@ -404,7 +426,7 @@ lib.UpdateTotem = function(totemtype)
 	end
 	hedlib.shallowCopy(cfg.totems[totemtype],totems_old)
 	cfg.totems[totemtype].haveTotem,cfg.totems[totemtype].totemName,cfg.totems[totemtype].startTime,cfg.totems[totemtype].duration, cfg.totems[totemtype].icon = GetTotemInfo(totemtype)
-
+	
 	if not hedlib.ArrayNotChanged(cfg.totems[totemtype],totems_old) then
 		cfg.Update=true
 		return true
@@ -423,10 +445,10 @@ lib.GetTotem = function(totemtype)
 	totemtype=totemtype or 1
 	if not cfg.totems then lib.UpdateTotem(totemtype) end
 	if not cfg.totems[totemtype].haveTotem then return 0 end
-
+	
 	tl_totem = cfg.totems[totemtype].duration - (GetTime()-cfg.totems[totemtype].startTime)
 	tl_totem = (tl_totem>0) and tl_totem or 0
-
+	
 	return tl_totem
 end
 
@@ -434,18 +456,6 @@ lib.HaveTotem = function(spell,totemtype)
 	totemtype=totemtype or 1
 	if cfg.spells[spell] and cfg.totems[totemtype] and lib.GetTotem(totemtype)>0 and cfg.spells[spell].name==cfg.totems[totemtype].totemName then return true end
 	return nil
-end
-
-lib.FindTotem = function(totemName)
-	for i=1,4 do
-		local _, tn, st, dur, _ = GetTotemInfo(i)
-		if tn == totemName then
-			tl_totem = dur - (GetTime()-st)
-			tl_totem = (tl_totem>0) and tl_totem or 0
-			return tl_totem
-		end
-	end
-	return 0
 end
 
 local i_spell,noprio,prio_count,n_case
@@ -501,13 +511,13 @@ lib.SetPriority = function()
 end
 
 local tl_spell
-lib.SimpleCDCheck = function (spell, Wait, nousecheck, nothing2do, force, ignoreLastSpell) -- nomanacheck, nousecheck, useGCD
+lib.SimpleCDCheck = function (spell, Wait,nousecheck,nothing2do,force) -- nomanacheck, nousecheck, useGCD
 	if not cfg.spells[spell] then return nil end
 	if HeddDB.CD[cfg.spells[spell].id] and not HeddDB.CD[cfg.spells[spell].id].enabled then return nil end
 	--[[if cfg.norepeat and lib.IsLastSpell(spell) then
 		return nil
 	end]]
-	if not ignoreLastSpell and lib.LastCheckSpell and not lib.LastCheckSpell(spell) then
+	if lib.LastCheckSpell and not lib.LastCheckSpell(spell) then
 		return nil
 	end
 	--if cfg.spells[spell].notEnoughMana and cfg.spells[spell].powerType=="alt" then return nil end
@@ -516,9 +526,9 @@ lib.SimpleCDCheck = function (spell, Wait, nousecheck, nothing2do, force, ignore
 	nothing2do=nothing2do or 0
 	nousecheck=nousecheck or cfg.nousecheck
 	nousecheck=nousecheck or cfg.spells[spell].nousecheck
-	if (cfg.spells[spell].generalPowerType=="power" and (cfg.spells[spell].isUsable or cfg.spells[spell].notEnoughMana)) --cfg.spells[spell].cost<=cfg.Power.now
-	or ((cfg.spells[spell].generalPowerType=="alt" or cfg.spells[spell].generalPowerType=="none") and cfg.spells[spell].isUsable)
-	or (cfg.class=="DEATHKNIGHT" and cfg.spells[spell].generalPowerType=="alt")
+	if (cfg.spells[spell].powerType=="power" and (cfg.spells[spell].isUsable or cfg.spells[spell].notEnoughMana)) --cfg.spells[spell].cost<=cfg.Power.now 
+	or ((cfg.spells[spell].powerType=="alt" or cfg.spells[spell].powerType=="cd") and cfg.spells[spell].isUsable)
+	or (cfg.class=="DEATHKNIGHT" and cfg.spells[spell].powerType=="alt")
 	or nousecheck then
 		tl_spell = math.max(0,lib.GetSpellCD(spell,nousecheck),Wait)
 		if force then
@@ -541,7 +551,7 @@ lib.SimpleCDCheck = function (spell, Wait, nousecheck, nothing2do, force, ignore
 				lib.UpdateBar(spell,tl_spell)
 				cfg.ctimeleft=tl_spell
 				return true
-			else
+			else 
 				if cfg.ctimeleft>(tl_spell+nothing2do) then
 					cfg.ctimeleft=(tl_spell+nothing2do)
 				end
@@ -560,23 +570,46 @@ lib.isSpellUsable=function(spell)
 end
 
 local tl_spell_cd
+--[[lib.GetSpellCD = function (spell,noregen)
+	spell = (spell=="gcd") and cfg.gcd_spell or spell
+	noregen = noregen or false
+	if cfg.spells[spell] then
+		if HeddDB.CD[cfg.spells[spell].id] and not HeddDB.CD[cfg.spells[spell].id].enabled then return 9999 end
+		
+		cfg.spells[spell].tl=math.max((cfg.spells[spell].cd - (GetTime() - cfg.spells[spell].start)),lib.SpellCastingLeft())
+		if cfg.spells[spell].powerType=="power" and not noregen then
+			cfg.spells[spell].tl=math.max(cfg.spells[spell].tl,lib.Time2Power(cfg.spells[spell].cost))
+		end
+		if cfg.spells[spell].powerType=="rune" and cfg.Game.release>6 then
+			cfg.spells[spell].tl=math.max(cfg.spells[spell].tl,lib.GetNumRunesReadyCD(cfg.spells[spell].numrunes))
+		end
+		if cfg.spells[spell].has_charges then
+			if cfg.spells[spell].charges==1 and lib.SpellCasting(spell) then
+				cfg.spells[spell].tl=math.max(cfg.spells[spell].tl,lib.SpellCastingLeft()+cfg.spells[spell].fullcd - (GetTime() - cfg.spells[spell].charges_start))
+			end
+		else
+			if cfg.spells[spell].fullcd>0 and lib.SpellCasting(spell) then
+				cfg.spells[spell].tl=math.max(cfg.spells[spell].tl,lib.SpellCastingLeft()+cfg.spells[spell].fullcd)
+			end
+		end
+		return cfg.spells[spell].tl
+	else
+		return 9999
+	end
+end]]
 
 lib.GetSpellCD = function (spell,noregen,charge)
 	spell = (spell=="gcd") and cfg.gcd_spell or spell
 	noregen = noregen or cfg.nousecheck
 	if cfg.spells[spell] then
 		if HeddDB.CD[cfg.spells[spell].id] and not HeddDB.CD[cfg.spells[spell].id].enabled then return 9999 end
-
-		-- Time until spell comes off cooldown or time until spell cast is complete, whichever is greater
-		cfg.spells[spell].tl=math.max(cfg.spells[spell].cd - (GetTime() - cfg.spells[spell].start),lib.SpellCastingLeft())
-		if cfg.spells[spell].generalPowerType=="power" and not noregen then
+		
+		cfg.spells[spell].tl=math.max((cfg.spells[spell].cd - (GetTime() - cfg.spells[spell].start)),lib.SpellCastingLeft())
+		if cfg.spells[spell].powerType=="power" and not noregen then
 			cfg.spells[spell].tl=math.max(cfg.spells[spell].tl,lib.Time2Power(cfg.spells[spell].cost))
 		end
-		if cfg.spells[spell].generalPowerType=="alt" and cfg.class=="DEATHKNIGHT" then
-			-- cfg.spells[spell].tl=math.max(cfg.spells[spell].tl,lib.GetNumRunesReadyCD(cfg.spells[spell].cost))
-			-- print("Finding cost for " .. spell)
-			-- print(hedlib.dump(lib.GetCurrentSpellPowerCost(spell, Enum.PowerType["Runes"])))
-			cfg.spells[spell].tl=math.max(cfg.spells[spell].tl,lib.GetNumRunesReadyCD(lib.GetCurrentSpellPowerCost(spell, Enum.PowerType["Runes"])))
+		if cfg.spells[spell].powerType=="alt" and cfg.class=="DEATHKNIGHT" then
+			cfg.spells[spell].tl=math.max(cfg.spells[spell].tl,lib.GetNumRunesReadyCD(cfg.spells[spell].cost))
 		end
 		if lib.SpellCasting(spell) then
 			if cfg.spells[spell].has_charges then
@@ -638,7 +671,7 @@ local nextspell_i=nil
 lib.GetSpellCDNext = function()
 	nextspell=nil
 	for index,name in pairs(cfg.spells) do
-		if cfg.spells[index] and not cfg.spells[index].noupdate then
+		if cfg.spells[index] and not cfg.spells[index].noupdate then 
 			nextspell_i=lib.GetSpellCD(index)
 			if nextspell_i>0 then
 				nextspell=nextspell or nextspell_i
@@ -653,11 +686,7 @@ end
 lib.GetSpellFullCD = function (spell)
 	if spell=="gcd" then spell=cfg.gcd_spell end
 	if cfg.spells[spell] then
-		if cfg.spells[spell].fullcd ~= 0 then
-			return cfg.spells[spell].fullcd
-		end
-		local start, duration, enabled, _ = GetSpellCooldown(cfg.spells[spell].id)
-		return duration or 0
+		return cfg.spells[spell].fullcd
 	end
 	return 0
 end
@@ -708,7 +737,7 @@ end
 
 lib.GetSpellCT = function (spell)
 	if spell=="gcd" then spell=cfg.gcd_spell end
-
+	
 	if cfg.spells[spell] and cfg.spells[spell].castingTime then
 		return cfg.spells[spell].castingTime
 	end
@@ -722,6 +751,11 @@ lib.SetSpellFunction = function(spell,event,func)
 			table.insert(cfg.spells[spell].OnUpdate,#cfg.spells[spell].OnUpdate+1,func)
 			return #cfg.spells[spell].OnUpdate
 		end
+		--[[if event=="OnEnd" then
+			cfg.spells[spell].OnEnd=cfg.spells[spell].OnEnd or {}
+			table.insert(cfg.spells[spell].OnEnd,#cfg.spells[spell].OnEnd+1,func)
+			return #cfg.spells[spell].OnEnd
+		end]]
 	end
 end
 
@@ -753,7 +787,7 @@ lib.FixSpell = function(spell,func)
 		cfg.fixspells[spell]=true
 		cfg.fixspells_num=cfg.fixspells_num+1
 		cfg.fixspells_func[spell]()
-	end
+	end	
 end
 
 lib.FixingSpells = function()
@@ -801,7 +835,7 @@ lib.PrintSpell=function(spell)
 		if cfg.spells[spell].has_charges then
 			tmp2=tmp2.."charges="..cfg.spells[spell].charges.."/"..cfg.spells[spell].charges_max.."\n"
 		end
-
+		
 		tmp2=tmp2.."isUsable="..tostring(cfg.spells[spell].isUsable).."\n"
 		tmp2=tmp2.."notEnoughMana="..tostring(cfg.spells[spell].notEnoughMana).."\n"
 		tmp2=tmp2.."powertype="..tostring(cfg.spells[spell].powerType).."\n"
@@ -874,4 +908,61 @@ lib.Pandemic = function(cd,aura,pandemic)
 	pandemic=aura-pandemic
 	if cd>=aura or cd>pandemic then return true end
 	return false
+end
+
+lib.ScanSpells = function()
+	local spellList = {}
+	i = 1
+	while true do
+		local skillType, special = GetSpellBookItemInfo(i, "spell")
+		if skillType == nil then
+			-- print("Finished scanning spells")
+			break
+		elseif skillType == "SPELL" then
+			local spellName = select(1, GetSpellInfo(special))
+			if IsPlayerSpell(special) then
+				if spellList[spellName] == nil then
+					spellList[spellName] = {}
+				end
+				if spellList[spellName][1] ~= special then
+					table.insert(spellList[spellName], special)
+				end
+			end
+		end
+		i = i + 1
+	end
+
+	for spellName, spellIDs in pairs(spellList) do
+		lib.AddSpell(spellName, spellIDs)
+	end
+end
+
+lib.AddSpellIfTalented = function(spell,ids,addbuff,cost_real,nointerupt,nousecheck,noplayercheck)
+	if (not spell) or (not ids) then return false end
+	if type(ids)=="number" then
+		ids = {ids}
+	end
+	if cfg.talents[spell] then
+		return lib.AddSpell(spell, ids, addbuff, cost_real, nointerrupt, nousecheck, noplayercheck)
+	end
+	return false
+end
+
+lib.ScanTalents = function()
+	-- print("Scanning talents")
+	local talentInfo = {}
+	for row=1,7 do
+		for col=1,3 do
+			local talentID, name, _, selected, _, spellID, _, _, _, _, known = GetTalentInfo(row, col, 1)
+			if selected or known then
+				-- print("Adding known talent " .. name .. " (" .. spellID .. ")")
+				talentInfo[name] = spellID
+			end
+		end
+	end
+	return talentInfo
+end
+
+lib.RemoveSpell = function(spell)
+	cfg.spells[spell] = nil
 end

@@ -81,6 +81,7 @@ lib.OnUpdateBar = function (self, elapsed) --Heddmain.bar=self
 			Heddmain.bar.flash=true
 			lib.ShowFrame(self)
 			self:SetValue(self.cd)
+			--print(cfg.spells[self.spell].powerType)
 			self.Spark:SetPoint("CENTER", self, "RIGHT", -(self.cd / cfg.maxbar) * self:GetWidth(), 0)
 			self.Spark:Show()
 		else

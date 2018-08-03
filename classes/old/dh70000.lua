@@ -11,11 +11,10 @@ if cfg.Game.release>6 then
 lib.classes["DEMONHUNTER"] = {}
 local t,s,n
 lib.classpreload["DEMONHUNTER"] = function()
-
+	
 end
--- HAVOC SPEC
 lib.classes["DEMONHUNTER"][1] = function()
-	lib.SetPower("Fury")
+	lib.SetPower("FURY")
 	lib.AddResourceBar(cfg.Power.max)
 	lib.ChangeResourceBarType(cfg.Power.type)
 	lib.LoadSwingTimer()
@@ -49,7 +48,7 @@ lib.classes["DEMONHUNTER"][1] = function()
 	lib.AddSpell("Fury of the Illidari",{201467})
 	lib.AddAura("Metamorphosis",162264,"buff","player")
 	lib.AddAura("Momentum",208628,"buff","player")
-
+	
 	if not cfg.talents["Demon Blades"] then
 		lib.AddSpell("Demon's Bite",{162243})
 	end
@@ -67,15 +66,15 @@ lib.classes["DEMONHUNTER"][1] = function()
 		lib.ReloadSpell("Chaos Strike",{162794,201427})
 		lib.ReloadSpell("Blade Dance",{188499,210152},true)
 	end)
-
+	
 	lib.AddSpell("Felblade",{232893})
 	lib.AddSpell("Fel Barrage",{211053})
 	lib.AddSpell("Chaos Blades",{247938},true)
 	lib.AddSpell("Nemesis",{206491},"target")
 	lib.AddAura("Nemesis2",208579,"buff","player")
-
+	
 	lib.SetTrackAura({"Metamorphosis","Chaos Blades","Nemesis","Nemesis2","Momentum"})
-
+	
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Kick")
 	if cfg.talents["Bloodlet"] and cfg.talents["Momentum"] then
@@ -123,11 +122,11 @@ lib.classes["DEMONHUNTER"][1] = function()
 		table.insert(cfg.plistdps,"Demon's Bite")
 	end
 	table.insert(cfg.plistdps,"end")
-
+	
 	cfg.plistaoe = nil
 	cfg.plist=cfg.plistdps
-
-
+	
+	
 	cfg.case = {
 		["Blur_Fel Rush"] = function()
 			if lib.GetSpellCD("Fel Rush")>cfg.gcd and lib.GetSpellCD("Fel Rush")>lib.GetSpellCD("Blur") then
@@ -177,7 +176,7 @@ lib.classes["DEMONHUNTER"][1] = function()
 			end
 			return nil
 		end,
-
+		
 		["Felblade"] = function()
 			if cfg.Power.now<=cfg.Power.max-30 then
 				return lib.SimpleCDCheck("Felblade") --,lib.GetAura({"Momentum"})-cfg.gcd
@@ -209,19 +208,19 @@ lib.classes["DEMONHUNTER"][1] = function()
 			return nil
 		end,
 		["Vengeful Retreat"] = function() --_Prepared
-			if cfg.Power.now<=cfg.Power.max-20 and lib.inrange("Chaos Strike") then --(lib.GetSpellCD("Vengeful Retreat")+lib.GetSpellCD("gcd")==lib.GetSpellCD("Fel Rush") or lib.GetSpellCD("Vengeful Retreat")+lib.GetSpellCD("gcd")==lib.GetSpellCD("Throw Glaive"))
+			if cfg.Power.now<=cfg.Power.max-20 and lib.inrange("Chaos Strike") then --(lib.GetSpellCD("Vengeful Retreat")+lib.GetSpellCD("gcd")==lib.GetSpellCD("Fel Rush") or lib.GetSpellCD("Vengeful Retreat")+lib.GetSpellCD("gcd")==lib.GetSpellCD("Throw Glaive")) 
 				return lib.SimpleCDCheck("Vengeful Retreat",lib.GetAura({"Momentum"})) -- cfg.gcd)
 			end
 			return nil
 		end,
 		["Vengeful Retreat_ranged"] = function()
-			if not lib.inrange("Chaos Strike") and lib.IsLastSpell("Fel Rush") then
+			if not lib.inrange("Chaos Strike") and lib.IsLastSpell("Fel Rush") then 
 				return lib.SimpleCDCheck("Vengeful Retreat",lib.GetAura({"Momentum"})) -- cfg.gcd)
 			end
 			return nil
 		end,
-
-
+		
+		
 		["Eye Beam_single"] = function()
 			if cfg.noaoe then
 				return lib.SimpleCDCheck("Eye Beam",lib.GetAura({"Metamorphosis"}))
@@ -259,7 +258,7 @@ lib.classes["DEMONHUNTER"][1] = function()
 			return nil
 		end,
 		["Chaos Strike_Momentum"] = function()
-			if lib.GetAura({"Momentum"})>lib.GetSpellCD("Chaos Strike") and (cfg.noaoe or cfg.cleave_targets<=2) then
+			if lib.GetAura({"Momentum"})>lib.GetSpellCD("Chaos Strike") and (cfg.noaoe or cfg.cleave_targets<=2) then				
 				return lib.SimpleCDCheck("Chaos Strike")
 			end
 			return nil
@@ -310,10 +309,9 @@ lib.classes["DEMONHUNTER"][1] = function()
 	})
 	return true
 end
--- VENGEANCE SPEC
 lib.classes["DEMONHUNTER"][2] = function()
 	cfg.MonitorSpells=true
-	lib.SetPower("Pain")
+	lib.SetPower("PAIN")
 	lib.AddResourceBar(cfg.Power.max)
 	lib.ChangeResourceBarType(cfg.Power.type)
 	cfg.talents={
@@ -321,7 +319,6 @@ lib.classes["DEMONHUNTER"][2] = function()
 		--["Prepared"]=IsPlayerSpell(203551),
 		--["Demon Blades"]=IsPlayerSpell(203555),
 		--["First Blood"]=IsPlayerSpell(206416),
-		["Fracture"]=IsPlayerSpell(263642),
 	}
 
 	lib.AddSpell("Shear",{203782})
@@ -336,7 +333,7 @@ lib.classes["DEMONHUNTER"][2] = function()
 	lib.AddSpell("Soul Barrier",{227225},true)
 	lib.AddSpell("Fel Devastation",{212084},nil,nil,true)
 	lib.AddCleaveSpell("Soul Cleave",nil,{228478})
-	lib.AddSpell("Fracture",{263642})
+	lib.AddSpell("Fracture",{209795})
 	lib.AddSpell("Throw Glaive",{204157})
 	--lib.AddCleaveAdder("Throw Glaive")
 	lib.AddSpell("Immolation Aura",{178740},true)
@@ -349,17 +346,17 @@ lib.classes["DEMONHUNTER"][2] = function()
 	lib.AddSpell("Fiery Brand",{204021})
 	lib.AddSpell("Felblade",{232893})
 	lib.AddAura("Fiery Brand",207744,"debuff","target")
-
-
+	
+	
 	lib.AddSpell("Sigil of Flame",{204596})
 	lib.AddAura("Sigil of Flame",204598,"debuff","target")
-
+	
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Kick")
 	table.insert(cfg.plistdps,"Spirit Bomb")
 	table.insert(cfg.plistdps,"Felblade_range")
 	table.insert(cfg.plistdps,"Throw Glaive_range")
-
+	
 	table.insert(cfg.plistdps,"Demon Spikes_hp")
 	table.insert(cfg.plistdps,"Soul Barrier_hp")
 	table.insert(cfg.plistdps,"Fel Devastation_heal")
@@ -379,30 +376,32 @@ lib.classes["DEMONHUNTER"][2] = function()
 	if not cfg.talents["Flame Crash"] then
 		table.insert(cfg.plistdps,"Infernal Strike_aoe")
 	end
-
+	
 	table.insert(cfg.plistdps,"Fel Devastation_aoe")
 	table.insert(cfg.plistdps,"Spirit Bomb_aoe")
 	table.insert(cfg.plistdps,"Spirit Bomb4")
 	table.insert(cfg.plistdps,"Soul Cleave_aoe")
 	table.insert(cfg.plistdps,"Infernal Strike2")
 	table.insert(cfg.plistdps,"Fel Devastation")
-	if cfg.talents["Fracture"] then
-		table.insert(cfg.plistdps,"Fracture")
-	end
+	table.insert(cfg.plistdps,"Fracture")
 	table.insert(cfg.plistdps,"Soul Cleave_cap")
 	table.insert(cfg.plistdps,"Felblade")
 	table.insert(cfg.plistdps,"Fel Eruption")
 	table.insert(cfg.plistdps,"Sigil of Flame")
-	if not cfg.talents["Fracture"] then
-		table.insert(cfg.plistdps,"Shear")
-	end
+	table.insert(cfg.plistdps,"Shear")
 	table.insert(cfg.plistdps,"end")
-
+	
 	cfg.plistaoe = nil
 	cfg.plist=cfg.plistdps
-
-
+	
+	
 	cfg.case = {
+		--[[["Fracture"] = function()
+			if lib.GetAuraStacks("Soul Fragments")<=3 then
+				return lib.SimpleCDCheck("Fracture")
+			end
+			return nil
+		end,]]
 		["Infernal Strike_aoe"] = function()
 			if lib.IsLastSpell(189111) then return nil end
 			if lib.GetSpellCD("Immolation Aura")<=cfg.gcd then return nil end
@@ -493,6 +492,12 @@ lib.classes["DEMONHUNTER"][2] = function()
 			end
 			return nil
 		end,
+--[[		["Fiery Brand"] = function()
+			if lib.GetUnitHealth("player","percent")<=90 then
+				return lib.SimpleCDCheck("Fiery Brand")
+			end
+			return nil
+		end,]]
 		["Infernal Strike_Flame Crash_aoe"] = function()
 			if lib.IsLastSpell(189111) then return nil end
 			if lib.IsLastSpell("Sigil of Flame") then return nil end

@@ -7,9 +7,9 @@ local cfg = ns.cfg
 -- get the library
 local lib = ns.lib
 
-if cfg.Game.release>=7 then
+if cfg.release<7 then
 lib.classes["PALADIN"] = {}
-lib.classes["PALADIN"][20] = function () --Protection
+lib.classes["PALADIN"][2] = function () --Protection
 	cfg.talents={
 		["SW"]=IsPlayerSpell(171648),
 		["Cons_Perk"]=IsPlayerSpell(157486)
@@ -44,7 +44,7 @@ lib.classes["PALADIN"][20] = function () --Protection
 	lib.AddSpell("AS",{31935}) -- Avenger's Shield
 	lib.AddSpell("HW",{119072}) -- Holy Wrath
 	lib.AddSpell("Cons",{26573}) -- Consecration
-	lib.ChangeSpellID("Cons",159556,cfg.talents["Cons_Perk"])
+	lib.ChangeSpellId("Cons",159556,cfg.talents["Cons_Perk"])
 	
 	lib.AddAura("GC",85416,"buff","player") -- Grand Crusader
 	
@@ -144,173 +144,182 @@ lib.classes["PALADIN"][20] = function () --Protection
 end
 
 lib.classes["PALADIN"][3] = function () --Retribution
-	lib.SetPower("MANA")
-	lib.SetAltPower("HOLY_POWER")
-	cfg.cleave_threshold=3
 	cfg.talents={
-		--["Exo_Glypth"]=lib.HasGlyph(122028),
-		--["HoW_Perk"]=IsPlayerSpell(157496),
-		--["FV"]=IsPlayerSpell(157048),
-		--["Seraphim"]=IsPlayerSpell(152262),
-		--["Seals"]=IsPlayerSpell(152263),
+		["Exo_Glypth"]=lib.HasGlyph(122028),
+		["HoW_Perk"]=IsPlayerSpell(157496),
+		["FV"]=IsPlayerSpell(157048),
+		["Seraphim"]=IsPlayerSpell(152262),
+		["Seals"]=IsPlayerSpell(152263),
 	}
 	
-	lib.AddAura("Divine Purpose",223819,"buff","player") -- Divine Purpose
-	lib.AddSpell("Judgement",{20271})
-	lib.AddSpell("Wake of Ashes",{205273},true)
-	lib.AddSpell("Greater Blessing of Kings",{203538},true)
-	lib.AddSpell("Crusade",{231895},true)
-	lib.AddSpell("Greater Blessing of Wisdom",{203539},true)
-	lib.AddAura("Judgement",197277,"debuff","target")
-	--lib.AddCleaveSpell("Judgement",nil,{228288})
-	lib.AddSpell("Templar's Verdict",{85256})
-	--lib.AddCleaveSpell("Templar's Verdict")
-	lib.AddSpell("Justicar's Vengeance",{215661})
-	lib.AddSpell("Execution Sentence",{213757},"target")
-	lib.AddSpell("Consecration",{205228},"target")
-	lib.AddCleaveSpell("Consecration",nil,{81297})
-	lib.AddSpell("Crusader Strike",{217020,35395})
+	lib.SetAltPower("HOLY_POWER",HOLY_POWER_COST,nil,function()
+		if lib.GetAura({"DivPurp"})>0 and cfg.AltPower.now<3 then
+			lib.UpdateResourceCombo(3)
+		end
+	end)
 	
-	lib.AddSpell("Blade",{198034,184575}) --202270
+	
+	lib.AddAura("DivPurp",90174,"buff","player") -- Divine Purpose
+	lib.SetAuraFunction("DivPurp","OnApply",function()
+		if cfg.AltPower.now<3 then
+			lib.UpdateResourceCombo(3)
+		end
+	end)
+	lib.SetAuraFunction("DivPurp","OnFade",function()
+		lib.UpdateResourceCombo(cfg.AltPower.now)
+	end)
+	
+	lib.AddSpell("Exo",{879}) -- Exorcism
+	lib.ChangeSpellId("Exo",122032,cfg.talents["Exo_Glypth"])
+	
+	lib.AddSpell("TV",{157048,85256}) -- Templar's Verdict
+	lib.AddAura("FV",157048,"buff","player") -- Final Verdict
+	lib.SetDOT("FV",30,nil,nil,true)
 
-	lib.AddSpell("Divine Storm",{53385}) -- Divine Storm
-	lib.AddCleaveSpell("Divine Storm",nil,{224239})
+	lib.AddSpell("DS",{53385}) -- Divine Storm
+	lib.AddAura("DC",144595,"buff","player") -- Divine Crusader
+	lib.SetTrackAura("DC")
+	lib.SetAuraFunction("DC","OnApply",function()
+		lib.UpdateTrackAura(cfg.GUID["player"],0)
+	end)
+	lib.SetAuraFunction("DC","OnFade",function()
+		lib.UpdateTrackAura(cfg.GUID["player"])
+	end)
+	
 	--lib.AddSpell("GoAK",{86150}) -- Guardian of Ancient Kings 
 	--lib.AddSpell("Zealotry",{85696}) -- Zealotry
-	lib.AddSpell("Avenging Wrath",{224668,31884},true) -- Avenging Wrath
-	lib.SetTrackAura({"Divine Purpose","Avenging Wrath","Judgement"})
+	lib.AddSpell("AW",{31884},true) -- Avenging Wrath
+	
+	--lib.AddAura("AoW",59578,"buff","player") -- The Art of War
+	
+	lib.AddSpell("Seraphim",{152262},true) -- Seraphim
+		
+	lib.AddSpell("Truth",{31801}) -- Seal of Truth
+	lib.AddAura("Truth",156990,"buff","player") -- Maraad's Truth
+	lib.AddSpell("Righteousness",{20154}) -- Seal of Righteousness
+	lib.AddAura("Righteousness",156989,"buff","player") -- Liadrin's Righteousness
 	
 	
-	--lib.AddSpell("Seraphim",{152262},true) -- Seraphim
-	
-	lib.AddSet("T13",{76875,78770,78675,76876,78693,78788,76877,78712,78807,76878,78742,78837})
+	cfg.set["T13"]={}
+	cfg.set["T13"]={76875,78770,78675,76876,78693,78788,76877,78712,78807,76878,78742,78837}
 	
 	cfg.plistdps = {}
 	cfg.plistaoe = {}
 	
 	table.insert(cfg.plistdps,"Kick")
 	table.insert(cfg.plistdps,"Cleanse")
-	table.insert(cfg.plistdps,"Avenging Wrath")
-	table.insert(cfg.plistdps,"Crusade")
---	table.insert(cfg.plistdps,"Judgement_Divine Purpose")
-	table.insert(cfg.plistdps,"Divine Storm_Divine Purpose_aoe")
-	table.insert(cfg.plistdps,"Consecration_aoe")
-	table.insert(cfg.plistdps,"Wake of Ashes")
-	table.insert(cfg.plistdps,"Crusader Strike2")
-	table.insert(cfg.plistdps,"Blade")
-	table.insert(cfg.plistdps,"Crusader Strike")
-	table.insert(cfg.plistdps,"Judgement")
-	--table.insert(cfg.plistdps,"Consecration")
-	table.insert(cfg.plistdps,"Divine Storm_aoe")
-	table.insert(cfg.plistdps,"Justicar's Vengeance_Divine Purpose")
-	table.insert(cfg.plistdps,"Execution Sentence5")
-	table.insert(cfg.plistdps,"Templar's Verdict5")
-	table.insert(cfg.plistdps,"Consecration")
-	table.insert(cfg.plistdps,"Execution Sentence")
-	table.insert(cfg.plistdps,"Templar's Verdict")
+	table.insert(cfg.plistdps,"BoM")
+	table.insert(cfg.plistdps,"BoK")
+	table.insert(cfg.plistdps,"AW_buff")
 	
+	table.insert(cfg.plistaoe,"Kick")
+	table.insert(cfg.plistaoe,"Cleanse")
+	table.insert(cfg.plistaoe,"BoM")
+	table.insert(cfg.plistaoe,"BoK")
+	
+	if cfg.talents["FV"] then
+		table.insert(cfg.plistdps,"DS_buffed")
+		table.insert(cfg.plistdps,"TV5")
+		table.insert(cfg.plistdps,"HolyA")
+		table.insert(cfg.plistdps,"ES")
+		table.insert(cfg.plistdps,"LH")
+		table.insert(cfg.plistdps,"HP")
+		table.insert(cfg.plistdps,"HoW")
+		table.insert(cfg.plistdps,"J_range")
+		table.insert(cfg.plistdps,"Exo_range")
+		table.insert(cfg.plistdps,"CS")
+		table.insert(cfg.plistdps,"J")
+		table.insert(cfg.plistdps,"Exo")
+		--table.insert(cfg.plistdps,"DS_DC")
+		table.insert(cfg.plistdps,"TV3")
+		
+		table.insert(cfg.plistaoe,"DS_buffed")
+		table.insert(cfg.plistaoe,"DS_FV")
+		table.insert(cfg.plistaoe,"TV5")
+		table.insert(cfg.plistaoe,"LH")
+		table.insert(cfg.plistaoe,"HotR")
+		if cfg.talents["Exo_Glyph"] then
+			table.insert(cfg.plistaoe,"Exo")
+		end
+		table.insert(cfg.plistaoe,"HoW")
+		table.insert(cfg.plistaoe,"J")
+		if not cfg.talents["Exo_Glyph"] then
+			table.insert(cfg.plistaoe,"Exo")
+		end
+		table.insert(cfg.plistaoe,"TV3")
+		table.insert(cfg.plistaoe,"DS_DC")
+	else
+		table.insert(cfg.plistdps,"Seraphim")
+		table.insert(cfg.plistdps,"TV5")
+		table.insert(cfg.plistdps,"HolyA")
+		table.insert(cfg.plistdps,"ES")
+		table.insert(cfg.plistdps,"LH")
+		table.insert(cfg.plistdps,"HP")
+		table.insert(cfg.plistdps,"HoW")
+		table.insert(cfg.plistdps,"J_range")
+		table.insert(cfg.plistdps,"Exo_range")
+		table.insert(cfg.plistdps,"CS")
+		if cfg.talents["Seals"] then
+			table.insert(cfg.plistdps,"SWITCH_SEALS")
+		end
+		table.insert(cfg.plistdps,"J")
+		table.insert(cfg.plistdps,"Exo")
+		table.insert(cfg.plistdps,"DS_DC")
+		if cfg.talents["Seraphim"] then
+			table.insert(cfg.plistdps,"TV3_Seraphim")
+		else
+			table.insert(cfg.plistdps,"TV3")
+		end
+			
+		table.insert(cfg.plistaoe,"Seraphim")
+		table.insert(cfg.plistaoe,"DS_DC")
+		table.insert(cfg.plistaoe,"DS5")
+		table.insert(cfg.plistaoe,"LH")
+		table.insert(cfg.plistaoe,"HotR")
+		if cfg.talents["Exo_Glyph"] then
+			table.insert(cfg.plistaoe,"Exo")
+		end
+		table.insert(cfg.plistaoe,"HoW")
+		if cfg.talents["Seals"] then
+			table.insert(cfg.plistaoe,"SWITCH_SEALS")
+		end
+		table.insert(cfg.plistaoe,"J")
+		if not cfg.talents["Exo_Glyph"] then
+			table.insert(cfg.plistaoe,"Exo")
+		end
+		if cfg.talents["Seraphim"] then
+			table.insert(cfg.plistaoe,"DS3_Seraphim")
+		else
+			table.insert(cfg.plistaoe,"DS3")
+		end
+	end
+	
+	table.insert(cfg.plistdps,"SS_noSS")
 	table.insert(cfg.plistdps,"end")
+	
+	table.insert(cfg.plistaoe,"end")
 
 	cfg.plist = cfg.plistdps
 
 	cfg.case = {
-		["Crusader Strike2"] = function()
-			if cfg.AltPower.now==cfg.AltPower.max then return nil end
-			return lib.SimpleCDCheck("Crusader Strike",lib.GetSpellCD("Crusader Strike",nil,lib.GetSpellMaxCharges("Crusader Strike"))) ---cfg.gcd
-		end,
-		["Crusader Strike"] = function()
-			if cfg.AltPower.now==cfg.AltPower.max then return nil end
-			return lib.SimpleCDCheck("Crusader Strike")
-		end,
-		["Judgement"] = function()
-			if cfg.AltPower.now>=3 or lib.GetAura({"Divine Purpose"})>lib.GetSpellCD("Judgement") then
-				return lib.SimpleCDCheck("Judgement")
-			end
-			return nil
-		end,
-		["Blade"] = function()
-			if cfg.AltPower.now>cfg.AltPower.max-2 then return nil end
-			return lib.SimpleCDCheck("Blade")
-		end,
-		["Templar's Verdict_Divine Purpose"] = function()
-			if lib.GetAura({"Divine Purpose"})>lib.GetSpellCD("Templar's Verdict") then
-				return lib.SimpleCDCheck("Templar's Verdict")
-			end
-			return nil
-		end,
-		["Execution Sentence_Divine Purpose"] = function()
-			if lib.GetAura({"Divine Purpose"})>lib.GetSpellCD("Execution Sentence") then
-				return lib.SimpleCDCheck("Execution Sentence")
-			end
-			return nil
-		end,
-		["Templar's Verdict5"] = function()
-			if lib.GetAura({"Divine Purpose"})>lib.GetSpellCD("Templar's Verdict") or cfg.AltPower.now==cfg.AltPower.max then
-				return lib.SimpleCDCheck("Templar's Verdict")
-			end
-			return nil
-		end,
-		["Execution Sentence5"] = function()
-			if lib.GetAura({"Divine Purpose"})>lib.GetSpellCD("Execution Sentence") or cfg.AltPower.now==cfg.AltPower.max then
-				return lib.SimpleCDCheck("Execution Sentence")
-			end
-			return nil
-		end,
-		["Divine Storm_Divine Purpose_aoe"] = function()
-			if cfg.cleave_targets>=cfg.cleave_threshold and lib.GetAura({"Divine Purpose"})>lib.GetSpellCD("Divine Storm") then
-				return lib.SimpleCDCheck("Divine Storm")
-			end
-			return nil
-		end,
-		["Divine Storm_aoe"] = function()
-			if cfg.cleave_targets>=cfg.cleave_threshold then
-				return lib.SimpleCDCheck("Divine Storm")
-			end
-			return nil
-		end,
-		["Consecration_aoe"] = function()
-			if cfg.cleave_targets>=2 then
-				return lib.SimpleCDCheck("Consecration")
-			end
-			return nil
-		end,
-		["Judgement_Divine Purpose"] = function()
-			if lib.GetAura({"Divine Purpose"})>lib.GetSpellCD("Judgement") then
-				return lib.SimpleCDCheck("Judgement")
-			end
-			return nil
-		end,
-		["Wake of Ashes"] = function()
-			if cfg.AltPower.now<3 and lib.GetAura({"Judgement"})>lib.GetSpellCD("Wake of Ashes") then
-				return lib.SimpleCDCheck("Wake of Ashes")
-			end
-			return nil
-		end,
-		["Justicar's Vengeance_Divine Purpose"] = function()
-			if lib.GetUnitHealth("player","percent")<=70 and lib.GetAura({"Divine Purpose"})>lib.GetSpellCD("Justicar's Vengeance") then
-				return lib.SimpleCDCheck("Justicar's Vengeance")
-			end
-			return nil
-		end,
-		
 		["SWITCH_SEALS"] = function()
 			if lib.GetAura({"Truth"})<=lib.GetAura({"Righteousness"}) then
-				if cfg.shape.SpellID~=lib.GetSpellID("Truth") then
+				if cfg.shape.spellid~=lib.GetSpellId("Truth") then
 					return lib.SimpleCDCheck("Truth",lib.GetAura({"Truth"})-lib.GetSpellCD("J")-lib.GetSpellFullCD("J")-lib.GetSpellCT("gcd"))
 				end
 			else
-				if cfg.shape.SpellID~=lib.GetSpellID("Righteousness") then
+				if cfg.shape.spellid~=lib.GetSpellId("Righteousness") then
 					return lib.SimpleCDCheck("Righteousness",lib.GetAura({"Righteousness"})-lib.GetSpellCD("J")-lib.GetSpellFullCD("J")-lib.GetSpellCT("gcd"))
 				end
 			end
 			return nil
 		end,
 		["AW_buff"] = function()
-			--[[if lib.GetAuras("Heroism")>lib.GetSpellCD("Avenging Wrath") then
-				return lib.SimpleCDCheck("Avenging Wrath",lib.GetAura({"Avenging Wrath"}))
+			--[[if lib.GetAuras("Heroism")>lib.GetSpellCD("AW") then
+				return lib.SimpleCDCheck("AW",lib.GetAura({"AW"}))
 			end
 			return nil]]
-			return lib.SimpleCDCheck("Avenging Wrath",lib.GetAura({"Avenging Wrath"}))
+			return lib.SimpleCDCheck("AW",lib.GetAura({"AW"}))
 		end,
 		["TV5"] = function()
 			if cfg.AltPower.now==cfg.AltPower.max or lib.GetAura({"DivPurp"})>lib.GetSpellCD("TV") then
@@ -403,9 +412,9 @@ lib.classes["PALADIN"][3] = function () --Retribution
 			end
 			return nil
 		end,
-		["Avenging Wrath"] = function()
-			if lib.GetAura({"Judgement"})>lib.GetSpellCD("Avenging Wrath") then
-				return lib.SimpleCDCheck("Avenging Wrath")
+		["AW"] = function()
+			if lib.GetAura({"Zealotry"})>lib.GetSpellCD("AW") and cfg.target=="worldboss" then
+				return lib.SimpleCDCheck("AW")
 			end
 			return nil
 		end,
@@ -443,18 +452,18 @@ lib.classpostload["PALADIN"] = function()
 	lib.AddSpell("LH",{114158}) -- Light's Hammer
 	lib.AddSpell("HP",{114165}) -- Holy Prism
 	lib.AddSpell("HotR",{53595}) -- Hammer of the Righteous
-	--lib.AddSpell("CS",{35395}) -- Crusader Strike
-	--cfg.gcd_spell = "gcd"
+	lib.AddSpell("CS",{35395}) -- Crusader Strike
+	cfg.gcd_spell = "gcd"
 
-	
+	lib.AddSpell("J",{20271}) -- Judgement
 	lib.AddSpell("HoW",{24275}) -- Hammer of Wrath
 	cfg.execute=25
-	if lib.ChangeSpellID("HoW",158392,cfg.talents["HoW_Perk"]) then
+	if lib.ChangeSpellId("HoW",158392,cfg.talents["HoW_Perk"]) then
 		cfg.execute=35
 	end
 	
 	cfg.case["HoW"] = function ()
-		if lib.GetUnitHealth("target","percent")<=cfg.execute or lib.GetAura({"Avenging Wrath"})>lib.GetSpellCD("HoW") then
+		if lib.GetUnitHealth("target","percent")<=cfg.execute or lib.GetAura({"AW"})>lib.GetSpellCD("HoW") then
 			return lib.SimpleCDCheck("HoW")
 		end
 		return nil
@@ -480,7 +489,7 @@ lib.classpostload["PALADIN"] = function()
 	lib.AddSpell("SS",{20925},true) -- Sacred Shield
 	lib.AddSpell("HolyA",{105809},true) -- Holy Avenger
 	
-	lib.AddDispellPlayer("Cleanse",{213644},{"Disease","Poison"})
+	lib.AddDispellPlayer("Cleanse",{4987},{"Disease","Poison"})
 	lib.SetInterrupt("Kick",{96231})
 	lib.AddAura("Forbearance",25771,"debuff","player") -- Forbearance
 	lib.AddSpell("Divine_Protection",{498},true) -- Divine Protection
@@ -492,19 +501,12 @@ lib.classpostload["PALADIN"] = function()
 	lib.CD = function()
 		lib.CDadd("Kick")
 		lib.CDadd("Cleanse")
-		lib.CDadd("Avenging Wrath")
-		lib.CDadd("Crusade")
-		lib.CDadd("Wake of Ashes")
-		lib.CDadd("Justicar's Vengeance")
+		lib.CDadd("AW")
 		lib.CDadd("HolyA")
 		lib.CDadd("ES")
 		lib.CDadd("LH")
 		lib.CDadd("HP")
 		lib.CDadd("Seraphim")
-		lib.CDadd("Greater Blessing of Kings")
-		lib.CDturnoff("Greater Blessing of Kings")
-		lib.CDadd("Greater Blessing of Wisdom")
-		lib.CDturnoff("Greater Blessing of Wisdom")
 		lib.CDadd("Divine_Shield")
 		lib.CDaddTimers("Divine_Shield","Forbearance","aura",nil,true,{0, 1, 0})
 		lib.CDturnoff("Divine_Shield")
@@ -522,11 +524,13 @@ lib.classpostload["PALADIN"] = function()
 		
 	end
 	
-	--[[function Heddclassevents.UNIT_HEALTH_FREQUENT(unit)
+	function Heddclassevents.UNIT_HEALTH_FREQUENT(unit)
 		if unit=="target" then
 			lib.UpdateSpell("HoW")
 		end
-	end	]]
+	end	
+	
+	cfg.mode = "dps"
 	
 	cfg.case["SS_noSS"] = function ()
 		return lib.SimpleCDCheck("SS",lib.GetAura({"SS"}))
@@ -537,12 +541,27 @@ lib.classpostload["PALADIN"] = function()
 		return lib.SimpleCDCheck("J")
 	end
 	
-	lib.AddRangeCheck({
-	{"Templar's Verdict",nil},
-	{"Judgement",{0,1,1,1}},
-	--{"Heroic Throw",{0,0,1,1}},
-	})
+	lib.onclick = function()
+		if cfg.mode == "dps" then
+			cfg.mode = "aoe"
+			cfg.plist=cfg.plistaoe
+			cfg.Update=true
+		else
+			cfg.mode = "dps"
+			cfg.plist=cfg.plistdps
+			cfg.Update=true
+		end
+		
+	end
 	
-	
+	lib.rangecheck=function()
+		if lib.inrange("CS") then
+			lib.bdcolor(Heddmain.bd,nil)
+		elseif lib.inrange("J") then
+			lib.bdcolor(Heddmain.bd,{1,1,0,1})
+		else
+			lib.bdcolor(Heddmain.bd,{1,0,0,1})
+		end
+	end
 end
 end

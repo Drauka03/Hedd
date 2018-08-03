@@ -628,14 +628,8 @@ lib.classes["DRUID"][2] = function() --Cat
 
 
 	cfg.plistdps = {}
+	--table.insert(cfg.plistdps,"Shred")
 	table.insert(cfg.plistdps,"Kick")
-	--table.insert(cfg.plistdps,"Moonfire_Galactic Guardian_Moonkin")
-	table.insert(cfg.plistdps,"Sunfire_Moonkin")
-	table.insert(cfg.plistdps,"Moonfire_Moonkin")
-	table.insert(cfg.plistdps,"Starsurge_Moonkin")
-	table.insert(cfg.plistdps,"Lunar Strike_Empowerment_Moonkin")
-	table.insert(cfg.plistdps,"Solar Wrath_Empowerment_Moonkin")
-	table.insert(cfg.plistdps,"Solar Wrath_Moonkin")
 	table.insert(cfg.plistdps,"Draught of Souls")
 	if cfg.talents["Bloodtalons"] then
 		table.insert(cfg.plistdps,"Regrowth_Bloodtalons_nocombat")
@@ -686,9 +680,7 @@ lib.classes["DRUID"][2] = function() --Cat
 		table.insert(cfg.plistdps,"Maim_burst")
 	end
 	table.insert(cfg.plistdps,"Ferocious Bite_burst")
-	--table.insert(cfg.plistdps,"CP5_Pool")
 	table.insert(cfg.plistdps,"Maim")
-	--table.insert(cfg.plistdps,"Fix_Apex Predator")
 	table.insert(cfg.plistdps,"Ferocious Bite")
 	table.insert(cfg.plistdps,"CP5_nomax")
 	if cfg.talents["Brutal Slash"] then
@@ -700,7 +692,6 @@ lib.classes["DRUID"][2] = function() --Cat
 		table.insert(cfg.plistdps,"Thrash_9_Brutal Slash_aoe")
 	end
 	table.insert(cfg.plistdps,"Swipe_6_aoe")
-
 	table.insert(cfg.plistdps,"Rake_Stronger")
 	table.insert(cfg.plistdps,"Rake_noRake")
 	table.insert(cfg.plistdps,"Rake_noRake_renew")
@@ -1141,7 +1132,7 @@ lib.classes["DRUID"][2] = function() --Cat
 			if lib.SR() and lib.GetAura({"Savage Roar"})<lib.GetSpellCD("Shred") then return nil end
 			return lib.SimpleCDCheck("Shred",lib.Time2Power(cfg.Power.max))
 		end,
-		["Shred"] = function()
+		--[[["Shred"] = function()
 			if cfg.AltPower.now==cfg.AltPower.max then return nil end
 			if lib.SR() and lib.GetAura({"Savage Roar"})<lib.GetSpellCD("Shred") and lib.GetAura({"Clearcasting"})==0 then return nil end
 			if cfg.Cat.Thrash_Clearcasting and lib.GetAura({"Clearcasting"})>lib.GetSpellCD("Shred") and
@@ -1183,7 +1174,7 @@ lib.classes["DRUID"][2] = function() --Cat
 				end
 			end
 			return nil
-		end,
+		end,]]
 		["Brutal Slash"] = function()
 			if cfg.AltPower.now==cfg.AltPower.max then return nil end
 			return lib.SimpleCDCheck("Brutal Slash")
