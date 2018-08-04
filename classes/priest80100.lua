@@ -133,17 +133,18 @@ lib.classes["PRIEST"][3] = function()
 			return lib.SimpleCDCheck("Dark Void")
 		end,
 		["Vampiric Touch_aoe"] = function()
-			if cfg.cleave_targets < cfg.cleave_threshold then return nil end
+			if cfg.cleave_targets < cfg.cleave_threshold or lib.SpellCasting("Vampiric Touch") then return nil end
 			return lib.SimpleCDCheck("Vampiric Touch", lib.GetAura({"Vampiric Touch"}))
 		end,
 		["Vampiric Touch"] = function()
-			if cfg.cleave_targets >= cfg.cleave_threshold then return nil end
+			if cfg.cleave_targets >= cfg.cleave_threshold or lib.SpellCasting("Vampiric Touch") then return nil end
 			return lib.SimpleCDCheck("Vampiric Touch", lib.GetAura({"Vampiric Touch"}))
 		end,
 		["Shadow Word: Pain"] = function()
 			return lib.SimpleCDCheck("Shadow Word: Pain", lib.GetAura({"Shadow Word: Pain"}))
 		end,
 		["Shadow Word: Pain_misery"] = function()
+			if lib.SpellCasting("Vampiric Touch") then return nil end
 			return lib.SimpleCDCheck("Vampiric Touch", lib.GetAura({"Shadow Word: Pain"}))
 		end,
 		["Shadow Crash_aoe"] = function()
