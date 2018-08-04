@@ -244,7 +244,6 @@ lib.classes["MONK"][1] = function() --Brewmaster
 	return true
 end
 lib.classes["MONK"][3] = function() --Windwalker
-	-- TODO: Change SetAltPower for all specs
 	lib.SetAltPower("Chi")
 	cfg.MonitorSpells=true
 	lib.LastCheckSpell=function(spell)
