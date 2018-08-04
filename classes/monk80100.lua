@@ -11,7 +11,6 @@ if cfg.Game.release>6 then
 lib.classes["MONK"] = {}
 local t,s,n
 lib.classpreload["MONK"] = function()
-	-- TODO: Change SetPower for all classes
 	lib.SetPower("Energy")
 	cfg.cleave_threshold=3
 end
