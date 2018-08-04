@@ -24,6 +24,7 @@ lib.classes["WARRIOR"][2] = function () --Fury
 		["Frothing Berserker"]=IsPlayerSpell(215571),
 		["Outburst"]=IsPlayerSpell(206320),
 		["Carnage"]=IsPlayerSpell(202922),
+		["Siegebreaker"]=IsPlayerSpell(280772),
 	}
 	lib.AddAura("Enrage",184362,"buff","player")
 
@@ -34,6 +35,8 @@ lib.classes["WARRIOR"][2] = function () --Fury
 	lib.AddSpell("Whirlwind",{190411})
 	lib.AddSpell("Bladestorm",{46924},true)
 	lib.AddSpell("Odyn's Fury",{205545})
+	lib.AddSpell("Recklessness",{1719})
+	lib.AddSpell("Siegebreaker",{280772})
 	lib.AddAura("Odyn's Fury",205546,"debuff","target")
 	lib.AddAura("Juggernaut",201009,"buff","player")
 	lib.AddCleaveSpell("Whirlwind",nil,{199667,44949})
@@ -60,6 +63,8 @@ lib.classes["WARRIOR"][2] = function () --Fury
 	table.insert(cfg.plistdps,"Whirlwind_aoe")
 	table.insert(cfg.plistdps,"Bladestorm_aoe")
 	table.insert(cfg.plistdps,"Execute")
+	table.insert(cfg.plistdps,"Recklessness")
+	table.insert(cfg.plistdps,"Siegebreaker")
 	--table.insert(cfg.plistdps,"Rampage_noEnrage")
 	table.insert(cfg.plistdps,"Rampage")
 	table.insert(cfg.plistdps,"Bloodthirst_noEnrage")
@@ -161,6 +166,10 @@ lib.classes["WARRIOR"][2] = function () --Fury
 		["Battle Cry"] = function ()
 			if cfg.Power.now>=lib.GetSpellCost("Rampage") then return nil end
 			return lib.SimpleCDCheck("Battle Cry",lib.GetAura({"Battle Cry"}))
+		end,
+		["Siegebreaker"] = function()
+			if lib.GetSpellCD("Recklessness") == 0 then return nil end
+			return lib.SimpleCDCheck("Siegebreaker")
 		end,
 		["Rampage_noEnrage"] = function ()
 			if cfg.Power.now==cfg.Power.max or lib.GetAura({"Massacre"})>0 then return lib.SimpleCDCheck("Rampage") end
