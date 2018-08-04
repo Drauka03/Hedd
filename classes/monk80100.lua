@@ -378,7 +378,7 @@ lib.classes["MONK"][3] = function() --Windwalker
 			return lib.SimpleCDCheck("Fists of Fury",lib.GetAura({"Serenity"})-1.5*cfg.gcd)
 		end,
 		["Fist of the White Tiger"] = function()
-			if (cfg.AltPower.max - cfg.AltPower.now) >= 3 and cfg.Power.now >= lib.GetCurrentSpellPowerCost("Fist of the White Tiger") then
+			if (cfg.AltPower.max - cfg.AltPower.now) >= 3 and cfg.Power.now >= lib.GetSpellCost("Fist of the White Tiger") then
 				return lib.SimpleCDCheck("Fist of the White Tiger")
 			end
 			return nil
@@ -396,7 +396,8 @@ lib.classes["MONK"][3] = function() --Windwalker
 			return nil
 		end,
 		["Chi Burst"] = function()
-			if (cfg.cleave_targets >= 2 and (cfg.AltPower.max - cfg.AltPower.now) >= 2) or
+			if not lib.SpellCasting("Chi Burst") and
+			(cfg.cleave_targets >= 2 and (cfg.AltPower.max - cfg.AltPower.now) >= 2) or
 			(cfg.cleave_targets < 2 and (cfg.AltPower.max - cfg.AltPower.now) >= 1) then
 				return lib.SimpleCDCheck("Chi Burst")
 			end
@@ -447,10 +448,10 @@ lib.classes["MONK"][3] = function() --Windwalker
 			return nil
 		end,
 		["Rising Sun Kick_aoe"] = function()
-			if cfg.cleave_targets>1 then
-				if lib.GetSpellCD("Fists of Fury")>lib.GetSpellCD("Whirling Dragon Punch") and lib.GetSpellCD("Whirling Dragon Punch")<(lib.GetSpellCD("Rising Sun Kick")+lib.GetSpellFullCD("Rising Sun Kick")) then
-					return lib.SimpleCDCheck("Rising Sun Kick")
-				end
+			if cfg.cleave_targets>1 and
+			lib.GetSpellCD("Fists of Fury") > lib.GetSpellCD("Whirling Dragon Punch") and
+			lib.GetSpellCD("Whirling Dragon Punch") <= (lib.GetSpellCD("Rising Sun Kick")+lib.GetSpellFullCD("Rising Sun Kick")) then
+				return lib.SimpleCDCheck("Rising Sun Kick")
 			end
 			return nil
 		end,
