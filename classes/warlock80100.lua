@@ -240,6 +240,7 @@ lib.classes["WARLOCK"][2] = function() -- Demonology
 
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Felguard")
+	table.insert(cfg.plistdps,"Demonbolt_pull")
 	table.insert(cfg.plistdps,"Doom")
 	table.insert(cfg.plistdps,"Nether Portal_pull")
 	table.insert(cfg.plistdps,"Call Dreadstalkers")
@@ -269,14 +270,25 @@ lib.classes["WARLOCK"][2] = function() -- Demonology
 		end,
 		["Demonbolt_2dc"] = function()
 			if cfg.AltPower.now>=cfg.AltPower.max-2 then return nil end
-			if lib.GetAuraStacks("Demonic Core")>=2 then
+			if lib.GetAuraStacks("Demonic Core")>=2 or (lib.GetAura({"Demonic Core"})<3 and lib.GetAura({"Demonic Core"})>0) then
+				return lib.SimpleCDCheck("Demonbolt")
+			end
+			return nil
+		end,
+		["Demonbolt_pull"] = function()
+			if cfg.combat then return nil end
+			if lib.SpellCasting("Demonbolt") then return nil end
+			if not cfg.combat then
+				-- print(cfg.combat)
+				-- print(HeddDB.resource=="incombat")
 				return lib.SimpleCDCheck("Demonbolt")
 			end
 			return nil
 		end,
 		["Demonbolt_Tyrant"] = function()
-			if cfg.AltPower.now>=cfg.AltPower.max-2 then return nil end
-			if lib.GetSpellCD("Summon Demonic Tyrant")>5 and
+			if not lib.IsCDEnabled("Summon Demonic Tyrant") then return nil end
+			if cfg.AltPower.now>3 then return nil end
+			if lib.GetSpellCD("Summon Demonic Tyrant")>4 and
 			lib.GetSpellCD("Summon Demonic Tyrant")<15 then
 				return lib.SimpleCDCheck("Demonbolt")
 			end
@@ -287,10 +299,10 @@ lib.classes["WARLOCK"][2] = function() -- Demonology
 			return lib.SimpleCDCheck("Summon Felguard")
 		end,
 		["Hand of Gul'dan_4ss"] = function()
-			if cfg.talents["Nether Portal"] and lib.GetSpellCD("Nether Portal")<3 then return nil end
-			if cfg.talents["Summon Vilefiend"] and lib.GetSpellCD("Summon Vilefiend")<3 then return nil end
-			if cfg.talents["Bilescourge Bombers"] and lib.GetSpellCD("Bilescourge Bombers")<3 then return nil end
-			if lib.GetSpellCD("Call Dreadstalkers")<3 then return nil end
+			if cfg.talents["Nether Portal"] and (lib.GetSpellCD("Nether Portal")<3 and lib.IsCDEnabled("Nether Portal")) then return nil end
+			if cfg.talents["Summon Vilefiend"] and (lib.GetSpellCD("Summon Vilefiend")<3 and lib.IsCDEnabled("Summon Vilefiend"))then return nil end
+			if cfg.talents["Bilescourge Bombers"] and (lib.GetSpellCD("Bilescourge Bombers")<3 and lib.IsCDEnabled("Bilescourge Bombers")) then return nil end
+			if lib.GetSpellCD("Call Dreadstalkers")<3 and lib.IsCDEnabled("Call Dreadstalkers") then return nil end
 			if lib.SpellCasting("Hand of Gul'dan") then return nil end
 			if cfg.AltPower.now>=4 then
 				return lib.SimpleCDCheck("Hand of Gul'dan")
@@ -298,10 +310,10 @@ lib.classes["WARLOCK"][2] = function() -- Demonology
 			return nil
 		end,
 		["Hand of Gul'dan_3ss"] = function()
-			if cfg.talents["Nether Portal"] and lib.GetSpellCD("Nether Portal")<3 then return nil end
-			if cfg.talents["Summon Vilefiend"] and lib.GetSpellCD("Summon Vilefiend")<3 then return nil end
-			if cfg.talents["Bilescourge Bombers"] and lib.GetSpellCD("Bilescourge Bombers")<3 then return nil end
-			if lib.GetSpellCD("Call Dreadstalkers")<3 then return nil end
+			if cfg.talents["Nether Portal"] and (lib.GetSpellCD("Nether Portal")<3 and lib.IsCDEnabled("Nether Portal")) then return nil end
+			if cfg.talents["Summon Vilefiend"] and (lib.GetSpellCD("Summon Vilefiend")<3 and lib.IsCDEnabled("Summon Vilefiend"))then return nil end
+			if cfg.talents["Bilescourge Bombers"] and (lib.GetSpellCD("Bilescourge Bombers")<3 and lib.IsCDEnabled("Bilescourge Bombers")) then return nil end
+			if lib.GetSpellCD("Call Dreadstalkers")<3 and lib.IsCDEnabled("Call Dreadstalkers") then return nil end
 			if lib.SpellCasting("Hand of Gul'dan") then return nil end
 			if cfg.AltPower.now>=3 then
 				return lib.SimpleCDCheck("Hand of Gul'dan")
@@ -309,7 +321,8 @@ lib.classes["WARLOCK"][2] = function() -- Demonology
 			return nil
 		end,
 		["Hand of Gul'dan_Tyrant"] = function()
-			if lib.GetSpellCD("Summon Demonic Tyrant")>5 and
+			if not lib.IsCDEnabled("Summon Demonic Tyrant") then return nil end
+			if lib.GetSpellCD("Summon Demonic Tyrant")>2 and
 			lib.GetSpellCD("Summon Demonic Tyrant")<15 then
 				return lib.SimpleCDCheck("Hand of Gul'dan")
 			end
@@ -324,7 +337,8 @@ lib.classes["WARLOCK"][2] = function() -- Demonology
 		["Nether Portal"] = function()
 			if not cfg.talents["Nether Portal"] then return nil end
 			if lib.SpellCasting("Nether Portal") then return nil end
-			if lib.GetSpellCD("Summon Demonic Tyrant")<16 then --using ahead of Tyrant to get some demons rolling out
+			if (lib.GetSpellCD("Summon Demonic Tyrant")<16 and lib.IsCDEnabled("Summon Demonic Tyrant")) or
+			(not lib.IsCDEnabled("Summon Demonic Tyrant")) then --using ahead of Tyrant to get some demons rolling out
 				return lib.SimpleCDCheck("Nether Portal")
 			end
 			return nil
@@ -332,9 +346,9 @@ lib.classes["WARLOCK"][2] = function() -- Demonology
 		["Nether Portal_pull"] = function()
 			if not cfg.talents["Nether Portal"] then return nil end
 			if lib.SpellCasting("Nether Portal") then return nil end
-			if lib.GetSpellCD("Summon Demonic Tyrant")==0 and
-			lib.GetSpellCD("Call Dreadstalkers")==0 and
-			lib.GetSpellCD("Summon Vilefiend")==0 then
+			if ((lib.GetSpellCD("Summon Demonic Tyrant")==0 and lib.IsCDEnabled("Summon Demonic Tyrant")) or not lib.IsCDEnabled("Summon Demonic Tyrant")) and
+			((lib.GetSpellCD("Call Dreadstalkers")==0 and lib.IsCDEnabled("Call Dreadstalkers")) or not lib.IsCDEnabled("Call Dreadstalkers")) and
+			((lib.GetSpellCD("Summon Vilefiend")==0 and lib.IsCDEnabled("Summon Vilefiend")) or not lib.IsCDEnabled("Summon Vilefiend") or not cfg.talents["Summon Vilefiend"]) then
 				return lib.SimpleCDCheck("Nether Portal")
 			end
 			return nil
@@ -342,19 +356,18 @@ lib.classes["WARLOCK"][2] = function() -- Demonology
 		["Power Siphon"] =  function()
 			if not cfg.talents["Power Siphon"] then return nil end
 			if lib.GetAuraStacks("Demonic Core")>=2 then return nil end
-			if lib.HasTemporaryPet("Demonic Tyrant") then
-				return nil end
+			if lib.HasTemporaryPet("Demonic Tyrant") then	return nil end
 			if lib.TemporaryPetCount("Wild Imp") < 2 then return nil end
 			return lib.SimpleCDCheck("Power Siphon")
 		end,
 		["Shadow Bolt"] = function()
-			-- if lib.SpellCasting("Shadow Bolt") then return nil end
+			if cfg.AltPower.now==cfg.AltPower.max then return nil end
 			return lib.SimpleCDCheck("Shadow Bolt")
 		end,
 		["Summon Demonic Tyrant"] = function()
 			if lib.SpellCasting("Summon Demonic Tyrant") then return nil end
-			if lib.GetSpellCD("Summon Vilefiend")>30 and
-			lib.GetSpellCD("Call Dreadstalkers")>8 then
+			if (lib.HasTemporaryPet("Vilefiend") or lib.GetSpellCD("Summon Vilefiend")>15) and
+			(lib.HasTemporaryPet("Dreadstalker") or lib.GetSpellCD("Call Dreadstalkers")>15) then
 				return lib.SimpleCDCheck("Summon Demonic Tyrant")
 			end
 			return nil
@@ -374,7 +387,7 @@ lib.classes["WARLOCK"][2] = function() -- Demonology
 		elseif spellName == "Implosion" then
 			lib.KillTemporaryPets("Wild Imp")
 		elseif spellName == "Summon Demonic Tyrant" then
-			lib.IncraseTemporaryPetDuration(15)
+			lib.IncreaseTemporaryPetDuration(15)
 		end
 	end
 
@@ -386,49 +399,56 @@ end
 
 	lib.classes["WARLOCK"][3] = function() -- Destro
 		lib.InitCleave()
-		cfg.talents = lib.ScanTalents()
-		lib.ScanSpells()
 		lib.SetPower("Mana")
 		lib.SetAltPower("SoulShards")
 
 		cfg.talents={
-			["Flahsover"]=IsPlayerSpell(),
-			["Eradication"]=IsPlayerSpell(),
-			["Soul Fire"]=IsPlayerSpell(),
-			["Reverse Entropy"]=IsPlayerSpell(),
-			["Internal Combustion"]=IsPlayerSpell(),
-			["Shadowburn"]=IsPlayerSpell(),
-			["Demon Skin"]=IsPlayerSpell(),
-			["Burning Rush"]=IsPlayerSpell(),
-			["Dark Pact"]=IsPlayerSpell(),
-			["Inferno"]=IsPlayerSpell(),
-			["Fire and Brimstone"]=IsPlayerSpell(),
-			["Cataclysm"]=IsPlayerSpell(),
-			["Darkfury"]=IsPlayerSpell(),
-			["Mortal Coil"]=IsPlayerSpell(),
-			["Demonic Circle"]=IsPlayerSpell(),
-			["Roaring Blaze"]=IsPlayerSpell(),
-			["Grimoire of Supremacy"]=IsPlayerSpell(),
-			["Grimoire of Sacrifice"]=IsPlayerSpell(),
-			["Soul Conduit"]=IsPlayerSpell(),
-			["Channel Demonfire"]=IsPlayerSpell(),
-			["Dark Soul: Instability"]=IsPlayerSpell(),
+			["Flahsover"]=IsPlayerSpell(267115),
+			["Eradication"]=IsPlayerSpell(196412),
+			["Soul Fire"]=IsPlayerSpell(6353),
+			["Reverse Entropy"]=IsPlayerSpell(205148),
+			["Internal Combustion"]=IsPlayerSpell(266134),
+			["Shadowburn"]=IsPlayerSpell(17877),
+			["Demon Skin"]=IsPlayerSpell(219272),
+			["Burning Rush"]=IsPlayerSpell(111400),
+			["Dark Pact"]=IsPlayerSpell(108416),
+			["Inferno"]=IsPlayerSpell(270545),
+			["Fire and Brimstone"]=IsPlayerSpell(196408),
+			["Cataclysm"]=IsPlayerSpell(152108),
+			["Darkfury"]=IsPlayerSpell(264874),
+			["Mortal Coil"]=IsPlayerSpell(6789),
+			["Demonic Circle"]=IsPlayerSpell(268358),
+			["Roaring Blaze"]=IsPlayerSpell(205184),
+			["Grimoire of Supremacy"]=IsPlayerSpell(266086),
+			["Grimoire of Sacrifice"]=IsPlayerSpell(108503),
+			["Soul Conduit"]=IsPlayerSpell(215941),
+			["Channel Demonfire"]=IsPlayerSpell(196447),
+			["Dark Soul: Instability"]=IsPlayerSpell(113858),
 		}
 
+		-- lib.RemoveSpell("Shadow Bolt")
+		-- lib.RemoveSpell(686)
 
-		--lib.AddSpell("",{})
-
-		lib.RemoveSpell("Shadow Bolt")
-		lib.RemoveSpell(686)
+		lib.AddSpell("Cataclysm",{152108})
+		lib.AddSpell("Channel Demonfire",{196447})
+		lib.AddSpell("Chaos Bolt",{116858})
+		lib.AddSpell("Conflagrate",{17962})
+		lib.AddSpell("Dark Soul: Instability",{113858})
+		lib.AddSpell("Havoc",{80240})
+		lib.AddSpell("Immolate",{348})
 		lib.AddSpell("Incinerate",{29722},false,false,false,false,true)
+		lib.AddSpell("Rain of Fire",{5740})
+		lib.AddSpell("Shadowburn",{17877})
+		lib.AddSpell("Summon Infernal",{1122})
 
+		lib.AddAura("Dark Soul: Instability",113858,"buff","player")
 		lib.AddAura("Immolate",157736,"debuff","target")
 		lib.AddAura("Eradication",196414,"debuff","target")
 
 		cfg.plistdps = {}
 		table.insert(cfg.plistdps,"Summon Infernal")
 		table.insert(cfg.plistdps,"Immolate")
-		-- table.insert(cfg.plistdps,"Rain of Fire") -- leaves no aura to track
+		-- table.insert(cfg.plistdps,"Rain of Fire") -- leaves no aura to track and does not stack
 		table.insert(cfg.plistdps,"Dark Soul: Instability")
 		table.insert(cfg.plistdps,"Chaos Bolt_5")
 		table.insert(cfg.plistdps,"Conflagrate_2")
@@ -437,6 +457,7 @@ end
 		table.insert(cfg.plistdps,"Cataclysm")
 		table.insert(cfg.plistdps,"Conflagrate")
 		table.insert(cfg.plistdps,"Shadowburn")
+		table.insert(cfg.plistdps,"Chaos Bolt_DS:I")
 		table.insert(cfg.plistdps,"Incinerate")
 		table.insert(cfg.plistdps,"end")
 
@@ -454,14 +475,21 @@ end
 			end,
 			["Chaos Bolt_5"] = function()
 				if lib.SpellCasting("Chaos Bolt") then return nil end
-				if cfg.AltPower.now>=5 then
+				if cfg.AltPower.now>3 or (cfg.talents["Dark Soul: Instability"] and cfg.AltPower.now>4 and lib.GetSpellCD("Dark Soul: Instability")<30) then
+					return lib.SimpleCDCheck("Chaos Bolt")
+				end
+				return nil
+			end,
+			["Chaos Bolt_DS:I"] = function()
+				if lib.GetAura("Dark Soul: Instability")<1 then return nil end
+				if lib.GetAura("Dark Soul: Instability") then
 					return lib.SimpleCDCheck("Chaos Bolt")
 				end
 				return nil
 			end,
 			["Chaos Bolt_eradication"] = function()
 				if lib.SpellCasting("Chaos Bolt") then return nil end
-				if lib.GetAura("Eradication")<=4 then
+				if cfg.talents["Eradication"] and lib.GetAura("Eradication")<=3 then
 					return lib.SimpleCDCheck("Chaos Bolt")
 				end
 				return nil
@@ -500,14 +528,24 @@ end
 				end
 				return nil
 			end,
-			}
-				return true
-			end
+		}
+
+		lib.AddRangeCheck({
+		{"Incinerate",nil}
+		})
+
+		return true
+	end
+
 lib.classpostload["WARLOCK"] = function()
+
+lib.AddSpell("Create Soulwell",{29893})
+lib.AddSpell("Soulstone",{20707})
+lib.AddSpell("Unending Resolve",{104773})
 
 	lib.CD = function()
 		lib.CDadd("Dark Soul: Misery")
-		lib.CDadd("Unending Resolve")
+		lib.CDadd("Dark Soul: Instability")
 		lib.CDadd("Summon Darkglare")
 		lib.CDadd("Summon Infernal")
 		lib.CDadd("Grimoire of Sacrifice")
@@ -516,6 +554,9 @@ lib.classpostload["WARLOCK"] = function()
 		lib.CDadd("Nether Portal")
 		lib.CDadd("Summon Vilefiend")
 		lib.CDadd("Call Dreadstalkers")
+		lib.CDadd("Bilescourge Bombers")
+		lib.CDadd("Summon Felguard")
+		lib.CDadd("Unending Resolve")
 		lib.CDadd("Create Soulwell")
 		lib.CDadd("Soulstone")
 	end

@@ -105,7 +105,7 @@ lib.UpdateTemporaryPets = function()
 	return cfg.tempPets
 end
 
-lib.IncraseTemporaryPetDuration = function(t)
+lib.IncreaseTemporaryPetDuration = function(t)
 	local hastePercent = UnitSpellHaste("player")/100
 	local secondsToAdd = (1 - hastePercent) * t
 	for guid, pet in pairs(lib.GetTemporaryPets()) do
