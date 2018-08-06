@@ -19,7 +19,7 @@ lib.classes["WARLOCK"][1] = function() -- Affliction
 		["Nightfall"]=IsPlayerSpell(108558),
 		["Drain Soul"]=IsPlayerSpell(198590),
 		["Deathbolt"]=IsPlayerSpell(264106),
-		["Writhe in Agony"]=IsPLayerSpell(196102),
+		["Writhe in Agony"]=IsPlayerSpell(196102),
 		["Absolute Corruption"]=IsPlayerSpell(196103),
 		["Siphon Life"]=IsPlayerSpell(63106),
 		["Demon Skin"]=IsPlayerSpell(219272),
@@ -228,8 +228,18 @@ lib.classes["WARLOCK"][2] = function() -- Demonology
 	lib.AddAura("Doom",265412,"debuff","target")
 	lib.AddAura("Demonic Core",264173,"buff","player")
 
+	lib.MultipleWildImpsAboutToDie = function()
+		local atdCount = 0
+		for guid, imp in pairs(lib.GetTemporaryPetsByName("Wild Imp")) do
+			if imp.duration < 5 then
+				atdCount = atdCount + 1
+			end
+		end
+		return atdCount > 1
+	end
+
 	cfg.plistdps = {}
-	-- table.insert(cfg.plistdps,"Felguard") - need to fix pet type tracking
+	table.insert(cfg.plistdps,"Felguard")
 	table.insert(cfg.plistdps,"Doom")
 	table.insert(cfg.plistdps,"Nether Portal_pull")
 	table.insert(cfg.plistdps,"Call Dreadstalkers")
@@ -245,7 +255,7 @@ lib.classes["WARLOCK"][2] = function() -- Demonology
 	table.insert(cfg.plistdps,"Bilescourge Bombers")
 	table.insert(cfg.plistdps,"Power Siphon")
 	table.insert(cfg.plistdps,"Hand of Gul'dan_3ss")
-	-- table.insert(cfg.plistdps,"Implosion_aoe2") -- need to fix imp tracking
+	table.insert(cfg.plistdps,"Implosion_aoe2")
 	table.insert(cfg.plistdps,"Shadow Bolt")
 	table.insert(cfg.plistdps,"end")
 
@@ -272,10 +282,10 @@ lib.classes["WARLOCK"][2] = function() -- Demonology
 			end
 			return nil
 		end,
-		-- ["Felguard"] = function() -- Need to use pet type instead of pet name
-		-- 	if UnitName("pet") == "Felguard" then return nil end
-		-- 	return lib.SimpleCDCheck("Summon Felguard")
-		-- end,
+		["Felguard"] = function()
+			if UnitCreatureFamily("pet") == "Felguard" then return nil end
+			return lib.SimpleCDCheck("Summon Felguard")
+		end,
 		["Hand of Gul'dan_4ss"] = function()
 			if cfg.talents["Nether Portal"] and lib.GetSpellCD("Nether Portal")<3 then return nil end
 			if cfg.talents["Summon Vilefiend"] and lib.GetSpellCD("Summon Vilefiend")<3 then return nil end
@@ -305,8 +315,8 @@ lib.classes["WARLOCK"][2] = function() -- Demonology
 			end
 			return nil
 		end,
-		["Implosion_aoe2"] = function() -- Need to test how to cast with imps about to die or every 2-3 HoG'D casts
-			if cfg.cleave_targets>=2 then
+		["Implosion_aoe2"] = function()
+			if cfg.cleave_targets>=2 and lib.MultipleWildImpsAboutToDie() then
 				return lib.SimpleCDCheck("Implosion")
 			end
 			return nil
@@ -332,9 +342,9 @@ lib.classes["WARLOCK"][2] = function() -- Demonology
 		["Power Siphon"] =  function()
 			if not cfg.talents["Power Siphon"] then return nil end
 			if lib.GetAuraStacks("Demonic Core")>=2 then return nil end
-			if lib.GetSpellCD("Summon Demonic Tyrant")<30 and
-			lib.GetSpellCD("Summon Demonic Tyrant")>10 then
+			if lib.HasTemporaryPet("Demonic Tyrant") then
 				return nil end
+			if lib.TemporaryPetCount("Wild Imp") < 2 then return nil end
 			return lib.SimpleCDCheck("Power Siphon")
 		end,
 		["Shadow Bolt"] = function()
@@ -355,8 +365,24 @@ lib.classes["WARLOCK"][2] = function() -- Demonology
 			return lib.SimpleCDCheck("Summon Vilefiend")
 		end,
 	}
-		return true
+
+	function Heddclassevents.UNIT_SPELLCAST_SUCCEEDED(unit, spellLineId, spellId)
+		if unit ~= "player" then return true end
+		local spellName = select(1, GetSpellInfo(spellId))
+		if spellName == "Power Siphon" then
+			lib.KillTemporaryPets("Wild Imp", 2)
+		elseif spellName == "Implosion" then
+			lib.KillTemporaryPets("Wild Imp")
+		elseif spellName == "Summon Demonic Tyrant" then
+			lib.IncraseTemporaryPetDuration(15)
+		end
 	end
+
+	lib.AddRangeCheck({
+		{"Shadow Bolt", nil}
+	})
+	return true
+end
 
 	lib.classes["WARLOCK"][3] = function() -- Destro
 		lib.InitCleave()
