@@ -262,15 +262,15 @@ lib.classes["MAGE"][2] = function() -- Fire
 		["Flame On"]=IsPlayerSpell(205029),
 		["Alexstrasza's Fury"]=IsPlayerSpell(235870),
 		["Phoenix Flames"]=IsPlayerSpell(257541),
-		["Frenetic Speed"]=IsPlayerspell(236058),
-		["Ice Ward"]=IsPlayerspell(205036),
-		["Ring of Frost"]=IsPlayerspell(113724),
-		["Flame Patch"]=IsPlayerspell(205037),
-		["Conflagration"]=IsPlayerspell(205023),
-		["Living Bomb"]=IsPlayerspell(44457),
-		["Kindling"]=IsPlayerspell(155148),
-		["Pyroclasm"]=IsPlayerspell(269650),
-		["Meteor"]=IsPlayerspell(153561),
+		["Frenetic Speed"]=IsPlayerSpell(236058),
+		["Ice Ward"]=IsPlayerSpell(205036),
+		["Ring of Frost"]=IsPlayerSpell(113724),
+		["Flame Patch"]=IsPlayerSpell(205037),
+		["Conflagration"]=IsPlayerSpell(205023),
+		["Living Bomb"]=IsPlayerSpell(44457),
+		["Kindling"]=IsPlayerSpell(155148),
+		["Pyroclasm"]=IsPlayerSpell(269650),
+		["Meteor"]=IsPlayerSpell(153561),
 	}
 
 	lib.AddSpell("Blast Wave",{157981})
@@ -318,7 +318,7 @@ lib.classes["MAGE"][2] = function() -- Fire
 
 	cfg.case = {
 		["Combustion"] = function()
-			if (cfg.talents["Rune of Power"] and lib.GetAura({"Rune of Power"})) or
+			if (cfg.talents["Rune of Power"] and lib.GetAura({"Rune of Power"})>0) or
 			not cfg.talents["Rune of Power"] then
 				return lib.SimpleCDCheck("Combustion")
 			end
@@ -331,17 +331,18 @@ lib.classes["MAGE"][2] = function() -- Fire
 			return nil
 		end,
 		["Fireball"] = function()
-			if lib.GetAura({"Hot Streak"}) then return nil end
+			if lib.GetAura({"Pyroclasm"})>2 then return nil end
+			if lib.GetAura({"Hot Streak"})>0 then return nil end
 			return lib.SimpleCDCheck("Fireball")
 		end,
 		["Fire Blast"] = function()
-			if lib.GetAura({"Heating Up"}) then
+			if lib.GetAura({"Heating Up"})>0 then
 				return lib.SimpleCDCheck("Fire Blast")
 			end
 			return nil
 		end,
 		["Flamestrike_aoe8"] = function()
-			if cfg.cleave_targets>=8 and lib.GetAura({"Hot Streak"}) then
+			if cfg.cleave_targets>=8 and lib.GetAura({"Hot Streak"})>0 then
 				return lib.SimpleCDCheck("Flamestrike")
 			end
 			return nil
@@ -360,12 +361,13 @@ lib.classes["MAGE"][2] = function() -- Fire
 			return nil
 		end,
 		["Phoenix Flames"] = function()
-			if lib.GetSpellStacks("Phoenix Flames")>2 then
+			if lib.GetSpellCharges("Phoenix Flames")>2 then
 				return lib.SimpleCDCheck("Phoenix Flames")
 			end
 			return nil
 		end,
 		["Pyroblast_hotstreak"] = function()
+			if lib.GetAura({"Hot Streak"})==0 then return nil end
 			if lib.GetAura({"Hot Streak"}) then
 				return lib.SimpleCDCheck("Pyroblast")
 			end
@@ -373,12 +375,15 @@ lib.classes["MAGE"][2] = function() -- Fire
 		end,
 		["Pyroblast_pyroclasm"] = function()
 			if lib.GetAura({"Combustion"}) and lib.GetAura({"Pyroclasm"})>4.7 then return nil end
-			if lib.GetAura({"Pyroclasm"}) then
+			if lib.GetAura({"Pyroclasm"})==0 then return nil end
+			if lib.GetAura({"Pyroclasm"})>3.7 then
+				print("Pyroclasm up")
 				return lib.SimpleCDCheck("Pyroblast")
 			end
 			return nil
 		end,
 		["Rune of Power_combustion"] = function()
+			if not lib.IsCDEnabled("Combustion") then return nil end
 			if lib.SpellCasting("Rune of Power") then return nil end
 			if lib.GetSpellCD("Combustion")<1 then
 				return lib.SimpleCDCheck("Rune of Power")
@@ -387,10 +392,10 @@ lib.classes["MAGE"][2] = function() -- Fire
 		end,
 		["Rune of Power_2"] = function()
 			if lib.SpellCasting("Rune of Power") then return nil end
-			if lib.GetSpellStacks("Rune of Power")==2 or
+			if lib.GetSpellCharges("Rune of Power")==2 or
 			((lib.GetAura({"Pyroclasm"}) and
 			(lib.GetAura({"Rune of Power"})<4.7 and lib.GetSpellCD("Combustion")>39))) then
-				return lib.SimpleCDCheck("Rune of power")
+				return lib.SimpleCDCheck("Rune of Power")
 			end
 			return nil
 		end,
@@ -441,7 +446,7 @@ cfg.talents={
 
 	lib.AddSpell("Blink",{1953,212653}) -- blink,shimmer
 	lib.AddSpell("Blizzard",{190356})
-	lib.AddSpell("Comet Storm"{153595})
+	lib.AddSpell("Comet Storm",{153595})
 	lib.AddSpell("Ebonbolt",{257537})
 	lib.AddSpell("Evocation",{12051})
 	lib.AddSpell("Flurry",{44614})
@@ -558,12 +563,16 @@ cfg.talents={
 
 lib.classpostload["MAGE"] = function()
 
+lib.AddSpell("Arcane Intellect",{1459})
+
 	lib.CD = function()
 		lib.CDadd("Arcane Power")
 		lib.CDadd("Evocation")
 		lib.CDadd("Arcane Intellect")
 		lib.CDadd("Polymorph")
 		lib.CDadd("Greater Invisibility")
+		lib.CDadd("Rune of Power")
+		lib.CDadd("Combustion")
 	end
 
 end
