@@ -10,7 +10,7 @@ local lib = ns.lib
 lib.classes["MAGE"] = {}
 local t,s,n
 
-lib.classes["MAGE"][10] = function() -- Arcane
+lib.classes["MAGE"][1] = function() -- Arcane
 	lib.InitCleave()
 	lib.SetPower("Mana")
 	lib.SetAltPower("ArcaneCharges")
@@ -39,7 +39,6 @@ lib.classes["MAGE"][10] = function() -- Arcane
 		["Arcane Orb"]=IsPlayerSpell(153626),
 	}
 
-
 	lib.AddSpell("Arcane Barrage",{44425})
 	lib.AddSpell("Arcane Blast",{30451})
 	lib.AddSpell("Arcane Explosion",{1449})
@@ -52,11 +51,10 @@ lib.classes["MAGE"][10] = function() -- Arcane
 	lib.AddSpell("Evocation",{12051})
 	lib.AddSpell("Mirror Image",{55342})
 	lib.AddSpell("Nether Tempest",{114923})
-	lib.AddSpell("Presence of Mind",{502025})
+	lib.AddSpell("Presence of Mind",{205025})
 	lib.AddSpell("Ring of Frost",{113724})
 	lib.AddSpell("Rune of Power",{116011})
 	lib.AddSpell("Supernova",{157980})
-	-- lib.AddSpell("",{})
 
 	lib.AddAura("Arcane Intellect",1459,"buff","player")
 	lib.AddAura("Arcane Power",12042,"buff","player")
@@ -66,16 +64,8 @@ lib.classes["MAGE"][10] = function() -- Arcane
 	lib.AddAura("Rule of Threes",264774,"buff","player")
 	lib.AddAura("Rune of Power",116014,"buff","player")
 
-	-- cfg.burn_phase initiate when
-		-- if lib.GetSpellCD("Arcane Power")<1
-		-- if cfg.AltPower.now>4 or (cfg.talents["Charged Up"] and cfg.AltPower.now<=2)
-		-- if lib.GetSpellCharges("Rune of Power")>1
-		-- if not cfg.talents("Overpowered") and cfg.Power.now>=50
-		-- if cfg.talents("Overpowered") and cfg.Power.now>=30
-	-- end when mana < 3%
-		-- then Evocate then initiate conserve phase.
-
 	cfg.plistdps = {}
+	table.insert(cfg.plistdps,"Stop Burn")
 	table.insert(cfg.plistdps,"Charged Up_burn")
 	table.insert(cfg.plistdps,"Arcane Orb_burn")
 	table.insert(cfg.plistdps,"Nether Tempest_burn")
@@ -87,24 +77,60 @@ lib.classes["MAGE"][10] = function() -- Arcane
 	table.insert(cfg.plistdps,"Arcane Explosion_burn")
 	table.insert(cfg.plistdps,"Arcane Missiles_burn")
 	table.insert(cfg.plistdps,"Arcane Blast_burn")
-	table.insert(cfg.plistdps,"Evocation_burn")
 	table.insert(cfg.plistdps,"Arcane Barrage_burnfiller")
-
-	table.insert(cfg.plistdps,"Charged Up_conserve")
-	table.insert(cfg.plistdps,"Nether Tempest_conserve")
-	table.insert(cfg.plistdps,"Arcane Orb_conserve")
-	table.insert(cfg.plistdps,"Arcane Blast_conserve")
-	table.insert(cfg.plistdps,"Arcane Explosion_conserve")
-	table.insert(cfg.plistdps,"Arcane Missiles_conserve")
-	table.insert(cfg.plistdps,"Arcane Barrage_conserve")
-	table.insert(cfg.plistdps,"Arcane Explosion_conserve3")
-	table.insert(cfg.plistdps,"Supernova_conserve")
-	table.insert(cfg.plistdps,"Arcane Blast_conservefiller")
 	table.insert(cfg.plistdps,"end")
+
+	cfg.plistc = {}
+	table.insert(cfg.plistc,"Start Burn")
+	table.insert(cfg.plistc,"Evocation")
+	table.insert(cfg.plistc,"Charged Up_conserve")
+	table.insert(cfg.plistc,"Nether Tempest_conserve")
+	table.insert(cfg.plistc,"Arcane Orb_conserve")
+	table.insert(cfg.plistc,"Arcane Blast_conserve")
+	table.insert(cfg.plistc,"Arcane Explosion_conserve")
+	table.insert(cfg.plistc,"Arcane Missiles_conserve")
+	table.insert(cfg.plistc,"Arcane Barrage_conserve")
+	table.insert(cfg.plistc,"Arcane Explosion_conserve3")
+	table.insert(cfg.plistc,"Supernova_conserve")
+	table.insert(cfg.plistc,"Arcane Blast_conservefiller")
+	table.insert(cfg.plistc,"end")
 
 	cfg.plist=cfg.plistdps
 
+	cfg.low_mana_threshold = 15 -- percent
+
+	lib.BurnPhase = function ()
+	end
+
+	-- Burn Phase initiate when
+	-- if lib.GetSpellCD("Arcane Power")<1
+	-- if cfg.AltPower.now>4 or (cfg.talents["Charged Up"] and cfg.AltPower.now<=2)
+	-- if lib.GetSpellCharges("Rune of Power")>1 and cfg.talents["Rune of Power"]
+	-- if not cfg.talents["Overpowered"] and cfg.Power.now>=50
+	-- if cfg.talents["Overpowered"] and cfg.Power.now>=30
+	-- end when mana < 3%
+	-- 	then Evocate then initiate conserve phase.
+
 	cfg.case = {
+	["Start Burn"] = function()
+		if lib.GetSpellCD("Arcane Power")<1 and
+		  (cfg.AltPower.now>=4 or (cfg.talents["Charged Up"] and cfg.AltPower.now<=2)) and
+				((not cfg.talents["Overpowered"] and (lib.PowerPercent() >= 50)) or
+				(cfg.talents["Overpowered"] and (lib.PowerPercent() >= 30))) then
+			cfg.plist=cfg.plistdps
+			print("start burn")
+		end
+		return nil
+	end,
+	["Stop Burn"] = function()
+		if (lib.PowerPercent() <= cfg.low_mana_threshold) and lib.GetSpellCD("Evocation")==0 then
+			cfg.plist=cfg.plistc
+			print("stop burn")
+			-- print(lib.SimpleCDCheck("Evocation"))
+			return lib.SimpleCDCheck("Evocation")
+		end
+		return nil
+	end,
 		-- burn rotation
 	["Arcane Barrage_burn"] = function()
 		if cfg.cleave_targets>=3 and cfg.AltPower.now>=4 then
@@ -113,12 +139,13 @@ lib.classes["MAGE"][10] = function() -- Arcane
 		return nil
 	end,
 	["Arcane Barrage_burnfiller"] = function()
-		if lib.GetSpellCD("Evocate")>1 and cfg.Power.now<3 then
+		if lib.GetSpellCD("Evocate")>0 and (lib.PowerPercent() <= cfg.low_mana_threshold) then
 			return lib.SimpleCDCheck("Arcane Barrage")
 		end
 		return nil
 	end,
 	["Arcane Blast_burn"] = function()
+		-- if cfg.AltPower.now>3 then return nil end
 		return lib.SimpleCDCheck("Arcane Blast")
 	end,
 	["Arcane Explosion_burn"] = function()
@@ -128,7 +155,7 @@ lib.classes["MAGE"][10] = function() -- Arcane
 		return nil
 	end,
 	["Arcane Missiles_burn"] = function()
-		if lib.GetAura({"Clearcasting"}) and cfg.Power.now<=95 then
+		if lib.GetAura({"Clearcasting"})>0 and (lib.PowerPercent()<=95) then
 			return lib.SimpleCDCheck("Arcane Missiles")
 		end
 		return nil
@@ -148,20 +175,14 @@ lib.classes["MAGE"][10] = function() -- Arcane
 		end
 	return nil
 	end,
-	["Evocation_burn"] = function()
-		if cfg.Power.now<3 then
-			return lib.SimpleCDCheck("Evocation")
-		end
-		return nil
-	end,
 	["Mirror Image_burn"] = function()
-			return SimpleCDCheck("Mirror Image")
+			return lib.SimpleCDCheck("Mirror Image")
 	end,
 	["Nether Tempest_burn"] = function()
 		if cfg.AltPower.now==4 and
 		lib.GetAura({"Nether Tempest"})<=3 and
-		not lib.GetAura({"Arcane Power"}) and
-		not lib.GetAura({"Rune of Power"}) then
+		lib.GetAura({"Arcane Power"})==0 and
+		lib.GetAura({"Rune of Power"})==0 then
 			return lib.SimpleCDCheck("Nether Tempest")
 		end
 		return nil
@@ -170,15 +191,13 @@ lib.classes["MAGE"][10] = function() -- Arcane
 		return lib.SimpleCDCheck("Presence of Mind")
 	end,
 	["Rune of Power_burn"] = function()
-			return SimpleCDCheck("Rune of Power")
+			return lib.SimpleCDCheck("Rune of Power")
 	end,
 
 	-- conserve rotation
 
 	["Arcane Barrage_conserve"] = function()
-		if cfg.AltPower.now==4 and(
-		(cfg.Power.now<50 or (cfg.talents["Overpowered"] and cfg.Power.now<30))
-		or cfg.cleave_targets>=3 ) then
+		if cfg.AltPower.now==4 or cfg.cleave_targets>=3 then
 			return lib.SimpleCDCheck("Arcane Barrage")
 		end
 		return nil
@@ -190,10 +209,12 @@ lib.classes["MAGE"][10] = function() -- Arcane
 		return nil
 	end,
 	["Arcane Blast_conservefiller"] = function()
+		if lib.PowerPercent()<50 or (cfg.talents["Overpowered"] and lib.PowerPercent()<30) then return nil end
+		if cfg.AltPower.now>3 and lib.SpellCasting("Arcane Blast") then return nil end
 		return lib.SimpleCDCheck("Arcane Blast")
 	end,
 	["Arcane Explosion_conserve"] = function()
-		if cfg.cleave_targets>3 and lib.GetAura({"Clearcasting"}) then
+		if cfg.cleave_targets>3 and lib.GetAura({"Clearcasting"})>0 then
 			return lib.SimpleCDCheck("Arcane Explosion")
 		end
 		return nil
@@ -205,7 +226,7 @@ lib.classes["MAGE"][10] = function() -- Arcane
 		return nil
 	end,
 	["Arcane Missiles_conserve"] = function()
-		if lib.GetAura({"Clearcasting"}) and cfg.Power.now<95 then
+		if lib.GetAura({"Clearcasting"})>0 and lib.PowerPercent()<95 then
 			return lib.SimpleCDCheck("Arcane Missiles")
 		end
 		return nil
@@ -354,7 +375,7 @@ lib.classes["MAGE"][2] = function() -- Fire
 			return nil
 		end,
 		["Meteor"] = function()
-			if (cfg.talents["Rune of Power"] and lib.GetAura({"Rune of Power"})) or
+			if (cfg.talents["Rune of Power"] and lib.GetAura({"Rune of Power"})>0) or
 			not cfg.talents["Rune of Power"] then
 				return lib.SimpleCDCheck("Meteor")
 			end
@@ -367,8 +388,7 @@ lib.classes["MAGE"][2] = function() -- Fire
 			return nil
 		end,
 		["Pyroblast_hotstreak"] = function()
-			if lib.GetAura({"Hot Streak"})==0 then return nil end
-			if lib.GetAura({"Hot Streak"}) then
+			if lib.GetAura({"Hot Streak"})>0 then
 				return lib.SimpleCDCheck("Pyroblast")
 			end
 			return nil
@@ -399,8 +419,8 @@ lib.classes["MAGE"][2] = function() -- Fire
 			return nil
 		end,
 		["Scorch"] = function()
-			if lib.GetAura({"Hot Streak"}) then return nil end
-			if cfg.talents["Searing Touch"] and lib.GetUnitHealth("target","percent")>30 then
+			if lib.GetAura({"Hot Streak"})>0 then return nil end
+			if cfg.talents["Searing Touch"] and lib.GetUnitHealth("target","percent")<30 then
 				return lib.SimpleCDCheck("Scorch")
 			end
 			return nil
@@ -493,7 +513,7 @@ cfg.talents={
 	cfg.case = {
 		["Blizzard_aoe1"] = function()
 			if cfg.cleave_targets>=2 or
-			(cfg.cleave_targets>=1 and lib.GetAura({"Freezing Rain"}))
+			(cfg.cleave_targets>=1 and lib.GetAura({"Freezing Rain"})>0)
 			then
 				print("aoe>=2")
 				return lib.SimpleCDCheck("Blizzard")
@@ -509,7 +529,7 @@ cfg.talents={
 			end
 			return nil
 		end,
-		["Ebonbolt"] = function
+		["Ebonbolt"] = function()
 			if (not cfg.talents["Glacial Spike"]) or
 			(cfg.talents["Glacial Spike"] and lib.GetAuraStacks("Icicles")==5 and lib.GetAura({"Brain Freeze"})<1) then
 				return lib.SimpleCDCheck("Ebonbolt")
@@ -616,7 +636,7 @@ lib.AddSpell("Ice Block",{45438})
 		lib.CDadd("Cold Snap")
 		lib.CDadd("Ice Block")
 		lib.CDadd("Icy Veins")
-		-- lib.CDadd("Summon Water Elemental")
+		-- lib.CDadd("Summon Water Elemental") -- bugged?
 		-- lib.CDadd("Arcane Intellect")
 	end
 
