@@ -374,16 +374,15 @@ lib.classes["MAGE"][2] = function() -- Fire
 			return nil
 		end,
 		["Pyroblast_pyroclasm"] = function()
-			if lib.GetAura({"Combustion"}) and lib.GetAura({"Pyroclasm"})>4.7 then return nil end
-			if lib.GetAura({"Pyroclasm"})==0 then return nil end
+			if lib.GetAura({"Combustion"})>0 and lib.GetAura({"Pyroclasm"})>4.7 then return nil end
+			if lib.GetAura({"Pyroclasm"})<3.7 then return nil end
 			if lib.GetAura({"Pyroclasm"})>3.7 then
-				print("Pyroclasm up")
 				return lib.SimpleCDCheck("Pyroblast")
 			end
 			return nil
 		end,
 		["Rune of Power_combustion"] = function()
-			if not lib.IsCDEnabled("Combustion") then return nil end
+			if not HeddDB.CD[cfg.spells["Combustion"].id].enabled then return nil end
 			if lib.SpellCasting("Rune of Power") then return nil end
 			if lib.GetSpellCD("Combustion")<1 then
 				return lib.SimpleCDCheck("Rune of Power")
@@ -393,7 +392,7 @@ lib.classes["MAGE"][2] = function() -- Fire
 		["Rune of Power_2"] = function()
 			if lib.SpellCasting("Rune of Power") then return nil end
 			if lib.GetSpellCharges("Rune of Power")==2 or
-			((lib.GetAura({"Pyroclasm"}) and
+			((lib.GetAura({"Pyroclasm"})>0 and
 			(lib.GetAura({"Rune of Power"})<4.7 and lib.GetSpellCD("Combustion")>39))) then
 				return lib.SimpleCDCheck("Rune of Power")
 			end
@@ -418,7 +417,6 @@ lib.classes["MAGE"][2] = function() -- Fire
 lib.classes["MAGE"][3] = function() -- Frost
 	lib.InitCleave()
 	lib.SetPower("Mana")
-	-- lib.SetAltPower("  ")
 
 cfg.talents={
 		["Bone Chilling"]=IsPlayerSpell(205027),
@@ -447,39 +445,47 @@ cfg.talents={
 	lib.AddSpell("Blink",{1953,212653}) -- blink,shimmer
 	lib.AddSpell("Blizzard",{190356})
 	lib.AddSpell("Comet Storm",{153595})
+	lib.AddSpell("Cold Snap",{235219})
 	lib.AddSpell("Ebonbolt",{257537})
 	lib.AddSpell("Evocation",{12051})
 	lib.AddSpell("Flurry",{44614})
 	lib.AddSpell("Frostbolt",{116})
 	lib.AddSpell("Frozen Orb",{84714})
 	lib.AddSpell("Glacial Spike",{199786})
+	lib.AddSpell("Ice Block",{45438})
 	lib.AddSpell("Ice Lance",{30455})
 	lib.AddSpell("Ice Nova",{157997})
+	lib.AddSpell("Icy Veins",{12472})
 	lib.AddSpell("Mirror Image",{55342})
 	lib.AddSpell("Ray of Frost",{205021})
 	lib.AddSpell("Rune of Power",{116011})
+	lib.AddSpell("Summon Water Elemental",{31687})
 
-	lib.AddAura("Brain Freeze",000,"buff","player")
+	lib.AddAura("Brain Freeze",190446,"buff","player")
 	lib.AddAura("Clearcasting",263725,"buff","player")
-	lib.AddAura("Fingers of Frost",000,"buff","player")
+	lib.AddAura("Fingers of Frost",44544,"buff","player")
 	lib.AddAura("Freezing Rain",270232,"buff","player")
+	lib.AddAura("Icicles",205473,"buff","player")
 	lib.AddAura("Rune of Power",116014,"buff","player")
-	lib.AddAura("Winter's Chill",000,"debuff","target")
+	lib.AddAura("Winter's Chill",228358,"debuff","target")
 
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Ice Lance_flurry")
 	table.insert(cfg.plistdps,"Mirror Image")
 	table.insert(cfg.plistdps,"Icy Veins")
 	table.insert(cfg.plistdps,"Rune of Power")
-	table.insert(cfg.plistdps,"Ice Nova")
+	table.insert(cfg.plistdps,"Ice Nova_chill")
 	table.insert(cfg.plistdps,"Flurry")
 	table.insert(cfg.plistdps,"Frozen Orb")
-	table.insert(cfg.plistdps,"Blizzard_aoe3")
+	-- table.insert(cfg.plistdps,"Blizzard_aoe3")
 	table.insert(cfg.plistdps,"Ice Lance_fingers")
 	table.insert(cfg.plistdps,"Ray of Frost")
 	table.insert(cfg.plistdps,"Comet Storm")
 	table.insert(cfg.plistdps,"Ebonbolt")
-	table.insert(cfg.plistdps,"Blizzard_aoe1")
+	table.insert(cfg.plistdps,"Glacial Spike")
+	-- table.insert(cfg.plistdps,"Blizzard_aoe1")
+	table.insert(cfg.plistdps,"Ice Nova_filler")
+	table.insert(cfg.plistdps,"Frostbolt")
 	table.insert(cfg.plistdps,"end")
 
 	cfg.plist=cfg.plistdps
@@ -489,35 +495,67 @@ cfg.talents={
 			if cfg.cleave_targets>=2 or
 			(cfg.cleave_targets>=1 and lib.GetAura({"Freezing Rain"}))
 			then
+				print("aoe>=2")
 				return lib.SimpleCDCheck("Blizzard")
 			end
 			return nil
 		end,
 		["Blizzard_aoe3"] = function()
 			if cfg.cleave_targets>=3 or
-			(cfg.cleave_targets>=2 and lib.GetAura({"Freezing Rain"}))
+			(cfg.cleave_targets>=2 and lib.GetAura({"Freezing Rain"})>0)
 			then
+				print("aoe3")
 				return lib.SimpleCDCheck("Blizzard")
 			end
 			return nil
 		end,
+		["Ebonbolt"] = function
+			if (not cfg.talents["Glacial Spike"]) or
+			(cfg.talents["Glacial Spike"] and lib.GetAuraStacks("Icicles")==5 and lib.GetAura({"Brain Freeze"})<1) then
+				return lib.SimpleCDCheck("Ebonbolt")
+			end
+			return nil
+		end,
 		["Flurry"] = function()
-			if lib.GetAura({"Brain Freeze"}) and
-			(lib.SpellCasted("Ebonbolt") or lib.SpellCasted("Frostbolt"))
+			if lib.GetAura({"Brain Freeze"})>0 and
+			(not cfg.talents["Glacial Spike"] and (lib.IsLastSpell("Ebonbolt") or lib.IsLastSpell("Frostbolt")))
+			or
+			(cfg.talents["Glacial Spike"] and (lib.IsLastSpell("Glacial Spike") or (lib.IsLastSpell("Frostbolt") and lib.GetAuraStacks("Icicles")<3)))
 			then
 				return lib.SimpleCDCheck("Flurry")
 			end
 			return nil
 		end,
+		["Glacial Spike"] = function()
+			if not cfg.talents["Glacial Spike"] then return nil end
+			if lib.GetAura({"Brain Freeze"})>0 or cfg.cleave_targets>1 then
+				return lib.SimpleCDCheck("Glacial Spike")
+			end
+			return nil
+		end,
 		["Ice Lance_fingers"] = function()
-			if lib.GetAura({"Fingers of Frost"}) then
+			if lib.GetAura({"Fingers of Frost"})>0 then
 				return lib.SimpleCDCheck("Ice Lance")
 			end
 			return nil
 		end,
 		["Ice Lance_flurry"] = function()
-			if lib.SpellCasted("Flurry") then -- need to test
+			if lib.IsLastSpell("Flurry") then
 				return lib.SimpleCDCheck("Ice Lance")
+			end
+			return nil
+		end,
+		["Ice Nova_chill"] = function()
+			if not cfg.talents["Ice Nova"] then return nil end
+			if lib.GetAura({"Winter's Chill"})>0 then
+				return lib.SimpleCDCheck("Ice Nova")
+			end
+			return nil
+		end,
+		["Ice Nova_filler"] = function()
+			if not cfg.talents["Ice Nova"] then return nil end
+			if lib.GetAura({"Winter's Chill"})>1 then
+				return lib.SimpleCDCheck("Ice Nova")
 			end
 			return nil
 		end,
@@ -535,19 +573,19 @@ cfg.talents={
 		end,
 		["Rune of Power"] = function()
 			if not cfg.talents["Rune of Power"] then return nil end
-			if lib.SpellCasted("Frozen Orb") or (
+			if (not cfg.talents["Glacial Spike"] and ((lib.IsLastSpell("Frozen Orb") or
+			(
 			(cfg.talents["Ray of Frost"] and lib.GetSpellCD("Ray of Frost")<1) or
 			(cfg.talents["Ebonbolt"] and lib.GetSpellCD("Ebonbolt")<1) or
-			(cfg.talents["Comet Storm"] and lib.GetSpellCD("Comet Storm")<1)
-			) then
+			(cfg.talents["Comet Storm"] and lib.GetSpellCD("Comet Storm")<1))
+			)
+			)) or
+			(cfg.talents["Glacial Spike"] and
+			(lib.IsLastSpell("Frozen Orb") and cfg.cleave_targets>=2) or
+			(lib.GetAuraStacks("Icicles")==5 and lib.GetAura({"Brain Freeze"})>0) or
+			(lib.GetSpellCD("Ebonbolt")<1 and lib.GetAura({"Brain Freeze"})<1))
+			then
 				return lib.SimpleCDCheck("Rune of Power")
-			end
-			return nil
-		end,
-		["Ice Nova"] = function()
-			if not cfg.talents["Ice Nova"] then return nil end
-			if lib.GetAura({"Winter's Chill"})>1 then
-				return lib.SimpleCDCheck("Ice Nova")
 			end
 			return nil
 		end,
@@ -564,6 +602,7 @@ cfg.talents={
 lib.classpostload["MAGE"] = function()
 
 lib.AddSpell("Arcane Intellect",{1459})
+lib.AddSpell("Ice Block",{45438})
 
 	lib.CD = function()
 		lib.CDadd("Arcane Power")
@@ -573,6 +612,12 @@ lib.AddSpell("Arcane Intellect",{1459})
 		lib.CDadd("Greater Invisibility")
 		lib.CDadd("Rune of Power")
 		lib.CDadd("Combustion")
+		lib.CDadd("Frozen Orb")
+		lib.CDadd("Cold Snap")
+		lib.CDadd("Ice Block")
+		lib.CDadd("Icy Veins")
+		-- lib.CDadd("Summon Water Elemental")
+		-- lib.CDadd("Arcane Intellect")
 	end
 
 end
