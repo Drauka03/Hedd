@@ -37,6 +37,7 @@ classes\paladin80100.lua
 classes\druid80100.lua
 classes\priest80100.lua
 classes\rogue80100.lua
+classes\mage80100.lua
 classes\monk80100.lua
 classes\warrior80100.lua
 classes\warlock80100.lua
