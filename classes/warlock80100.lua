@@ -448,7 +448,7 @@ end
 		cfg.plistdps = {}
 		table.insert(cfg.plistdps,"Summon Infernal")
 		table.insert(cfg.plistdps,"Immolate")
-		-- table.insert(cfg.plistdps,"Rain of Fire") -- leaves no aura to track and does not stack
+		table.insert(cfg.plistdps,"Rain of Fire")
 		table.insert(cfg.plistdps,"Dark Soul: Instability")
 		table.insert(cfg.plistdps,"Chaos Bolt_5")
 		table.insert(cfg.plistdps,"Conflagrate_2")
