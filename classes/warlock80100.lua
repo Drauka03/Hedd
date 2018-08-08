@@ -9,10 +9,12 @@ local lib = ns.lib
 
 lib.classes["WARLOCK"] = {}
 local t,s,n
+lib.classpreload["WARLOCK"] = function()
+	lib.SetPower("Mana")
+end
 
 lib.classes["WARLOCK"][1] = function() -- Affliction
 	lib.InitCleave()
-	lib.SetPower("Mana")
 	lib.SetAltPower("SoulShards")
 
 	cfg.talents={
@@ -39,39 +41,49 @@ lib.classes["WARLOCK"][1] = function() -- Affliction
 		["Dark Soul: Misery"]=IsPlayerSpell(113860),
 	}
 
-	lib.AddSpell("Agony",{980})
+	lib.AddSpell("Agony",{980}, "target")
+	lib.SetDOT("Agony")
 	lib.AddSpell("Corruption",{172})
 	lib.AddSpell("Dark Soul: Misery",{113860})
 	lib.AddSpell("Deathbolt",{264106})
 	lib.AddSpell("Drain Life",{234153})
-	lib.AddSpell("Drain Soul",{198590})
+	lib.AddSpell("Drain Soul",{198590,689},"target")
 	lib.AddSpell("Grimoire of Sacrifice",{108503})
-	lib.AddSpell("Haunt",{48181})
+	lib.AddSpell("Haunt",{48181},"target")
 	lib.AddSpell("Health Funnel",{755})
-	lib.AddSpell("Phantom Singularity",{205179})
+	lib.AddSpell("Phantom Singularity",{205179},"target")
 	lib.AddSpell("Seed of Corruption",{27243})
 	lib.AddSpell("Shadow Bolt",{686,232670})
-	lib.AddSpell("Siphon Life",{63106})
+	lib.AddSpell("Siphon Life",{63106},"target")
 	lib.AddSpell("Summon Darkglare",{205180})
 	lib.AddSpell("Unstable Affliction",{30108})
 	lib.AddSpell("Vile Taint",{278350})
 
 	lib.AddAura("Grimoire of Sacrifice",196099,"buff","player")
-	lib.AddAura("Agony",980,"debuff","target")
-	cfg.warlock_agony=18*0.3
 	lib.AddAura("Corruption",146739,"debuff","target")
-	cfg.warlock_corruption=14*0.3
-	lib.AddAura("Siphon Life",63106,"debuff","target")
-	cfg.warlock_siphon=15*0.3
 	lib.AddAura("Unstable Affliction",233490,"debuff","target")
-	cfg.warlock_ua=(8*0.3)+1.5  -- +1.5 to account for cast time
-	lib.AddAura("Drain Soul",198590,"debuff","target")
+	cfg.warlock_agony=18*0.3
+	cfg.warlock_corruption=14*0.3
+	cfg.warlock_siphon=15*0.3
+	cfg.warlock_ua=8*0.3
 
 	if cfg.talents["Creeping Death"] then	cfg.warlock_agony=15.3*0.3 end
 	if cfg.talents["Creeping Death"] then	cfg.warlock_corruption=11.9*0.3	end
 	if cfg.talents["Creeping Death"] then	cfg.warlock_siphon=12.8*0.3 end
 	if cfg.talents["Creeping Death"] then	cfg.warlock_ua=6.8*0.3 end
 
+	lib.SetAuraRefresh("Agony",cfg.warlock_agony)
+	lib.SetAuraRefresh("Siphon Life",cfg.warlock_siphon)
+	lib.SetAuraRefresh("Unstable Affliction",cfg.warlock_ua)
+	lib.AddTracking("Unstable Affliction",{255,0,0})
+	lib.AddTracking("Agony",{0,255,0})
+	if cfg.talents["Absolute Corruption"] then
+		lib.SetAuraRefresh("Corruption",0)
+	else
+		lib.SetAuraRefresh("Corruption",cfg.warlock_corruption)
+		lib.AddTracking("Corruption",{0,0,255})
+	end
+	lib.AddTracking("Siphon Life",{0,255,0})
 
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Sacrifice")
@@ -87,6 +99,7 @@ lib.classes["WARLOCK"][1] = function() -- Affliction
 	table.insert(cfg.plistdps,"Deathbolt")
 	table.insert(cfg.plistdps,"Phantom Singularity")
 	table.insert(cfg.plistdps,"Unstable Affliction_re")
+	table.insert(cfg.plistdps,"Drain Soul")
 	table.insert(cfg.plistdps,"Shadow Bolt")
 	table.insert(cfg.plistdps,"end")
 
@@ -95,15 +108,16 @@ lib.classes["WARLOCK"][1] = function() -- Affliction
 
 	cfg.case = {
 		["Agony"] = function ()
-			return lib.SimpleCDCheck("Agony",lib.GetAura({"Agony"})-cfg.warlock_agony)
+			return lib.SimpleCDCheck("Agony",lib.GetAura({"Agony"})-lib.GetAuraRefresh("Agony"))
 		end,
 		["Corruption"] = function ()
 			if lib.SpellCasting("Seed of Corruption") then return nil end
-			return lib.SimpleCDCheck("Corruption",lib.GetAura({"Corruption"})-cfg.warlock_corruption)
+			return lib.SimpleCDCheck("Corruption",lib.GetAura({"Corruption"})-lib.GetAuraRefresh("Corruption"))
 		end,
-		-- ["Drain Soul"] = function ()
-		-- 	return lib.SimpleCDCheck("Drain Soul",lib.SpellChannelingLeft("Drain Soul"))
-		-- end,
+		["Drain Soul"] = function ()
+			if not cfg.talents["Drain Soul"] then return nil end
+			return lib.SimpleCDCheck("Drain Soul",lib.SpellChannelingLeft("Drain Soul"))
+		end,
 		["Sacrifice"] = function ()
 			if not cfg.talents["Grimoire of Sacrifice"] then return nil end
 			if lib.GetAura({"Grimoire of Sacrifice"})<=0 then
@@ -119,25 +133,14 @@ lib.classes["WARLOCK"][1] = function() -- Affliction
 			return nil
 		end,
 		["Shadow Bolt"] = function ()
-			if cfg.talents["Drain Soul"] then
-				return lib.SimpleCDCheck("Drain Soul")
-			else
-				return lib.SimpleCDCheck("Shadow Bolt")
-			end
-			return nil
+			if cfg.talents["Drain Soul"] then return nil end
+			return lib.SimpleCDCheck("Shadow Bolt")
 		end,
 		["Siphon Life"] = function ()
-			return lib.SimpleCDCheck("Siphon Life",lib.GetAura({"Siphon Life"})-cfg.warlock_siphon)
+			return lib.SimpleCDCheck("Siphon Life",lib.GetAura({"Siphon Life"})-lib.GetAuraRefresh("Siphon Life"))
 		end,
-		-- ["Unstable Affliction5"] = function ()
-		-- 	--if lib.SpellCasting("Unstable Affliction") then return nil end
-		-- 	if cfg.AltPower.now==cfg.AltPower.max then
-		-- 		return lib.SimpleCDCheck("Unstable Affliction")
-		-- 	end
-		-- 	return nil
-		-- end,
 		["Unstable Affliction_4ss"] = function ()
-			--if lib.SpellCasting("Unstable Affliction") then return nil end
+			if cfg.AltPower.now==cfg.AltPower.max-1 and lib.SpellCasting("Unstable Affliction") then return nil end
 			if cfg.AltPower.now>=cfg.AltPower.max-1 then
 				return lib.SimpleCDCheck("Unstable Affliction")
 			end
@@ -151,9 +154,9 @@ lib.classes["WARLOCK"][1] = function() -- Affliction
 			return nil
 		end,
 		["Unstable Affliction_re"] = function ()
-			if lib.SpellCasting("Unstable Affliction") and cfg.AltPower.now==1 then return nil end
+			if lib.SpellCasting("Unstable Affliction") then return nil end
 			if cfg.AltPower.now>0 then
-				return lib.SimpleCDCheck("Unstable Affliction",lib.GetAura({"Unstable Affliction"})-cfg.warlock_ua-lib.GetSpellCT("Unstable Affliction"))
+				return lib.SimpleCDCheck("Unstable Affliction",lib.GetAura({"Unstable Affliction"})-lib.GetAuraRefresh("Unstable Affliction")-lib.GetSpellCT("Unstable Affliction"))
 			end
 			return nil
 		end,
