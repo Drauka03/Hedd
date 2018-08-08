@@ -457,7 +457,7 @@ lib.classes["DRUID"][2] = function() --Cat
 		Heddmain.info_DOT:SetText("")
 	end)
 	lib.AddSpell("Shred",{5221}) -- Shred
-	lib.FixSpell("Shred","cost")
+	--lib.FixSpell("Shred","cost")
 	lib.AddSpell("Ashamane's Frenzy",{210722})
 	if cfg.talents["Savage Roar"] then
 		lib.AddSpell("Savage Roar",{52610},true) -- Savage Roar
@@ -512,19 +512,11 @@ lib.classes["DRUID"][2] = function() --Cat
 			Heddmain.info_DOT:SetText("")
 		end
 	end)
---	if cfg.talents["Lunar Inspiration"] then
-
-	lib.AddSpell("Moonfire",{8921}) -- Moonfire
 
 	if cfg.talents["Lunar Inspiration"] then
-		lib.AddAura("Moonfire",155625,"debuff","target") -- Moonfire
-		lib.FixSpell("Moonfire","cost")
-		lib.OnSpellCast("Cat",function()
-			lib.ReloadSpell("Moonfire")
-			lib.FixSpell("Moonfire","cost")
-			end)
+		lib.AddSpell("Moonfire",{155625},"target",nil,nil,nil,true) -- Moonfire
 	end
---	end
+
 	lib.AddAura("Moonfire2",164812,"debuff","target")
 	lib.AddSpell("Ferocious Bite",{22568})
 	lib.AddSpell("Tiger's Fury",{5217},true)
@@ -537,16 +529,16 @@ lib.classes["DRUID"][2] = function() --Cat
 		end
 	end
 	lib.AddSpell("Thrash",{106830},"target",nil,nil,nil,true) --106832
-	lib.FixSpell("Thrash","cost")
+	--lib.FixSpell("Thrash","cost")
 	lib.AddCleaveSpell("Thrash",nil,{106830})
 	if cfg.talents["Brutal Slash"] then
 		lib.AddSpell("Brutal Slash",{202028})
-		lib.FixSpell("Brutal Slash","cost")
+		--lib.FixSpell("Brutal Slash","cost")
 		lib.AddCleaveSpell("Brutal Slash")
 	else
-		lib.AddSpell("Swipe",{213764,106785})
-		lib.FixSpell("Swipe","cost")
-		lib.AddCleaveSpell("Swipe",nil,{213764,106785})
+		lib.AddSpell("Swipe",{106785},nil,nil,nil,nil,true) --213764,
+		--lib.FixSpell("Swipe","cost")
+		lib.AddCleaveSpell("Swipe",nil,{106785})
 	end
 
 	lib.AddAura("Clearcasting",135700,"buff","player")
@@ -555,6 +547,7 @@ lib.classes["DRUID"][2] = function() --Cat
 	lib.AddSpell("Regrowth",{8936},true)
 	lib.AddSpell("Moonkin",{197625},true)
 	lib.AddSpell("Sunfire",{197630})
+	lib.AddSpell("Feral Frenzy",{274837})
 	lib.AddAura("Sunfire",164815,"debuff","target")
 	lib.SetAuraRefresh("Sunfire",12*0.3)
 	lib.AddSpell("Starsurge",{197626})
@@ -645,7 +638,8 @@ lib.classes["DRUID"][2] = function() --Cat
 	end
 	table.insert(cfg.plistdps,"Berserk_TF")
 	table.insert(cfg.plistdps,"Tiger's Fury")
-	table.insert(cfg.plistdps,"Ferocious Bite_Apex Predator")
+	table.insert(cfg.plistdps,"Feral Frenzy")
+
 	table.insert(cfg.plistdps,"Ferocious Bite_Sabertooth")
 	table.insert(cfg.plistdps,"Shadowmeld")
 	if cfg.talents["Bloodtalons"] then
@@ -672,6 +666,7 @@ lib.classes["DRUID"][2] = function() --Cat
 	end
 	table.insert(cfg.plistdps,"Rip_Stronger")
 	table.insert(cfg.plistdps,"Rip_Buff")
+	table.insert(cfg.plistdps,"Ferocious Bite_Apex Predator")
 	table.insert(cfg.plistdps,"Rip_Pandemic")
 	if cfg.talents["Savage Roar"] then
 		table.insert(cfg.plistdps,"Savage Roar_Pandemic")
@@ -797,6 +792,10 @@ lib.classes["DRUID"][2] = function() --Cat
 				return lib.SimpleCDCheck("Thrash",lib.GetAura({"Thrash"})-lib.GetAuraRefresh("Thrash"))
 			end
 			return nil
+		end,
+		["Feral Frenzy"] = function()
+			if cfg.AltPower.now>0 then return nil end
+			return lib.SimpleCDCheck("Feral Frenzy")
 		end,
 		["Thrash_noThrash_aoe"] = function()
 			if cfg.Cat.Thrash_Combo and cfg.AltPower.now==cfg.AltPower.max then return nil end
@@ -1132,7 +1131,7 @@ lib.classes["DRUID"][2] = function() --Cat
 			if lib.SR() and lib.GetAura({"Savage Roar"})<lib.GetSpellCD("Shred") then return nil end
 			return lib.SimpleCDCheck("Shred",lib.Time2Power(cfg.Power.max))
 		end,
-		--[[["Shred"] = function()
+		["Shred"] = function()
 			if cfg.AltPower.now==cfg.AltPower.max then return nil end
 			if lib.SR() and lib.GetAura({"Savage Roar"})<lib.GetSpellCD("Shred") and lib.GetAura({"Clearcasting"})==0 then return nil end
 			if cfg.Cat.Thrash_Clearcasting and lib.GetAura({"Clearcasting"})>lib.GetSpellCD("Shred") and
@@ -1174,7 +1173,7 @@ lib.classes["DRUID"][2] = function() --Cat
 				end
 			end
 			return nil
-		end,]]
+		end,
 		["Brutal Slash"] = function()
 			if cfg.AltPower.now==cfg.AltPower.max then return nil end
 			return lib.SimpleCDCheck("Brutal Slash")
@@ -1527,7 +1526,7 @@ lib.classes["DRUID"][2] = function() --Cat
 		end,
 		["Ferocious Bite_Apex Predator"] = function()
 			if lib.GetAura({"Apex Predator"})>lib.GetSpellCD("Ferocious Bite") then
-				if cfg.AltPower.now>0 then
+				if cfg.AltPower.now>=5 then
 					--[[if cfg.talents["Incarnation: King of the Jungle"] and lib.GetAura({"Berserk"})>lib.GetSpellCD("Ferocious Bite") then
 						if cfg.AltPower.now<5 then
 							return nil

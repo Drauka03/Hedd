@@ -471,7 +471,7 @@ end
 
 local num
 hedlib.BlizzPattern = function(txt)
-	txt,num=string.gsub(txt,"%%.3g",".+")
+	txt,num=string.gsub(txt,"%%.2g",".+")
 	if num==0 then txt,num=string.gsub(txt,"%%d",".+") end
 	if num==0 then txt,num=string.gsub(txt,"%%s",".+") end
 	--string.gsub(txt,"|4;",".+") end

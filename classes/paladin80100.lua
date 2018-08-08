@@ -302,8 +302,14 @@ lib.classes["PALADIN"][3] = function () --Retribution
 		end,
 	}
 
-	cfg.spells_aoe={"HotR"}
-	cfg.spells_single={"Crusader Strike"}
+	--cfg.spells_aoe={"HotR"}
+	--cfg.spells_single={"Crusader Strike"}
+	
+	lib.AddRangeCheck({
+	{"Templar's Verdict",nil},
+	{"Judgment",{0,1,1,1}},
+	{"Heroic Throw",{0,0,1,1}},
+	})
 	return true
 end
 
@@ -410,11 +416,7 @@ lib.classpostload["PALADIN"] = function()
 	-- 	return lib.SimpleCDCheck("Judgment")
 	-- end
 	--
-	-- lib.AddRangeCheck({
-	-- {"Templar's Verdict",nil},
-	-- {"Judgment",{0,1,1,1}},
-	-- --{"Heroic Throw",{0,0,1,1}},
-	-- })
+	
 
 
 end

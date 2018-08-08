@@ -6,16 +6,16 @@ local cfg = ns.cfg
 local lib = _G["HEDD_lib"] or CreateFrame("Frame","HEDD_lib")
 ns.lib = lib
 
-lib.fullcdtime = function(SpellID)
+--[[lib.fullcdtime = function(SpellID)
 	Hedd_Tooltip = _G["Hedd_Tooltip"] or CreateFrame('GameTooltip', 'Hedd_Tooltip', UIParent, 'GameTooltipTemplate')
 	Hedd_Tooltip:SetOwner(UIParent, 'ANCHOR_NONE')
 	Hedd_Tooltip:SetSpellByID(SpellID)
 	text=Hedd_TooltipTextRight3:GetText()
 	Hedd_Tooltip:Hide()
 	return hedlib.tofloat(text)
-end
+end]]
 
-lib.UpdateSpellTT = function(spell)
+--[[lib.UpdateSpellTT = function(spell)
 	if spell and cfg.spells[spell] then
 		if not cfg.spells[spell].has_charges then 
 			if cfg.spells[spell].tt.fullcd then
@@ -25,12 +25,12 @@ lib.UpdateSpellTT = function(spell)
 			end
 		end
 
-		--[[if cfg.spells[spell].powerType=="cd" then
+		if cfg.spells[spell].powerType=="cd" then
 			cfg.spells[spell].cost=0
 			return
-		end]]
+		end
 		
-		--[[if cfg.spells[spell].cost_real then
+		if cfg.spells[spell].cost_real then
 			cfg.spells[spell].cost=cfg.spells[spell].cost_real
 		else
 			if cfg.spells[spell].tt.cost then
@@ -43,9 +43,9 @@ lib.UpdateSpellTT = function(spell)
 					end
 				end
 			end
-		end]]
+		end
 	end
-end
+end]]
 
 local function gsi_inner(...)
 	if ... == "" then
@@ -117,13 +117,14 @@ lib.AddSpell = function(spell,ids,addbuff,cost_real,nointerupt,nousecheck,noplay
 				--cfg.id2spell[id]=spell
 				cfg.spells[spell].noupdate=noupdate or nil
 				cfg.spells[spell].cd = 0
+				cfg.spells[spell].fullcd = 0
 				cfg.spells[spell].guid = 0
 				cfg.spells[spell].lastcast=0
 				cfg.spells[spell].start = 0
 				cfg.spells[spell].isUsable = true
 				cfg.spells[spell].notEnoughMana = nil
 				cfg.spells[spell].cost = 0
-				--cfg.spells[spell].powerType = 0
+				cfg.spells[spell].powerType = "cd"
 				cfg.spells[spell].channel = 0
 				cfg.spells[spell].nointerupt = nointerupt or false
 				cfg.spells[spell].buff=0
@@ -141,13 +142,14 @@ lib.AddSpell = function(spell,ids,addbuff,cost_real,nointerupt,nousecheck,noplay
 				cfg.spells[spell].count=GetSpellCount(id)
 				--if cost_real then cfg.spells[spell].cost_real=cost_real end
 				cfg.spells[spell].cost_real=cost_real or false
-				cfg.spells[spell].tt=_G["Hedd_Tooltip_"..cfg.spells[spell].id] or CreateFrame('GameTooltip', "Hedd_Tooltip_"..cfg.spells[spell].id, nil, 'GameTooltipTemplate')
+				lib.SpellHasFullCD(spell)
+				--[[cfg.spells[spell].tt=_G["Hedd_Tooltip_"..cfg.spells[spell].id] or CreateFrame('GameTooltip', "Hedd_Tooltip_"..cfg.spells[spell].id, nil, 'GameTooltipTemplate')
 				cfg.spells[spell].tt:SetOwner(UIParent, 'ANCHOR_NONE')
 				cfg.spells[spell].tt:SetSpellByID(cfg.spells[spell].id)
 				cfg.spells[spell].tt.id=id
 				for _, tt in pairs(cfg.local_cd) do
 					cfg.spells[spell].tt.fullcd=hedlib.ScanTooltip(cfg.spells[spell].tt,tt,spell) or cfg.spells[spell].tt.fullcd
-				end
+				end]]
 				
 				--[[for _, pattern in pairs(cfg.Power.pattern_cost) do
 					cfg.spells[spell].tt.cost=hedlib.ScanTooltip(cfg.spells[spell].tt,pattern.."$",spell)
@@ -351,6 +353,8 @@ lib.UpdateSpell = function(spell,now)
 			if cfg.spells[spell].charges_start==4294959.298 then
 				cfg.spells[spell].charges_start=0
 			end
+		else
+			lib.UpdateSpellFullCD(spell)
 		end
 		cfg.spells[spell].count=GetSpellCount(cfg.spells[spell].id)
 		cfg.spells[spell].start, cfg.spells[spell].cd, senabled = GetSpellCooldown(cfg.spells[spell].id)
@@ -368,12 +372,12 @@ lib.UpdateSpell = function(spell,now)
     
 		--cfg.spells[spell].tt=_G["Hedd_Tooltip_"..cfg.spells[spell].id] or CreateFrame('GameTooltip', "Hedd_Tooltip_"..cfg.spells[spell].id, nil, 'GameTooltipTemplate')
 		
-		if cfg.spells[spell].tt then
+		--[[if cfg.spells[spell].tt then
 			cfg.spells[spell].tt:SetOwner(UIParent, 'ANCHOR_NONE')
 			cfg.spells[spell].tt:SetSpellByID(cfg.spells[spell].id)
 			lib.UpdateSpellTT(spell)
 			cfg.spells[spell].tt:Hide()
-		end
+		end]]
 
 		--if not hedlib.ArrayNotChanged(cfg.spells[spell],spells_old) or now then
 		if now or lib.CheckSpellChanged(spell) then
@@ -404,15 +408,15 @@ lib.UpdateSpellCost = function(spell)
            		cfg.spells[spell].cost = CostInfo.cost
 				cfg.spells[spell].powerType = "power"
 				return
-			elseif CostInfo.name == cfg.AltPower.type then
+			elseif CostInfo.name == cfg.AltPower.type and not cfg.spells[spell].powerType=="power" then
 				cfg.spells[spell].cost = CostInfo.cost
 				cfg.spells[spell].powerType = "alt"
 				return
 			end
         end
 	end
-	--cfg.spells[spell].cost = 0
-	--cfg.spells[spell].powerType = "cd"
+	cfg.spells[spell].cost = 0
+	cfg.spells[spell].powerType = "cd"
 end
 local totems_old={}
 lib.UpdateTotem = function(totemtype)
@@ -965,4 +969,19 @@ end
 
 lib.RemoveSpell = function(spell)
 	cfg.spells[spell] = nil
+end
+
+lib.SpellHasFullCD = function(spell)
+	cfg.spell_tt:SetOwner(UIParent, 'ANCHOR_NONE')
+	cfg.spell_tt:SetSpellByID(cfg.spells[spell].id)
+	_,cfg.spells[spell].fullcd_tt=hedlib.IsTextInTooltip(cfg.spell_tt,cfg.local_cd)
+	--print(cfg.spells[spell].fullcd_tt)
+end
+
+lib.UpdateSpellFullCD = function(spell)
+	if cfg.spells[spell].fullcd_tt then
+		cfg.spell_tt:SetOwner(UIParent, 'ANCHOR_NONE')
+		cfg.spell_tt:SetSpellByID(cfg.spells[spell].id)
+		cfg.spells[spell].fullcd=hedlib.tofloat(_G[cfg.spells[spell].fullcd_tt]:GetText() or " ")
+	end
 end

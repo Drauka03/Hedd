@@ -45,7 +45,8 @@ function lib.defaults()
 	--[[cfg.local_cd={}
 	table.insert(cfg.local_cd,hedlib.BlizzPattern(_G["SPELL_RECAST_TIME_SEC"]))
 	table.insert(cfg.local_cd,hedlib.BlizzPattern(_G["SPELL_RECAST_TIME_CHARGES_SEC"]))]]
-	cfg.local_cd=hedlib.BlizzPattern2({SPELL_RECAST_TIME_SEC,SPELL_RECAST_TIME_CHARGES_SEC})
+	--cfg.local_cd=hedlib.BlizzPattern2({SPELL_RECAST_TIME_SEC,SPELL_RECAST_TIME_CHARGES_SEC})
+	cfg.local_cd=hedlib.BlizzPattern(SPELL_RECAST_TIME_SEC)
 	cfg.lastUpdate=0
 	cfg.lastUpdateBar=0
 	cfg.nextUpdate=0
@@ -89,6 +90,9 @@ function lib.defaults()
 	cfg.spell_alias = {}
 	cfg.spells_updating = {}
 	cfg.sspell = {}
+	cfg.spell_tt=_G["Hedd_Tooltip_test"] or CreateFrame('GameTooltip', "Hedd_Tooltip_test", nil, 'GameTooltipTemplate')
+	cfg.spell_tt:SetOwner(UIParent, 'ANCHOR_NONE')
+	
 	cfg.sp_conv={}
 	cfg.id2aura={}
 	cfg.id2spell={}
