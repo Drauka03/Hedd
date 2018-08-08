@@ -252,6 +252,10 @@ lib.basicevents = function()
 		if eventtype == "UNIT_DIED" or eventtype == "UNIT_DESTROYED" or eventtype == "UNIT_DISSIPATES" then
 			lib.RemoveNPC(destGUID)
 		end
+		-- Can't get UnitGUID("pet") here because it's not available yet when the SPELL_SUMMON event fires
+		if eventtype == "SPELL_SUMMON" and sourceGUID == UnitGUID("player") and not destGUID:find("^Pet") then
+			lib.AddTemporaryPet(destGUID, destName)
+		end
 		if cfg.Cleave then
 			if sourceGUID == cfg.GUID["player"] and bit.band(destFlags,COMBATLOG_OBJECT_TYPE_NPC)>0 then
 				if cfg.HasSpellEvent[eventtype] then

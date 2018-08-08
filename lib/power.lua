@@ -41,11 +41,11 @@ end
 	if powerType and _G[powerType] then
 		cfg.Power.type=powerType
 		cfg.Power.type_num=_G["SPELL_POWER_"..powerType]
-	else	
+	else
 		cfg.Power.type_num,cfg.Power.type=UnitPowerType("player")
 		powerType=cfg.Power.type
 	end
-	
+
 	if _G[powerType.."_COST"] then
 		cfg.Power.pattern_cost=hedlib.BlizzPattern2(_G[powerType.."_COST"])
 	end
@@ -102,7 +102,7 @@ lib.UpdatePower = function(powerType)
 		cfg.Power.regen=cfg.Power.regen/10
 	end
 	cfg.Power.real=math.floor(cfg.Power.now+lib.CastingPower())
-	if cfg.Power.real>cfg.Power.max then cfg.Power.real=cfg.Power.max end 
+	if cfg.Power.real>cfg.Power.max then cfg.Power.real=cfg.Power.max end
 	if lib.IsResourceBar() and (Heddframe.resource.bar.type=="power" or Heddframe.resource.bar.type==powerType) then
 		lib.UpdateResourceBar(cfg.Power.real)
 	end
@@ -112,6 +112,10 @@ lib.UpdatePower = function(powerType)
 		if cfg.Power.onpower then cfg.Power.onpower() end
 		cfg.Update=true
 	end
+end
+
+lib.PowerPercent = function()
+	return cfg.Power.now/cfg.Power.max*100
 end
 
 local castpower
@@ -129,7 +133,7 @@ end
 lib.PowerInTime = function(t)
 	return math.min(cfg.Power.max,(cfg.Power.now-cfg.Casting.cost+(t*cfg.Power.regen)))
 end
-	
+
 lib.PowerMax = function()
 	return cfg.Power.max
 end
@@ -143,7 +147,7 @@ lib.SearchAltPower = function()
 	for i=#hedlib.PowerType,0,-1 do
 		if hedlib.PowerType[i] then
 			pmax=UnitPowerMax("player",i)
-			if pmax~=UnitPowerMax("player") and pmax>0 then --and pmax<=10 
+			if pmax~=UnitPowerMax("player") and pmax>0 then --and pmax<=10
 				--print(hedlib.PowerType[i].." found")
 				lib.SetAltPower(hedlib.PowerType[i])
 				return true
@@ -200,7 +204,7 @@ lib.SetAltPower = function(alt_powerType,nocombo,func)
 		cfg.AltPower.type=Hedd.POWER_NUM[alt_powerType]
 		cfg.AltPower.type_num=alt_powerType
 	end
-	
+
 	--cfg.AltPower.type=alt_powerType
 	--cfg.AltPower.type_num=Enum.PowerType[alt_powerType]
 	cfg.AltPower.now=UnitPower("player",cfg.AltPower.type_num)
