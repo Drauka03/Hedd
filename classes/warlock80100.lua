@@ -87,6 +87,7 @@ lib.classes["WARLOCK"][1] = function() -- Affliction
 
 	cfg.plistdps = {}
 	table.insert(cfg.plistdps,"Sacrifice")
+	table.insert(cfg.plistdps,"Dark Soul: Misery")
 	table.insert(cfg.plistdps,"Agony")
 	table.insert(cfg.plistdps,"Seed_aoe")
 	table.insert(cfg.plistdps,"Corruption")
