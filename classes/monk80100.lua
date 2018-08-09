@@ -338,12 +338,11 @@ lib.classes["MONK"][3] = function() --Windwalker
 	end
 	table.insert(cfg.plistdps,"Fists of Fury")
 	if cfg.talents["Fist of the White Tiger"] then
-		table.insert(cfg.plistdps,"Fist of the White Tiger")
+		table.insert(cfg.plistdps,"Fist of the White Tiger_hasEnergy")
 	end
-	if cfg.talents["Whirling Dragon Punch"] then
-		table.insert(cfg.plistdps,"Rising Sun Kick_aoe")
-		table.insert(cfg.plistdps,"Whirling Dragon Punch")
-	end
+	table.insert(cfg.plistdps,"Rising Sun Kick_aoe")
+	table.insert(cfg.plistdps,"Rising Sun Kick_noaoe")
+	table.insert(cfg.plistdps,"Whirling Dragon Punch")
 	table.insert(cfg.plistdps,"Tiger Palm_nomax")
 	if cfg.talents["Chi Wave"] then
 		table.insert(cfg.plistdps,"Chi Wave_noaoe")
@@ -353,12 +352,10 @@ lib.classes["MONK"][3] = function() --Windwalker
 	end
 	table.insert(cfg.plistdps,"Spinning Crane Kick_aoe")
 	table.insert(cfg.plistdps,"Blackout Kick")
-	table.insert(cfg.plistdps,"Tiger Palm")
-	table.insert(cfg.plistdps,"Tiger Palm_max")
-	table.insert(cfg.plistdps,"Blackout Kick_max")
-	if cfg.talents["Whirling Dragon Punch"] then
-		table.insert(cfg.plistdps,"Rising Sun Kick_noaoe")
+	if cfg.talents["Fist of the White Tiger"] then
+		table.insert(cfg.plistdps,"Fist of the White Tiger")
 	end
+	table.insert(cfg.plistdps,"Tiger Palm")
 	table.insert(cfg.plistdps,"Flying Serpent Kick")
 	table.insert(cfg.plistdps,"end")
 
@@ -377,7 +374,7 @@ lib.classes["MONK"][3] = function() --Windwalker
 			-- TODO: Sometimes, energy caps during FoF.  Not sure if that's something that needs to be fixed.
 			return lib.SimpleCDCheck("Fists of Fury",lib.GetAura({"Serenity"})-1.5*cfg.gcd)
 		end,
-		["Fist of the White Tiger"] = function()
+		["Fist of the White Tiger_hasEnergy"] = function()
 			if (cfg.AltPower.max - cfg.AltPower.now) >= 3 and cfg.Power.now >= lib.GetSpellCost("Fist of the White Tiger") then
 				return lib.SimpleCDCheck("Fist of the White Tiger")
 			end
@@ -455,16 +452,19 @@ lib.classes["MONK"][3] = function() --Windwalker
 			end
 			return nil
 		end,
-
 		["Energizing Elixir"] = function()
 			if cfg.Power.now<cfg.Power.max and cfg.AltPower.now<=1 then
 				return lib.SimpleCDCheck("Energizing Elixir",lib.GetAura({"Serenity"}))
 			end
 			return nil
 		end,
+		["Fist of the White Tiger"] = function()
+			if (cfg.AltPower.max - cfg.AltPower.now) < 2 then return nil end
+			return lib.SimpleCDCheck("Fist of the White Tiger")
+		end,
 		["Tiger Palm"] = function()
 			if lib.GetAura({"Serenity"}) > 0 then return nil end
-			if (cfg.AltPower.max - cfg.AltPower.now) > 1 then --or lib.GetAura({"Serenity"})>lib.GetSpellCD("Tiger Palm") then
+			if (cfg.AltPower.max - cfg.AltPower.now) >= 1 or (cfg.Power.max == cfg.Power.now) then
 				return lib.SimpleCDCheck("Tiger Palm",lib.GetAura({"Blackout Kick!"}))
 			end
 		end,
@@ -475,36 +475,12 @@ lib.classes["MONK"][3] = function() --Windwalker
 			end
 			return nil
 		end,
-		["Tiger Palm_max"] = function()
-			if lib.GetAura({"Serenity"}) > 0 then return nil end
-			if cfg.Power.now >= cfg.Power.max then
-			-- if cfg.AltPower.max >= cfg.AltPower.now and cfg.Power.max >= cfg.Power.now then
-				return lib.SimpleCDCheck("Tiger Palm")
-			end
-			return nil
-		end,
-		["Blackout Kick_max"] = function()
-			if cfg.AltPower.max - cfg.AltPower.now < 2 then
-				return lib.SimpleCDCheck("Blackout Kick", nil, nil, nil, nil, true)
-			end
-			return nil
-		end,
 		["Blackout Kick_aoe"] = function()
 			if cfg.cleave_targets>=3 and cfg.AltPower.now==2 and lib.IsLastSpell("Tiger Palm") then
 				return lib.SimpleCDCheck("Blackout Kick")
 			end
 			return nil
 		end,
-		-- ["Chi Burst_aoe"] = function()
-		-- 	if cfg.cleave_targets>=3 then
-		-- 		if lib.IsLastSpell("Tiger Palm") then
-		-- 			return lib.SimpleCDCheck("Chi Burst")
-		-- 		end
-		-- 		return nil
-		-- 	else
-		-- 		return lib.SimpleCDCheck("Chi Burst",lib.GetAura({"Serenity"}))
-		-- 	end
-		-- end,
 		["Crackling Jade Lightning"] = function()
 			if lib.IsLastSpell("Tiger Palm") then
 				return lib.SimpleCDCheck("Crackling Jade Lightning",lib.GetAura({"Serenity"}))
@@ -547,8 +523,8 @@ lib.classes["MONK"][3] = function() --Windwalker
 	}
 
 	lib.AddRangeCheck({
-	{"Tiger Palm",nil},
-	{"Crackling Jade Lightning",{0,0,1,1}},
+		{"Tiger Palm",nil},
+		{"Crackling Jade Lightning",{0,0,1,1}},
 	})
 	--cfg.mode = "dps"
 
