@@ -55,37 +55,39 @@ lib.classes["WARLOCK"][1] = function() -- Affliction
 	lib.AddSpell("Seed of Corruption",{27243})
 	lib.AddSpell("Shadow Bolt",{686,232670})
 	lib.AddSpell("Siphon Life",{63106},"target")
-	lib.AddSpell("Summon Darkglare",{205180})
+	lib.AddSpell("Summon Darkglare",{205180},"target")
 	lib.AddSpell("Unstable Affliction",{30108})
 	lib.AddSpell("Vile Taint",{278350})
 
 	lib.AddAura("Grimoire of Sacrifice",196099,"buff","player")
 	lib.AddAura("Corruption",146739,"debuff","target")
-	lib.AddAura("Unstable Affliction",233490,"debuff","target")
-	cfg.warlock_agony=18*0.3
-	cfg.warlock_corruption=14*0.3
-	cfg.warlock_siphon=15*0.3
-	cfg.warlock_ua=8*0.3
+	--lib.AddAura("Unstable Affliction",233490,"debuff","target")
+	lib.AddAuras("Unstable Affliction",{233490,233496,233497,233498,233499},"debuff","target")
+	--cfg.warlock_agony=18*0.3
+	--cfg.warlock_corruption=14*0.3
+	--cfg.warlock_siphon=15*0.3
+	--cfg.warlock_ua=8*0.3
 
-	if cfg.talents["Creeping Death"] then	cfg.warlock_agony=15.3*0.3 end
-	if cfg.talents["Creeping Death"] then	cfg.warlock_corruption=11.9*0.3	end
-	if cfg.talents["Creeping Death"] then	cfg.warlock_siphon=12.8*0.3 end
-	if cfg.talents["Creeping Death"] then	cfg.warlock_ua=6.8*0.3 end
-
-	lib.SetAuraRefresh("Agony",cfg.warlock_agony)
-	lib.SetAuraRefresh("Siphon Life",cfg.warlock_siphon)
-	lib.SetAuraRefresh("Unstable Affliction",cfg.warlock_ua)
-	lib.AddTracking("Unstable Affliction",{255,0,0})
-	lib.AddTracking("Agony",{0,255,0})
+	--if cfg.talents["Creeping Death"] then	cfg.warlock_agony=15.3*0.3 end
+	--if cfg.talents["Creeping Death"] then	cfg.warlock_corruption=11.9*0.3	end
+	--if cfg.talents["Creeping Death"] then	cfg.warlock_siphon=12.8*0.3 end
+	--if cfg.talents["Creeping Death"] then	cfg.warlock_ua=6.8*0.3 end
+	lib.SetAuraRefresh("Agony",(18*(1-(cfg.talents["Creeping Death"] and 0.15 or 0))*0.3))
+	lib.SetAuraRefresh("Siphon Life",(15*(1-(cfg.talents["Creeping Death"] and 0.15 or 0))*0.3))
+	lib.AddTracking("Agony",{0,0,255})
 	if cfg.talents["Absolute Corruption"] then
 		lib.SetAuraRefresh("Corruption",0)
 	else
-		lib.SetAuraRefresh("Corruption",cfg.warlock_corruption)
-		lib.AddTracking("Corruption",{0,0,255})
+		lib.SetAuraRefresh("Corruption",(14*(1-(cfg.talents["Creeping Death"] and 0.15 or 0))*0.3))
+		lib.AddTracking("Corruption",{255,0,0})
 	end
 	lib.AddTracking("Siphon Life",{0,255,0})
+	--lib.AddTracking("Haunt",{255,255,0})
+	--lib.AddTracking("Phantom Singularity",{255,255,0})
 
 	cfg.plistdps = {}
+	table.insert(cfg.plistdps,"Summon Darkglare")
+	--table.insert(cfg.plistdps,"Deathbolt")
 	table.insert(cfg.plistdps,"Sacrifice")
 	table.insert(cfg.plistdps,"Dark Soul: Misery")
 	table.insert(cfg.plistdps,"Agony")
@@ -95,8 +97,7 @@ lib.classes["WARLOCK"][1] = function() -- Affliction
 	table.insert(cfg.plistdps,"Unstable Affliction_4ss")
 	table.insert(cfg.plistdps,"Haunt")
 	table.insert(cfg.plistdps,"UA_Darkglare")
-	table.insert(cfg.plistdps,"Summon Darkglare")
-	table.insert(cfg.plistdps,"UA_Deathbolt")
+	--table.insert(cfg.plistdps,"UA_Deathbolt")
 	table.insert(cfg.plistdps,"Deathbolt")
 	table.insert(cfg.plistdps,"Phantom Singularity")
 	table.insert(cfg.plistdps,"Unstable Affliction_re")
@@ -129,7 +130,7 @@ lib.classes["WARLOCK"][1] = function() -- Affliction
 		["Seed_aoe"] = function ()
 			if lib.SpellCasting("Seed of Corruption") then return nil end
 			if cfg.cleave_targets>=2 then
-				return lib.SimpleCDCheck("Seed of Corruption",lib.GetAura({"Corruption"})-cfg.warlock_corruption)
+				return lib.SimpleCDCheck("Seed of Corruption",lib.GetAura({"Corruption"})-lib.GetAuraRefresh("Corruption"))
 			end
 			return nil
 		end,
@@ -157,19 +158,45 @@ lib.classes["WARLOCK"][1] = function() -- Affliction
 		["Unstable Affliction_re"] = function ()
 			if lib.SpellCasting("Unstable Affliction") then return nil end
 			if cfg.AltPower.now>0 then
-				return lib.SimpleCDCheck("Unstable Affliction",lib.GetAura({"Unstable Affliction"})-lib.GetAuraRefresh("Unstable Affliction")-lib.GetSpellCT("Unstable Affliction"))
+				return lib.SimpleCDCheck("Unstable Affliction",lib.GetAuras("Unstable Affliction")-lib.GetAuraRefresh("Unstable Affliction")-lib.GetSpellCT("Unstable Affliction"))
 			end
 			return nil
 		end,
+		["Summon Darkglare"] = function ()
+			if lib.GetAura({"Agony"})<lib.GetSpellCD("Summon Darkglare") then return nil end
+			if lib.GetAura({"Corruption"})<lib.GetSpellCD("Summon Darkglare") then return nil end
+			if cfg.talents["Siphon Life"]  and lib.GetAura({"Siphon Life"})<lib.GetSpellCD("Summon Darkglare") then return nil end
+			if cfg.AltPower.now<=1 then
+				if cfg.talents["Phantom Singularity"] then
+					if lib.GetSpellCD("Phantom Singularity")<=lib.GetSpellCD("Summon Darkglare") then
+						return lib.SimpleCDCheck("Phantom Singularity")
+					else
+						return lib.SimpleCDCheck("Summon Darkglare")
+					end
+				else
+					return lib.SimpleCDCheck("Summon Darkglare")
+				end
+			end
+			return nil
+		end,
+		--[[["Deathbolt"] = function ()
+			if lib.GetAura({"Agony"})<lib.GetSpellCD("Deathbolt") then return nil end
+			if lib.GetAura({"Corruption"})<lib.GetSpellCD("Deathbolt") then return nil end
+			if cfg.talents["Siphon Life"]  and lib.GetAura({"Siphon Life"})<lib.GetSpellCD("Deathbolt") then return nil end
+			if cfg.AltPower.now<=1 then
+				return lib.SimpleCDCheck("Deathbolt")
+			end
+			return nil
+		end,]]
 		["UA_Darkglare"] = function () -- stacking UA before Darkglare to gain more benefit from the timer extension
-			if lib.GetSpellCD("Darkglare")<=3 and cfg.AltPower.now>=3 then
+			if lib.GetSpellCD("Summon Darkglare")<=3 and cfg.AltPower.now>1 then --and cfg.AltPower.now>=3
 				return lib.SimpleCDCheck("Unstable Affliction")
 			end
 			return nil
 		end,
 		["UA_Deathbolt"] = function () -- stacking UA before Deathbolt to gain more benefit from the % damage
-			if not cfg.talents["Deathbolt"] then return nil end
-			if lib.GetSpellCD("Deathbolt")<=3 and cfg.AltPower.now>=3 then
+			--if not cfg.talents["Deathbolt"] then return nil end
+			if lib.GetSpellCD("Deathbolt")<=3 and cfg.AltPower.now>1 then --and cfg.AltPower.now>=3
 				return lib.SimpleCDCheck("Unstable Affliction")
 			end
 			return nil
@@ -551,6 +578,7 @@ lib.AddSpell("Unending Resolve",{104773})
 		lib.CDadd("Dark Soul: Misery")
 		lib.CDadd("Dark Soul: Instability")
 		lib.CDadd("Summon Darkglare")
+		lib.CDadd("Phantom Singularity")
 		lib.CDadd("Summon Infernal")
 		lib.CDadd("Grimoire of Sacrifice")
 		lib.CDadd("Grimoire:Felguard")
