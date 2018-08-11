@@ -407,7 +407,8 @@ lib.classes["SHAMAN"][2] = function() --Enh
 			return lib.SimpleCDCheck("Totem Mastery",lib.GetAura({"Totem Mastery"}))
 		end,
 		["Rockbiter_Landslide"] = function()
-			return lib.SimpleCDCheck("Rockbiter",lib.GetAura({"Landslide"})) and lib.GetSpellCharges("Rockbiter") == 2
+			if lib.GetSpellCharges("Rockbiter") < 2 then return nil end
+			return lib.SimpleCDCheck("Rockbiter",lib.GetAura({"Landslide"}))
 		end,
 		["Rockbiter_70"] = function()
 			if cfg.Power.now<=70 and lib.GetSpellCharges("Rockbiter") == 2 then
