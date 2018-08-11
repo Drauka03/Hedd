@@ -52,7 +52,7 @@ lib.classes["WARLOCK"][1] = function() -- Affliction
 	lib.AddSpell("Haunt",{48181},"target")
 	lib.AddSpell("Health Funnel",{755})
 	lib.AddSpell("Phantom Singularity",{205179},"target")
-	lib.AddSpell("Seed of Corruption",{27243})
+	lib.AddSpell("Seed of Corruption",{27243},"target")
 	lib.AddSpell("Shadow Bolt",{686,232670})
 	lib.AddSpell("Siphon Life",{63106},"target")
 	lib.AddSpell("Summon Darkglare",{205180},"target")
@@ -114,7 +114,7 @@ lib.classes["WARLOCK"][1] = function() -- Affliction
 		end,
 		["Corruption"] = function ()
 			if lib.SpellCasting("Seed of Corruption") then return nil end
-			return lib.SimpleCDCheck("Corruption",lib.GetAura({"Corruption"})-lib.GetAuraRefresh("Corruption"))
+			return lib.SimpleCDCheck("Corruption",math.max(lib.GetAura({"Corruption"})-lib.GetAuraRefresh("Corruption"),lib.GetAura({"Seed of Corruption"})))
 		end,
 		["Drain Soul"] = function ()
 			if not cfg.talents["Drain Soul"] then return nil end
@@ -130,7 +130,7 @@ lib.classes["WARLOCK"][1] = function() -- Affliction
 		["Seed_aoe"] = function ()
 			if lib.SpellCasting("Seed of Corruption") then return nil end
 			if cfg.cleave_targets>=2 then
-				return lib.SimpleCDCheck("Seed of Corruption",lib.GetAura({"Corruption"})-lib.GetAuraRefresh("Corruption"))
+				return lib.SimpleCDCheck("Seed of Corruption",math.max(lib.GetAura({"Corruption"})-lib.GetAuraRefresh("Corruption"),lib.GetAura({"Seed of Corruption"})))
 			end
 			return nil
 		end,
