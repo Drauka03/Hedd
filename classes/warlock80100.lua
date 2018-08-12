@@ -325,6 +325,12 @@ lib.classes["WARLOCK"][2] = function() -- Demonology
 			end
 			return nil
 		end,
+		["Doom"] = function()
+			if lib.GetAura({"Doom"})==0 then
+				return lib.SimpleCDCheck("Doom")
+			end
+			return nil
+		end,
 		["Felguard"] = function()
 			if UnitCreatureFamily("pet") == "Felguard" then return nil end
 			return lib.SimpleCDCheck("Summon Felguard")
