@@ -194,8 +194,11 @@ lib.classpostload["PRIEST"] = function()
 	lib.CD = function()
 		lib.CDadd("Kick")
 		lib.CDadd("Purify Disease")
-		lib.CDadd("Shadowfiend")
-		-- lib.CDadd("Mindbender")
+		if cfg.talents["Mindbender"] then
+			lib.CDadd("Mindbender")
+		else
+			lib.CDadd("Shadowfiend")
+		end
 		lib.CDadd("Dark Ascension")
 		lib.CDadd("Surrender to Madness")
 	end
