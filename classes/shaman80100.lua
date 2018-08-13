@@ -136,7 +136,7 @@ lib.classes["SHAMAN"][1] = function() --Elem
 		end,
 		["Earth Elemental"] = function()
 			if cfg.talents["Primal Elementalist"] and UnitName("pet") == "Primal Fire Elemental" then return nil end
-			if cfg.talents["Primal Elementalist"] and UnitName("pet") == "Fire Elemental" then return nil end
+			if not cfg.talents["Primal Elementalist"] and UnitName("pet") == "Fire Elemental" then return nil end
 			return lib.SimpleCDCheck("Earth Elemental")
 		end,
 		["Earthquake_aoe3"] = function()
@@ -169,6 +169,8 @@ lib.classes["SHAMAN"][1] = function() --Elem
 			return nil
 		end,
 		["Fire Elemental"] = function()
+			if cfg.talents["Primal Elementalist"] and UnitName("pet") == "Primal Earth Elemental" then return nil end
+			if cfg.talents["Primal Elementalist"] and UnitName("pet") == "Earth Elemental" then return nil end
 				return lib.SimpleCDCheck("Fire Elemental")
 		end,
 		["Flame Shock_noFlame Shock"] = function()
@@ -595,17 +597,14 @@ lib.classpostload["SHAMAN"] = function()
 		lib.CDadd("Cleanse")
 		lib.CDadd("Astral Shift")
 		lib.CDadd("Healing Surge")
-		--lib.CDAddCleave("Crash Lightning")
-		--lib.CDAddCleave("Earthquake")
 		lib.CDadd("Stormkeeper")
 		lib.CDadd("Ascendance")
+		lib.CDadd("Earth Elemental")
 		lib.CDadd("Fire Elemental")
 		lib.CDadd("Liquid Magma Totem")
 		lib.CDadd("Lightning Shield")
-		--lib.CDadd("Lightning Bolt")
 		lib.CDadd("Fury of Air")
 		lib.CDadd("Sundering")
-		-- lib.CDadd("Earthen Spike")
 		lib.CDadd("Totem Mastery")
 		lib.CDadd("Feral Spirit")
 		lib.CDaddTimers("Feral Spirit","Feral Spirit",function(self, event, unitID, castid, SpellID)
