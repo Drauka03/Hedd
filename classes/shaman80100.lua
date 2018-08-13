@@ -179,7 +179,7 @@ lib.classes["SHAMAN"][1] = function() --Elem
 		end,
 		["Fire Elemental"] = function()
 			if cfg.talents["Primal Elementalist"] and UnitName("pet") == "Primal Earth Elemental" then return nil end
-			if cfg.talents["Primal Elementalist"] and UnitName("pet") == "Earth Elemental" then return nil end
+			if not cfg.talents["Primal Elementalist"] and UnitName("pet") == "Earth Elemental" then return nil end
 				return lib.SimpleCDCheck("Fire Elemental")
 		end,
 		["Flame Shock_noFlame Shock"] = function()
